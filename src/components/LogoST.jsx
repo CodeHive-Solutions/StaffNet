@@ -1,0 +1,25 @@
+import Box from "@mui/material/Box";
+const LogoST = ({ styles }) => {
+    return (
+        <Box>
+            <p style={styles}>
+                Staff
+                <span>
+                    <b>Net</b>
+                </span>
+            </p>
+        </Box>
+    );
+};
+
+const defaultStyles = {
+    letterSpacing: "9px",
+    fontSize: "2em",
+    margin: "0%",
+    borderTop: "solid 0.15rem",
+    borderBottom: "solid .15rem",
+};
+
+export default function CustomLogoST({ styles = defaultStyles }) {
+    return <LogoST styles={styles} />;
+}
