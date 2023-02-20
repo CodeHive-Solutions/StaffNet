@@ -15,13 +15,20 @@ import Collapse from "@mui/material/Collapse";
 import Snackbar from "@mui/material/Snackbar";
 import CustomLogoST from "./LogoST";
 import LoginIcon from "@mui/icons-material/Login";
+import Cookies from "js-cookie";
 
 const LoginView = ({ handleViewChange }) => {
+    Cookies.set("Hola", "contenido_pruebas", {
+        path: "/",
+        secure: true,
+        httpOnly: true,
+    });
+    Cookies.destroy("Hola")
     const [openSnack, setOpenSnack] = React.useState(false);
-    const [error, setError] = React.useState("")
+    const [error, setError] = React.useState("");
     const handleClickSnack = (error) => {
         setOpenSnack(true);
-        setError(error)
+        setError(error);
     };
 
     const handleClose = (event, reason) => {
@@ -63,38 +70,46 @@ const LoginView = ({ handleViewChange }) => {
         };
         fetch("http://localhost:5000/App", {
             method: "POST",
+            credentials: 'include',
             body: JSON.stringify(dataP),
         })
             .then((response) => {
                 // Check if the response was successful
                 if (!response.ok) {
-                    handleClickSnack(response.statusText)
+                    handleClickSnack(response.statusText);
                     throw Error(response.statusText);
                 }
                 return response.json();
             })
             .then((data) => {
-                console.log(
-                    "conn:",
-                    data.login,
-                    "error",
-                    data.error,
-                );
+                console.log("conn:", data.login, "error", data.error);
                 if (data.login === "success") {
-                    handleViewChange("HomeView");
+                    handleViewChange("PermissionsView");
+
+                    const expirationDate = new Date(Date.now() + 3600000);
+                    console.log(data.username);
+                    Cookies.set("session_id", data.username, {
+                        secure: true,
+                        httpOnly: true,
+                        expires: expirationDate,
+                    });
                 } else {
                     handleClickSnack(data.error);
                 }
             })
             .catch((error) => {
-                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                handleClickSnack(
+                    "Por favor envia este error a desarrollo: " + error.message
+                );
                 console.error("Error:", error.message);
             });
     };
 
     useEffect(() => {
         // Use effect hook to update the username from local storage if it exists
-        setUsername(localStorage.getItem("username"));
+        if (localStorage.getItem("username") != null) {
+            setUsername(localStorage.getItem("username"));
+        }
 
         // Set the date on an interval to change each day the image show it in the loggin
         const intervalId = () => {
@@ -194,9 +209,9 @@ const LoginView = ({ handleViewChange }) => {
                             name="usuario"
                             autoFocus
                             value={username}
-                            onChange={(event) =>
-                                setUsername(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setUsername(event.target.value);
+                            }}
                         />
                         <TextField
                             margin="normal"

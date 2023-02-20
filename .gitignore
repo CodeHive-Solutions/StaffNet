@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 #Cache
-/src/Python/__pycache__
-__pycache__/
+/src/Python/__pycache__/
+src/Python/__pycache__/edit.cpython-311.pyc
+src/Python/__pycache__/login.cpython-311.pyc

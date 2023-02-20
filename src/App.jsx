@@ -1,8 +1,8 @@
 // Import the material-ui components
-import LoginView from "./components/LoginView";
-import HomeView from "./components/HomeView";
-import PermissionsView from "./components/PermissionsView";
-import SingUpView from "./components/SingUpView";
+import LoginView from "./Components/LoginView";
+import HomeView from "./Components/HomeView";
+import PermissionsView from "./Components/PermissionsView";
+import SingUpView from "./Components/SingUpView";
 import { useState } from "react";
 
 // Create a theme for the UI design

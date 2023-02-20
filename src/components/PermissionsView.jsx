@@ -10,16 +10,17 @@ import LogoST from "./LogoST";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
+import Cookies from "js-cookie";
 
 const PermissionsView = ({ handleViewChange }) => {
     const userRef = useRef(null);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const permissions = ["Consultar", "Crear", "Editar", "Deshabilitar"];
     const [openSnack, setOpenSnack] = React.useState(false);
-    const [error, setError] = React.useState("")
+    const [error, setError] = React.useState("");
     const handleClickSnack = (error) => {
         setOpenSnack(true);
-        setError(error)
+        setError(error);
     };
 
     const handleClose = (event, reason) => {
@@ -28,6 +29,9 @@ const PermissionsView = ({ handleViewChange }) => {
     const validate = {
         request: "validate_edit",
     };
+    const sesion = Cookies;
+    console.log(sesion);
+
     fetch("http://localhost:5000", {
         method: "POST",
         body: JSON.stringify(validate),
@@ -49,9 +53,12 @@ const PermissionsView = ({ handleViewChange }) => {
             );
         })
         .catch((error) => {
-            handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+            handleClickSnack(
+                "Por favor envia este error a desarrollo: " + error.message
+            );
             console.error("Error:", error);
         });
+
     const handleSubmit = (event) => {
         event.preventDefault();
         const userValue = userRef.current.value;
@@ -84,7 +91,9 @@ const PermissionsView = ({ handleViewChange }) => {
                 );
             })
             .catch((error) => {
-                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                handleClickSnack(
+                    "Por favor envia este error a desarrollo: " + error.message
+                );
                 console.error("Error:", error);
             });
     };
