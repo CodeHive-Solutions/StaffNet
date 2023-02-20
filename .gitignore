@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#Cache
+/src/Python/__pycache__
+__pycache__/
