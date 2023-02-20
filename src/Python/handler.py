@@ -47,7 +47,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         request = body['request']
         if request == 'login':
-            response, global session = consulta_login(body, conexion, cursor)
+            response, session = consulta_login(body, conexion, cursor)
         elif request == 'edit':
             table = 'users'
             fields = ['permission_consult', 'permission_create',
