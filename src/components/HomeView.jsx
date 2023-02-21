@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -17,6 +18,7 @@ import MoreIcon from "@mui/icons-material/More";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import Fade from '@mui/material/Fade';
 
 function createData(cedula, nombre, celular, correo, estado) {
     return { cedula, nombre, celular, correo, estado };
@@ -127,79 +129,85 @@ const BasicTable = () => {
 };
 
 const HomeView = ({ handleViewChange }) => {
+    const [transition, setTransition] = React.useState(false);
+    useEffect(() => {
+        setTransition(!transition)
+    }, []);
     return (
-        <Container>
-            <Grid item xs={12}>
+        <Fade in={transition}>
+            <Container>
+                <Grid item xs={12}>
+                    <Box
+                        sx={{
+                            my: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                userSelect: "none",
+                            }}
+                        >
+                            <LogoST></LogoST>
+                        </Box>
+                        <Box>
+                            <Button
+                                size="Large"
+                                color="error"
+                                onClick={() => handleViewChange("LoginView")}
+                            >
+                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                    <LogoutIcon></LogoutIcon>
+                                </Box>
+                                Cerrar Sesion
+                            </Button>
+                        </Box>
+                    </Box>
+                </Grid>
                 <Box
                     sx={{
-                        my: 2,
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
+                        justifyContent: "center",
                     }}
                 >
                     <Box
                         sx={{
-                            userSelect: "none",
+                            display: "flex",
+                            width: "500px",
                         }}
                     >
-                        <LogoST></LogoST>
-                    </Box>
-                    <Box>
-                        <Button
-                            size="Large"
-                            color="error"
-                            onClick={() => handleViewChange("LoginView")}
-                        >
-                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                <LogoutIcon></LogoutIcon>
-                            </Box>
-                            Cerrar Sesion
-                        </Button>
+                        <TextField
+                            label="Cedula de ciudadania del empleado"
+                            fullWidth
+                            variant="standard"
+                            sx={{
+                                display: "flex",
+                                textAlign: "center",
+                            }}
+                        ></TextField>
                     </Box>
                 </Box>
-            </Grid>
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                }}
-            >
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button onClick={() => handleViewChange("SingUpView")}>
+                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                            <PersonAddIcon />
+                        </Box>
+                        Añadir
+                    </Button>
+                </Box>
                 <Box
                     sx={{
                         display: "flex",
-                        width: "500px",
+                        width: "100%",
+                        height: 600,
                     }}
                 >
-                    <TextField
-                        label="Cedula de ciudadania del empleado"
-                        fullWidth
-                        variant="standard"
-                        sx={{
-                            display: "flex",
-                            textAlign: "center",
-                        }}
-                    ></TextField>
+                    {BasicTable()}
                 </Box>
-            </Box>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button onClick={() => handleViewChange("SingUpView")}>
-                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                        <PersonAddIcon />
-                    </Box>
-                    Añadir
-                </Button>
-            </Box>
-            <Box
-                sx={{
-                    display: "flex",
-                    width: "100%",
-                    height: 600,
-                }}
-            >
-                {BasicTable()}
-            </Box>
-        </Container>
+            </Container>
+        </Fade>
     );
 };
 

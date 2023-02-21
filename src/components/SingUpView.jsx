@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -9,6 +9,8 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { Pagination } from "@mui/material";
 import TextField from "@mui/material/TextField";
+import Collapse from '@mui/material/Collapse';
+import Fade from '@mui/material/Fade';
 import Link from "@mui/material/Link";
 
 const pageInputs = [
@@ -147,6 +149,11 @@ const totalPages = pageInputs.length;
 const SingUpView = ({ handleViewChange }) => {
     const [formData, setFormData] = useState({});
     const [page, setPage] = useState(1);
+    const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        setOpen(!open)
+    }, []);
 
     const handleFormChange = (event) => {
         const { name, value } = event.target;
@@ -189,96 +196,98 @@ const SingUpView = ({ handleViewChange }) => {
     };
 
     return (
-        <Container>
-            <Box
-                sx={{
-                    my: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                }}
-            >
+        <Fade in={open}>
+            <Container>
                 <Box
                     sx={{
-                        userSelect: "none",
-                    }}
-                >
-                    <Link
-                        color="inherit"
-                        underline="none"
-                        onClick={() => handleViewChange("HomeView")}
-                        sx={{ cursor: "pointer" }}
-                    >
-                        <LogoST></LogoST>
-                    </Link>
-                </Box>
-                <Box>
-                    <Button
-                        size="Large"
-                        color="error"
-                        onClick={() => handleViewChange("LoginView")}
-                    >
-                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                            <LogoutIcon></LogoutIcon>
-                        </Box>
-                        Cerrar Sesion
-                    </Button>
-                </Box>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Typography variant="h3" gutterBottom>
-                    Registrar <b>usuario</b>
-                </Typography>
-            </Box>
-            <Box
-                component={Paper}
-                elevation={10}
-                sx={{
-                    p: "30px",
-                }}
-            >
-                <Box
-                    sx={{
+                        my: 2,
                         display: "flex",
-                        justifyContent: "center",
+                        alignItems: "center",
+                        justifyContent: "space-between",
                     }}
                 >
-                    <Typography variant="h4">
-                        {pageInputs[page - 1].title}
+                    <Box
+                        sx={{
+                            userSelect: "none",
+                        }}
+                    >
+                        <Link
+                            color="inherit"
+                            underline="none"
+                            onClick={() => handleViewChange("HomeView")}
+                            sx={{ cursor: "pointer" }}
+                        >
+                            <LogoST></LogoST>
+                        </Link>
+                    </Box>
+                    <Box>
+                        <Button
+                            size="Large"
+                            color="error"
+                            onClick={() => handleViewChange("LoginView")}
+                        >
+                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                <LogoutIcon></LogoutIcon>
+                            </Box>
+                            Cerrar Sesion
+                        </Button>
+                    </Box>
+                </Box>
+
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
+                    <Typography variant="h3" gutterBottom>
+                        Registrar <b>usuario</b>
                     </Typography>
                 </Box>
                 <Box
-                    component={"form"}
-                    noValidate
-                    onSubmit={handleSubmit}
+                    component={Paper}
+                    elevation={10}
                     sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        flexWrap: "wrap",
-                        height: "25rem",
-                        gap: "10px",
-                        p: "40px",
+                        p: "30px",
                     }}
                 >
-                    {pageInputs[page - 1].inputs.map((field) => (
-                        <TextField
-                            key={field.id}
-                            id={field.id}
-                            label={field.label}
-                            name={field.name}
-                            value={formData[field.name] || ""}
-                            onChange={handleFormChange}
-                        />
-                    ))}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Typography variant="h4">
+                            {pageInputs[page - 1].title}
+                        </Typography>
+                    </Box>
+                    <Box
+                        component={"form"}
+                        noValidate
+                        onSubmit={handleSubmit}
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            flexWrap: "wrap",
+                            height: "25rem",
+                            gap: "10px",
+                            p: "40px",
+                        }}
+                    >
+                        {pageInputs[page - 1].inputs.map((field) => (
+                            <TextField
+                                key={field.id}
+                                id={field.id}
+                                label={field.label}
+                                name={field.name}
+                                value={formData[field.name] || ""}
+                                onChange={handleFormChange}
+                            />
+                        ))}
+                    </Box>
+                    <Pagination
+                        count={totalPages}
+                        page={page}
+                        onChange={handlePageChange}
+                    />
                 </Box>
-                <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={handlePageChange}
-                />
-            </Box>
-        </Container>
+            </Container>
+        </Fade>
     );
 };
 

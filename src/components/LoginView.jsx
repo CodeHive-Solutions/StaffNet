@@ -16,16 +16,31 @@ import Snackbar from "@mui/material/Snackbar";
 import CustomLogoST from "./LogoST";
 import LoginIcon from "@mui/icons-material/Login";
 import Cookies from "js-cookie";
+import Fade from '@mui/material/Fade';
+import LinearProgress from '@mui/material/LinearProgress';
+
 
 const LoginView = ({ handleViewChange }) => {
-    Cookies.set("Hola", "contenido_pruebas", {
+    Cookies.set("Hola", "dasdasdasdasd", {
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "expires": 100
+    });
+    Cookies.set("Adios", "das", {
         path: "/",
         secure: true,
         httpOnly: true,
+        expires: 100
     });
-    Cookies.destroy("Hola")
+    // Cookies.set("Hola", "contenido_pruebas", {
+    //     path: "/", secure: true, httpOnly: true,  // fecha en el pasado 
+    // });
+    // Cookies.destroy("Hola%3")
     const [openSnack, setOpenSnack] = React.useState(false);
     const [error, setError] = React.useState("");
+    const [transition, setTransition] = React.useState(false);
+
     const handleClickSnack = (error) => {
         setOpenSnack(true);
         setError(error);
@@ -48,6 +63,7 @@ const LoginView = ({ handleViewChange }) => {
     const [username, setUsername] = useState("");
     const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
+    const [openLoad, setOpenLoad] = useState(false);
     // State variables for keeping track of the checkbox state, username, date, and collapse state
 
     // Submit function that submits the form data to the server
@@ -106,6 +122,7 @@ const LoginView = ({ handleViewChange }) => {
     };
 
     useEffect(() => {
+        setTransition(!transition)
         // Use effect hook to update the username from local storage if it exists
         if (localStorage.getItem("username") != null) {
             setUsername(localStorage.getItem("username"));
@@ -118,6 +135,9 @@ const LoginView = ({ handleViewChange }) => {
 
         // Return a cleanup function to clear the interval to change each day the image show it in the loggin
         return () => clearInterval(intervalId);
+
+
+
     }, []);
 
     // Get the single digit of the current date
@@ -142,146 +162,151 @@ const LoginView = ({ handleViewChange }) => {
     };
 
     return (
-        <Grid container component="main" sx={{ height: "100vh" }}>
-            <CssBaseline />
+        <Fade in={transition}>
+            <Grid container component="main" sx={{ height: "100vh" }}>
+                <CssBaseline />
 
-            <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                open={openSnack}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                key={{ vertical: "top", horizontal: "center" }}
-            >
-                <Alert
-                    onClose={handleClose}
-                    severity="error"
-                    sx={{ width: "100%" }}
-                >
-                    {error}
-                </Alert>
-            </Snackbar>
-            <Grid
-                item
-                xs={false}
-                sm={4}
-                md={7}
-                sx={{
-                    backgroundImage: `url(${images[numDate]})`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundColor: (t) =>
-                        t.palette.mode === "light"
-                            ? t.palette.grey[50]
-                            : t.palette.grey[900],
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                }}
-            />
-            <Grid
-                item
-                xs={12}
-                sm={8}
-                md={5}
-                component={Paper}
-                elevation={6}
-                square
-            >
-                <Box
-                    sx={{
-                        my: 8,
-                        mx: 4,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                    }}
-                >
-                    <CustomLogoST styles={customStyles}></CustomLogoST>
-                    <Box
-                        component="form"
-                        onSubmit={handleSubmit}
-                        sx={{ mt: 1 }}
-                    >
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="usuario"
-                            label="Nombre de usuario"
-                            name="usuario"
-                            autoFocus
-                            value={username}
-                            onChange={(event) => {
-                                setUsername(event.target.value);
-                            }}
-                        />
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="clave"
-                            label="Contraseña"
-                            type="password"
-                            id="clave"
-                            autoComplete="off"
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    value="remember"
-                                    color="primary"
-                                    checked={rememberUsername}
-                                    onChange={(event) =>
-                                        setRememberUsername(
-                                            event.target.checked
-                                        )
-                                    }
-                                />
-                            }
-                            label="Recuérdame"
-                        />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                        >
-                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                <LoginIcon></LoginIcon>
-                            </Box>
-                            Iniciar Sesion
-                        </Button>
-                        <Button
-                            onClick={() => handleViewChange("PermissionsView")}
-                        >
-                            SH
-                        </Button>
-                        <Button onClick={() => handleViewChange("SingUpView")}>
-                            ALG
-                        </Button>
-                        <Link href="#" onClick={handleClick}>
-                            ¿Has olvidado tu contraseña?
-                        </Link>
-                        <Collapse in={open}>
-                            <Alert severity="info">
-                                En caso de olvido o perdida de la contraseña
-                                contacte con tecnologia para el restablecimiento
-                                de la misma en:{" "}
-                                <a
-                                    href="https://helpdesk.cyc-bpo.com/"
-                                    target="_blank"
-                                    rel="noreferrer noopener"
-                                >
-                                    GLPI
-                                </a>
-                            </Alert>
-                        </Collapse>
-                        <Grid container>
-                            <Grid item xs></Grid>
-                        </Grid>
-                    </Box>
+                <Box sx={{ width: '100%', position: "absolute" }}>
+                    <LinearProgress open={openLoad} />
                 </Box>
+                <Snackbar
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    open={openSnack}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                    key={{ vertical: "top", horizontal: "center" }}
+                >
+                    <Alert
+                        onClose={handleClose}
+                        severity="error"
+                        sx={{ width: "100%" }}
+                    >
+                        {error}
+                    </Alert>
+                </Snackbar>
+                <Grid
+                    item
+                    xs={false}
+                    sm={4}
+                    md={7}
+                    sx={{
+                        backgroundImage: `url(${images[numDate]})`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundColor: (t) =>
+                            t.palette.mode === "light"
+                                ? t.palette.grey[50]
+                                : t.palette.grey[900],
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                    }}
+                />
+                <Grid
+                    item
+                    xs={12}
+                    sm={8}
+                    md={5}
+                    component={Paper}
+                    elevation={6}
+                    square
+                >
+                    <Box
+                        sx={{
+                            my: 8,
+                            mx: 4,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                        }}
+                    >
+                        <CustomLogoST styles={customStyles}></CustomLogoST>
+                        <Box
+                            component="form"
+                            onSubmit={handleSubmit}
+                            sx={{ mt: 1 }}
+                        >
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="usuario"
+                                label="Nombre de usuario"
+                                name="usuario"
+                                autoFocus
+                                value={username}
+                                onChange={(event) => {
+                                    setUsername(event.target.value);
+                                }}
+                            />
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="clave"
+                                label="Contraseña"
+                                type="password"
+                                id="clave"
+                                autoComplete="off"
+                            />
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        value="remember"
+                                        color="primary"
+                                        checked={rememberUsername}
+                                        onChange={(event) =>
+                                            setRememberUsername(
+                                                event.target.checked
+                                            )
+                                        }
+                                    />
+                                }
+                                label="Recuérdame"
+                            />
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                            >
+                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                    <LoginIcon></LoginIcon>
+                                </Box>
+                                Iniciar Sesion
+                            </Button>
+                            <Button
+                                onClick={() => handleViewChange("HomeView")}
+                            >
+                                SH
+                            </Button>
+                            <Button onClick={() => handleViewChange("SingUpView")}>
+                                ALG
+                            </Button>
+                            <Link href="#" onClick={handleClick}>
+                                ¿Has olvidado tu contraseña?
+                            </Link>
+                            <Collapse in={open}>
+                                <Alert severity="info">
+                                    En caso de olvido o perdida de la contraseña
+                                    contacte con tecnologia para el restablecimiento
+                                    de la misma en:{" "}
+                                    <a
+                                        href="https://helpdesk.cyc-bpo.com/"
+                                        target="_blank"
+                                        rel="noreferrer noopener"
+                                    >
+                                        GLPI
+                                    </a>
+                                </Alert>
+                            </Collapse>
+                            <Grid container>
+                                <Grid item xs></Grid>
+                            </Grid>
+                        </Box>
+                    </Box>
+                </Grid>
             </Grid>
-        </Grid>
+        </Fade>
     );
 };
 export default LoginView;
