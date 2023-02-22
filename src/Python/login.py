@@ -1,5 +1,7 @@
 from ldap3 import Server, Connection, SAFE_SYNC,  SUBTREE
 import bcrypt
+from sessions import generate_token
+# from session import start_session
 
 # LDAP
 server = Server('CYC-SERVICES.COM.CO')
@@ -15,7 +17,7 @@ def start_ldap():
 def consulta_login(body, conexion, cursor):
     password = body['password']
     user = body['user']
-    query = "SELECT password, permission_consult, permission_create, permission_edit, permission_disable FROM users WHERE `user` = %s"
+    query = "SELECT password, permission_consult, permission_create, permission_edit, permission_disable, permission_create_admins FROM users WHERE `user` = %s"
     # La coma de user si es necesaria
     cursor.execute(query, (user,))
     result_query = cursor.fetchone()
@@ -24,7 +26,9 @@ def consulta_login(body, conexion, cursor):
         password_bd_encode = bytes(result_query[0], 'utf-8')
         if bcrypt.checkpw(bytes(password, 'utf-8'), password_bd_encode):
             print("Logged by MYSQL")
-            response = {'login': 'success'}
+            token = generate_token(body["user"], result_query[1],
+                                   result_query[2], result_query[3], result_query[4], result_query[5])
+            response = {'login': 'success', 'token': token}
         else:
             status, result, response, _ = consulta_usuario_ad(user, 'name')
             if len(response) >= 4:
@@ -34,10 +38,11 @@ def consulta_login(body, conexion, cursor):
                 try:
                     login = Connection(
                         server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True)
-                    response = {'login': 'success'}
+                    token = generate_token(
+                        body["user"], result_query[1], result_query[2], result_query[3], result_query[4])
+                    response = {'login': 'success', 'token': token}
                     try:
-                        hashed_password = bcrypt.hashpw(
-                            bytes(password, 'utf-8'), bcrypt.gensalt())
+                        hashed_password = encriptar_password(password)
                         consulta = "UPDATE users SET password = '{}' WHERE user = '{}'".format(
                             hashed_password.decode('utf-8'), user)
                         cursor.execute(consulta)
@@ -66,3 +71,9 @@ def consulta_usuario_ad(user, attributes):
     status, result, response, _ = conn.search(
         'dc=CYC-SERVICES,dc=COM,dc=CO', '(sAMAccountName=%s)' % (user), search_scope=SUBTREE,  attributes=attributes)
     return status, result, response, _
+
+
+def encriptar_password(password):
+    hashed_password = bcrypt.hashpw(
+        bytes(password, 'utf-8'), bcrypt.gensalt())
+    return hashed_password

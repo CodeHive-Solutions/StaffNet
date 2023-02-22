@@ -2,7 +2,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
@@ -21,34 +20,16 @@ import LinearProgress from '@mui/material/LinearProgress';
 
 
 const LoginView = ({ handleViewChange }) => {
-    Cookies.set("Hola", "dasdasdasdasd", {
-        "path": "/",
-        "secure": true,
-        "httpOnly": false,
-        "expires": 100
-    });
-    Cookies.set("Adios", "das", {
-        path: "/",
-        secure: true,
-        httpOnly: true,
-        expires: 100
-    });
-    // Cookies.set("Hola", "contenido_pruebas", {
-    //     path: "/", secure: true, httpOnly: true,  // fecha en el pasado 
-    // });
-    // Cookies.destroy("Hola%3")
+
+    // State variables for keeping track of the checkbox state, username, date, and collapse state
+    const [rememberUsername, setRememberUsername] = useState(true);
+    const [username, setUsername] = useState("");
+    const [date, setDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
     const [openSnack, setOpenSnack] = React.useState(false);
     const [error, setError] = React.useState("");
     const [transition, setTransition] = React.useState(false);
-
-    const handleClickSnack = (error) => {
-        setOpenSnack(true);
-        setError(error);
-    };
-
-    const handleClose = (event, reason) => {
-        setOpenSnack(false);
-    };
+    const [progressBar, setProgressBar] = React.useState(false);
 
     // Custom styles to the logo
     const customStyles = {
@@ -59,17 +40,21 @@ const LoginView = ({ handleViewChange }) => {
         userSelect: "none",
     };
 
-    const [rememberUsername, setRememberUsername] = useState(true);
-    const [username, setUsername] = useState("");
-    const [date, setDate] = useState(new Date());
-    const [open, setOpen] = useState(false);
-    const [openLoad, setOpenLoad] = useState(false);
-    // State variables for keeping track of the checkbox state, username, date, and collapse state
+    const handleClickSnack = (error) => {
+        setOpenSnack(true);
+        setError(error);
+    };
+
+    const handleClose = () => {
+        setOpenSnack(false);
+    };
+
 
     // Submit function that submits the form data to the server
     const handleSubmit = (event) => {
         // Prevent the default form submit behavior
         event.preventDefault();
+        setProgressBar(true);
         if (rememberUsername) {
             // If the remember username checkbox is checked, save the username to local storage
             localStorage.setItem("username", username);
@@ -84,6 +69,7 @@ const LoginView = ({ handleViewChange }) => {
             password: `${document.getElementById("clave").value}`,
             user: `${document.getElementById("usuario").value}`,
         };
+
         fetch("http://localhost:5000/App", {
             method: "POST",
             credentials: 'include',
@@ -98,22 +84,25 @@ const LoginView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
+                setProgressBar(false);
                 console.log("conn:", data.login, "error", data.error);
                 if (data.login === "success") {
-                    handleViewChange("PermissionsView");
 
                     const expirationDate = new Date(Date.now() + 3600000);
                     console.log(data.username);
-                    Cookies.set("session_id", data.username, {
+                    Cookies.set("token", data.token, {
                         secure: true,
-                        httpOnly: true,
                         expires: expirationDate,
                     });
+
+                    handleViewChange("PermissionsView");
+                    console.log(data.token)
                 } else {
                     handleClickSnack(data.error);
                 }
             })
             .catch((error) => {
+                setProgressBar(false);
                 handleClickSnack(
                     "Por favor envia este error a desarrollo: " + error.message
                 );
@@ -135,9 +124,6 @@ const LoginView = ({ handleViewChange }) => {
 
         // Return a cleanup function to clear the interval to change each day the image show it in the loggin
         return () => clearInterval(intervalId);
-
-
-
     }, []);
 
     // Get the single digit of the current date
@@ -164,11 +150,12 @@ const LoginView = ({ handleViewChange }) => {
     return (
         <Fade in={transition}>
             <Grid container component="main" sx={{ height: "100vh" }}>
-                <CssBaseline />
 
-                <Box sx={{ width: '100%', position: "absolute" }}>
-                    <LinearProgress open={openLoad} />
-                </Box>
+                <Fade in={progressBar}>
+                    <Box sx={{ width: '100%', position: "absolute" }}>
+                        <LinearProgress open={true} />
+                    </Box>
+                </Fade>
                 <Snackbar
                     anchorOrigin={{ vertical: "top", horizontal: "center" }}
                     open={openSnack}
@@ -231,7 +218,8 @@ const LoginView = ({ handleViewChange }) => {
                                 id="usuario"
                                 label="Nombre de usuario"
                                 name="usuario"
-                                autoFocus
+                                autoComplete="off"
+                                spellCheck={false}
                                 value={username}
                                 onChange={(event) => {
                                     setUsername(event.target.value);
@@ -245,7 +233,10 @@ const LoginView = ({ handleViewChange }) => {
                                 label="Contraseña"
                                 type="password"
                                 id="clave"
+                                autoFocus={true}
+
                                 autoComplete="off"
+                                aria-autocomplete="off"
                             />
 
                             <FormControlLabel

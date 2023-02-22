@@ -1,7 +1,6 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -19,16 +18,18 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Fade from '@mui/material/Fade';
+import LinearProgress from '@mui/material/LinearProgress';
+import Grid from "@mui/material/Grid";
+import Cookies from "js-cookie";
 
 const PermissionsView = ({ handleViewChange }) => {
-    const [transition, setTransition] = React.useState(false);
 
     useEffect(() => {
         setTransition(!transition)
         // Make fetch request to validate session
         const validate = {
-            request: "validate_edit",
-
+            request: "validate_create_admins",
+            token: Cookies.get('token'),
         };
 
         // Fetch validate the session
@@ -58,18 +59,21 @@ const PermissionsView = ({ handleViewChange }) => {
                 );
                 console.error("Error:", error);
             });
-        console.log("Solo una vez")
     }, []);
 
+    const [transition, setTransition] = React.useState(false);
     const [openDialog, setOpenDialog] = React.useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [openSnack, setOpenSnack] = React.useState(false);
+    const [openSnackSession, setOpenSnackSession] = React.useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [open, setOpen] = useState(false);
     const [openSearch, setOpenSearch] = useState(true);
     const [error, setError] = React.useState("");
+    const [progressBar, setProgressBar] = React.useState(false);
+    const [create, setCreate] = React.useState(false);
     const userRef = useRef(null);
-    const permissions = ["Consultar", "Crear", "Editar", "Deshabilitar"];
+    const permissions = ["Consultar", "Crear", "Editar", "Inhabilitar"];
 
     const handleClickSnack = (error) => {
         setOpenSnack(true);
@@ -83,25 +87,31 @@ const PermissionsView = ({ handleViewChange }) => {
             setOpen(!open);
             setIsDisabled(!isDisabled)
             setOpenSearch(!openSearch)
-        }, 230);
-    };
-
-    const handleClickDialog = () => {
-        setOpenDialog(true);
+        }, 250);
     };
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
 
+    const handleClickSnackSession = () => {
+        setOpenSnackSession(true);
+    };
+
+    const handleCloseSession = () => {
+        setOpenSnackSession(false);
+    };
+
     const handleSubmitSearch = (event) => {
         event.preventDefault();
+        setProgressBar(true)
+
         const userValueSearch = userRef.current.value;
         const dataSearch = {
             request: "search",
             username: userValueSearch
         };
-        console.log(userValueSearch)
+
         // Fetch search the windows user
         fetch("http://localhost:5000/App", {
             method: "POST",
@@ -115,6 +125,7 @@ const PermissionsView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
+                setProgressBar(false)
                 console.log(
                     "status:",
                     data.status,
@@ -124,6 +135,7 @@ const PermissionsView = ({ handleViewChange }) => {
                 );
                 if (data.status === "success" && data.info === undefined) {
                     setOpenDialog(true);
+                    setCreate(!create);
                 }
                 if (
                     data.status === "success" && data.info !== undefined) {
@@ -138,7 +150,7 @@ const PermissionsView = ({ handleViewChange }) => {
                         newPermissions.push("Editar");
                     }
                     if (data.info[3] == 1) {
-                        newPermissions.push("Deshabilitar");
+                        newPermissions.push("Inhabilitar");
                     }
                     setSelectedPermissions([...selectedPermissions, ...newPermissions]);
                     setOpen(!open);
@@ -153,6 +165,7 @@ const PermissionsView = ({ handleViewChange }) => {
 
             })
             .catch((error) => {
+                setProgressBar(false)
                 handleClickSnack(
                     "Por favor envia este error a desarrollo: " + error.message
                 );
@@ -175,45 +188,109 @@ const PermissionsView = ({ handleViewChange }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const userValueSubmit = userRef.current.value;
-        console.log("User:", userValueSubmit);
-        console.log("Permissions:", selectedPermissions);
-        // Send a POST request to the server
-        const dataP = {
-            request: "edit",
-            user: userValueSubmit,
-            permissions: selectedPermissions.join(" "),
+
+        const permissionsObject = {
+            consultar: selectedPermissions.includes('Consultar'),
+            crear: selectedPermissions.includes('Crear'),
+            editar: selectedPermissions.includes('Editar'),
+            inhabilitar: selectedPermissions.includes('Inhabilitar'),
         };
-        fetch("http://localhost:5000", {
-            method: "POST",
-            body: JSON.stringify(dataP),
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
+
+        if (create === true) {
+            const dataCreate = {
+                request: "create",
+                user: userValueSubmit,
+                permissions: permissionsObject,
+            };
+            fetch("http://localhost:5000", {
+                method: "POST",
+                body: JSON.stringify(dataCreate),
             })
-            .then((data) => {
-                console.log(
-                    "conn:",
-                    data.login,
-                    "error",
-                    data.error,
-                    typeof data.login
-                );
+                .then((response) => {
+                    // Check if the response was successful
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(
+                        "conn:",
+                        data.login,
+                        "error",
+                        data.error,
+                        typeof data.login
+                    );
+                })
+                .catch((error) => {
+                    handleClickSnack(
+                        "Por favor envia este error a desarrollo: " + error.message
+                    );
+                    console.error("Error:", error);
+                });
+        } else {
+
+            // Send a POST request to the server
+            const dataEdit = {
+                request: "edit",
+                user: userValueSubmit,
+                permissions: permissionsObject,
+            };
+            fetch("http://localhost:5000", {
+                method: "POST",
+                body: JSON.stringify(dataEdit),
             })
-            .catch((error) => {
-                handleClickSnack(
-                    "Por favor envia este error a desarrollo: " + error.message
-                );
-                console.error("Error:", error);
-            });
+                .then((response) => {
+                    // Check if the response was successful
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(
+                        "conn:",
+                        data.login,
+                        "error",
+                        data.error,
+                        typeof data.login
+                    );
+                })
+                .catch((error) => {
+                    handleClickSnack(
+                        "Por favor envia este error a desarrollo: " + error.message
+                    );
+                    console.error("Error:", error);
+                });
+        }
     };
 
     return (
         <Fade in={transition}>
-            <Container>
+            <Grid container component="main" sx={{ height: "100vh" }}>
+                <Snackbar
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    open={openSnackSession}
+                    onClose={handleCloseSession}
+                >
+                    <Alert
+                        severity="warning"
+                        onClose={handleCloseSession}
+                        sx={{ width: "100%" }}
+                    >
+                        ¿Esta seguro que desea cerrar sesion?
+                        <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
+                            <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
+                                Confirmar
+                            </Button>
+                        </Box>
+                    </Alert>
+                </Snackbar>
+                <Fade in={progressBar}>
+                    <Box sx={{ width: '100%', position: "absolute" }}>
+                        <LinearProgress open={true} />
+                    </Box>
+                </Fade>
                 <Dialog
                     open={openDialog}
                     onClose={handleCloseDialog}
@@ -230,7 +307,7 @@ const PermissionsView = ({ handleViewChange }) => {
                     </DialogContent>
                     <DialogActions>
                         <Button color={"error"} onClick={handleCloseDialog}>Descartar</Button>
-                        <Button onClick={handleClickModal} autoFocus>
+                        <Button onClick={handleClickModal} autoFocus={true}>
                             Continuar
                         </Button>
                     </DialogActions>
@@ -241,7 +318,6 @@ const PermissionsView = ({ handleViewChange }) => {
                     open={openSnack}
                     autoHideDuration={6000}
                     onClose={handleClose}
-                    key={{ vertical: "top", horizontal: "center" }}
                 >
                     <Alert
                         onClose={handleClose}
@@ -251,133 +327,138 @@ const PermissionsView = ({ handleViewChange }) => {
                         {error}
                     </Alert>
                 </Snackbar>
-                <Box
-                    sx={{
-                        my: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                    }}
-                >
+
+                <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
                     <Box
                         sx={{
-                            userSelect: "none",
+                            my: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            px: 15,
                         }}
                     >
-                        <LogoST></LogoST>
-                    </Box>
-                    <Box>
-                        <Button
-                            size="Large"
-                            color="error"
-                            onClick={() => handleViewChange("LoginView")}
-                        >
-                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                <LogoutIcon></LogoutIcon>
-                            </Box>
-                            Cerrar Sesion
-                        </Button>
-                    </Box>
-                </Box>
-
-                <Box sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "80vh",
-                }}>
-
-                    <Box component="form"
-                        onSubmit={handleSubmitSearch}
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "15px"
-                        }}>
-
-                        <TextField
+                        <Box
                             sx={{
-                                width: "550px",
+                                userSelect: "none",
                             }}
-                            id="user"
-                            label="Usuario de windows"
-                            variant="standard"
-                            inputRef={userRef}
-                            disabled={isDisabled}
-                        />
-
+                        >
+                            <LogoST></LogoST>
+                        </Box>
                         <Box>
-                            <Collapse in={openSearch}>
-                                <Button type="submit">
-                                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                        <PersonSearchIcon />
-                                    </Box>
-                                    Buscar
-                                </Button>
-                            </Collapse>
+                            <Button
+                                size="Large"
+                                color="error"
+                                onClick={() => handleClickSnackSession()}
+                            >
+                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                    <LogoutIcon></LogoutIcon>
+                                </Box>
+                                Cerrar Sesion
+                            </Button>
                         </Box>
                     </Box>
 
-                    <Collapse in={open}>
-                        <Box
-                            component="form"
-                            onSubmit={handleSubmit}
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "80vh",
+                    }}>
+
+                        <Box component="form"
+                            onSubmit={handleSubmitSearch}
                             sx={{
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
-                                height: "150px",
-                                gap: "15px",
-                            }}
-                        >
+                                gap: "15px"
+                            }}>
+
+                            <TextField
+                                sx={{
+                                    width: "550px",
+                                }}
+                                id="user"
+                                label="Usuario de windows"
+                                variant="standard"
+                                inputRef={userRef}
+                                disabled={isDisabled}
+                                autoComplete="off"
+                            />
 
                             <Box>
-                                <Autocomplete
-                                    multiple
-                                    onChange={(event, value) => {
-                                        setSelectedPermissions(value)
-                                    }
-                                    }
-                                    value={selectedPermissions}
-                                    id="multiple-limit-tags"
-                                    options={permissions}
-                                    getOptionLabel={(permissions) => permissions}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Permisos"
-                                            placeholder="Permisos"
-                                        />
-                                    )}
-                                    sx={{ width: "570px" }}
-                                />
-                            </Box>
-                            <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-                                <Box>
-                                    <Button type="button" color="error" onClick={handleClear}>
-                                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                            <CancelIcon />
-                                        </Box>
-                                        Cancelar
-                                    </Button>
-                                </Box>
-                                <Box>
+                                <Collapse in={openSearch}>
                                     <Button type="submit">
                                         <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                            <SaveIcon />
+                                            <PersonSearchIcon />
                                         </Box>
-                                        Guardar
+                                        Buscar
                                     </Button>
-                                </Box>
+                                </Collapse>
                             </Box>
                         </Box>
-                    </Collapse>
+
+                        <Collapse in={open}>
+                            <Box
+                                component="form"
+                                onSubmit={handleSubmit}
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    height: "150px",
+                                    gap: "15px",
+                                }}
+                            >
+
+                                <Box>
+                                    <Autocomplete
+                                        multiple
+                                        onChange={(event, value) => {
+                                            setSelectedPermissions(value)
+                                        }
+                                        }
+                                        value={selectedPermissions}
+                                        id="multiple-limit-tags"
+                                        options={permissions}
+                                        getOptionLabel={(permissions) => permissions}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Permisos"
+                                                placeholder="Permisos"
+                                            />
+                                        )}
+                                        sx={{ width: "570px" }}
+                                    />
+                                </Box>
+                                <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+                                    <Box>
+                                        <Button type="button" color="error" onClick={handleClear}>
+                                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                                <CancelIcon />
+                                            </Box>
+                                            Cancelar
+                                        </Button>
+                                    </Box>
+                                    <Box>
+                                        <Button type="submit">
+                                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                                <SaveIcon />
+                                            </Box>
+                                            Guardar
+                                        </Button>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </Collapse>
+                    </Box>
                 </Box>
-            </Container>
+            </Grid>
         </Fade>
     );
 };

@@ -19,12 +19,119 @@ import PersonOffIcon from "@mui/icons-material/PersonOff";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from '@mui/material/Fade';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 function createData(cedula, nombre, celular, correo, estado) {
     return { cedula, nombre, celular, correo, estado };
 }
 
 const rows = [
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
+    createData(
+        1234567890,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        "Activo"
+    ),
     createData(
         1234567890,
         "Ejemplo Nombre Completo",
@@ -69,7 +176,7 @@ const BasicTable = () => {
     return (
         <TableContainer
             component={Paper}
-            elevation={3}
+            elevation={0}
             sx={{ marginTop: "30px" }}
         >
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -129,13 +236,45 @@ const BasicTable = () => {
 };
 
 const HomeView = ({ handleViewChange }) => {
+
     const [transition, setTransition] = React.useState(false);
+    const [openSnack, setOpenSnack] = React.useState(false);
+
+    const handleClickSnack = () => {
+        setOpenSnack(true);
+    };
+
+    const handleClose = () => {
+        setOpenSnack(false);
+    };
+
     useEffect(() => {
         setTransition(!transition)
     }, []);
     return (
         <Fade in={transition}>
+            
             <Container>
+                <Snackbar
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    open={openSnack}
+                    onClose={handleClose}
+                    key={{ vertical: "top", horizontal: "center" }}
+                >
+                    <Alert
+                        severity="warning"
+                        onClose={handleClose}
+                        sx={{ width: "100%" }}
+                    >
+                        ¿Esta seguro que desea cerrar sesion?
+                        <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
+                            <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
+                                Confirmar
+                            </Button>
+                        </Box>
+                    </Alert>
+                </Snackbar>
+
                 <Grid item xs={12}>
                     <Box
                         sx={{
@@ -156,7 +295,7 @@ const HomeView = ({ handleViewChange }) => {
                             <Button
                                 size="Large"
                                 color="error"
-                                onClick={() => handleViewChange("LoginView")}
+                                onClick={() => handleClickSnack()}
                             >
                                 <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                                     <LogoutIcon></LogoutIcon>

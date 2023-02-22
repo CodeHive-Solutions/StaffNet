@@ -3,10 +3,11 @@ import threading
 import socketserver
 import json
 import mysql.connector
+from insert import insert
 from login import consulta_login
 from edit import edit
 from search import search
-from http.cookiejar import Cookie, CookieJar
+from sessions import verify_token
 # Port number to use for the server
 PORT = 5000
 
@@ -22,10 +23,10 @@ def conexion_mysql():
             password="*4b0g4d0s4s*",
             database='StaffNet'
         )
+        global cursor
+        cursor = conexion.cursor()
     except Exception as err:
         print(err)
-    global cursor
-    cursor = conexion.cursor()
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -38,36 +39,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     # Handle POST requests
     def do_POST(self):
-        # Recepcion de cookies
-        cookie_str = self.headers.get('Cookie')
-        print(self.headers)
-        print("galletas: ", cookie_str)
-        cj = CookieJar()
-        # if cookie_str is not None:
-        #     # Parse the cookies
-        #     cookies = {}
-        #     for item in cookie_str.split(';'):
-        #         name, value = item.strip().split('=', 1)
-        #         cookies[name] = value
-        #     my_cookie = cookies.get('Hola')
-        #     # Asignate the cookie
-        #     if my_cookie:
-        #         cookie = Cookie(version=0, name='Hola', value=my_cookie, port=None, port_specified=False,
-        #                         domain='example.com', domain_specified=True, domain_initial_dot=False,
-        #                         path='/', path_specified=True,
-        #                         secure=False,
-        #                         expires=None,
-        #                         discard=False,
-        #                         comment=None,
-        #                         comment_url=None,
-        #                         rest={},
-        #                         rfc2109=False)
-        #         cj.set_cookie(cookie)
-        #         print("Cookie: ", cj)
         conexion_mysql()
         # Get the content length of the request body
         content_length = int(self.headers.get('Content-Length', 0))
-        print("Content-Length: ", content_length)
         # Read the request body and convert in a JSON object
         body = json.loads(self.rfile.read(content_length))
         # Log the request data
@@ -80,25 +54,34 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         request = body['request']
         if request == 'login':
             response = consulta_login(body, conexion, cursor)
+
         elif request == 'search':
             parametros = (body['username'],)
             print("Tipo: ", type(parametros))
             response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
                               'WHERE user = %s', parametros, cursor, True, body['username'])
+
         elif request == 'edit':
-            table = 'users'
-            fields = ['permission_consult', 'permission_create',
-                      'permission_edit', 'permission_disable']
-            values = ["body['']"]
-            response = edit(body, conexion, cursor, table, fields, values)
+            table = "users"
+            fields = "permission_consult", "permission_create", "permission_edit", "permission_disable"
+            condition = "WHERE user = %s"
+            parameters = (body["permissions"]["consultar"], body["permissions"]["crear"], body[
+                "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
+            response = edit(table, fields,
+                            condition, parameters, conexion, cursor)
+
         elif request == 'create':
-            print()
-        elif request == 'validate_edit':
-            response = 200
-            # parametros = "cookie"
-            # response = search('permission_create', 'users',
-            #                   'WHERE user = %s', parametros, cursor, False, "")
+            parameters = (body["user"], body["permissions"]["consultar"], body["permissions"]["crear"], body[
+                "permissions"]["editar"], body["permissions"]["inhabilitar"],)
+            columns = ("user", "permission_consult",
+                       "permission_create", "permission_edit", "permission_disable")
+            response = insert('users', columns, parameters, conexion, cursor)
+
+        elif request == 'validate_create_admins':
+            print("llega a validar")
+            response = verify_token(body["token"], "create_admins")
         # Enviar respuesta
+        print("Respuesta: ", response)
         self.wfile.write(json.dumps(response).encode())
 
 
