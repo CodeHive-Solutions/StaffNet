@@ -94,8 +94,12 @@ const LoginView = ({ handleViewChange }) => {
                         secure: true,
                         expires: expirationDate,
                     });
+                    if (data.create_admins) {
+                        handleViewChange("PermissionsView")
+                    } else {
+                        handleViewChange("HomeView");
+                    }
 
-                    handleViewChange("PermissionsView");
                     console.log(data.token)
                 } else {
                     handleClickSnack(data.error);
@@ -266,7 +270,7 @@ const LoginView = ({ handleViewChange }) => {
                                 Iniciar Sesion
                             </Button>
                             <Button
-                                onClick={() => handleViewChange("HomeView")}
+                                onClick={() => handleViewChange("PermissionsView")}
                             >
                                 SH
                             </Button>

@@ -52,6 +52,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         # Manejar la petición
         request = body['request']
+        if request != 'login':
+            token = body['token']
         if request == 'login':
             response = consulta_login(body, conexion, cursor)
 
@@ -78,8 +80,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             response = insert('users', columns, parameters, conexion, cursor)
 
         elif request == 'validate_create_admins':
-            print("llega a validar")
-            response = verify_token(body["token"], "create_admins")
+            validate = verify_token(body["token"], "create_admins")
+            if validate:
+                response = {'status': 'success'}
+            else:
+                response = {'status': 'False'}
+        elif request == 'validate_consult':
+            if verify_token(body["token"], "consult"):
+                response = {'status': 'success'}
+            else:
+                response = {'status': 'False'}
         # Enviar respuesta
         print("Respuesta: ", response)
         self.wfile.write(json.dumps(response).encode())

@@ -21,6 +21,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from '@mui/material/Fade';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Cookies from "js-cookie";
 
 function createData(cedula, nombre, celular, correo, estado) {
     return { cedula, nombre, celular, correo, estado };
@@ -34,111 +35,111 @@ const rows = [
         "ejemplocorreo@gmail.com",
         "Activo"
     ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        "Activo"
-    ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
+    // createData(
+    //     1234567890,
+    //     "Ejemplo Nombre Completo",
+    //     1234567890,
+    //     "ejemplocorreo@gmail.com",
+    //     "Activo"
+    // ),
 ];
 
 const handleInhabilitate = (cedula) => {
@@ -146,10 +147,10 @@ const handleInhabilitate = (cedula) => {
     console.log(`Inhabilitate register with cedula ${cedula}`);
 
     // Send a POST request to the server
-    const data = { cedula };
+    const dataP = { cedula };
     fetch("http://localhost:5000/App", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataP),
     })
         .then((response) => {
             // Check if the response was successful
@@ -248,106 +249,137 @@ const HomeView = ({ handleViewChange }) => {
         setOpenSnack(false);
     };
 
+    const [access, setAccess] = useState(false)
     useEffect(() => {
+        const validate = {
+            request: "validate_consult",
+            token: Cookies.get('token'),
+        };
+
+        // Fetch validate the session
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(validate),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                if (data.status !== "False") {
+                    setAccess(true);
+                } else {
+                    handleViewChange("LoginView");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
         setTransition(!transition)
     }, []);
-    return (
-        <Fade in={transition}>
-            
-            <Container>
-                <Snackbar
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                    open={openSnack}
-                    onClose={handleClose}
-                    key={{ vertical: "top", horizontal: "center" }}
-                >
-                    <Alert
-                        severity="warning"
-                        onClose={handleClose}
-                        sx={{ width: "100%" }}
-                    >
-                        ¿Esta seguro que desea cerrar sesion?
-                        <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
-                            <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
-                                Confirmar
-                            </Button>
-                        </Box>
-                    </Alert>
-                </Snackbar>
+    if (access) {
+        return (
+            <Fade in={transition}>
 
-                <Grid item xs={12}>
+                <Container>
+                    <Snackbar
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                        open={openSnack}
+                        onClose={handleClose}
+                        key={{ vertical: "top", horizontal: "center" }}
+                    >
+                        <Alert
+                            severity="warning"
+                            onClose={handleClose}
+                            sx={{ width: "100%" }}
+                        >
+                            ¿Esta seguro que desea cerrar sesion?
+                            <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
+                                <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
+                                    Confirmar
+                                </Button>
+                            </Box>
+                        </Alert>
+                    </Snackbar>
+
+                    <Grid item xs={12}>
+                        <Box
+                            sx={{
+                                my: 2,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    userSelect: "none",
+                                }}
+                            >
+                                <LogoST></LogoST>
+                            </Box>
+                            <Box>
+                                <Button
+                                    size="Large"
+                                    color="error"
+                                    onClick={() => handleClickSnack()}
+                                >
+                                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                        <LogoutIcon></LogoutIcon>
+                                    </Box>
+                                    Cerrar Sesion
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Grid>
                     <Box
                         sx={{
-                            my: 2,
                             display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
                         }}
                     >
                         <Box
                             sx={{
-                                userSelect: "none",
+                                display: "flex",
+                                width: "500px",
                             }}
                         >
-                            <LogoST></LogoST>
-                        </Box>
-                        <Box>
-                            <Button
-                                size="Large"
-                                color="error"
-                                onClick={() => handleClickSnack()}
-                            >
-                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                    <LogoutIcon></LogoutIcon>
-                                </Box>
-                                Cerrar Sesion
-                            </Button>
+                            <TextField
+                                label="Cedula de ciudadania del empleado"
+                                fullWidth
+                                variant="standard"
+                                sx={{
+                                    display: "flex",
+                                    textAlign: "center",
+                                }}
+                            ></TextField>
                         </Box>
                     </Box>
-                </Grid>
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                    }}
-                >
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <Button onClick={() => handleViewChange("SingUpView")}>
+                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                <PersonAddIcon />
+                            </Box>
+                            Añadir
+                        </Button>
+                    </Box>
                     <Box
                         sx={{
                             display: "flex",
-                            width: "500px",
+                            width: "100%",
+                            height: 600,
                         }}
                     >
-                        <TextField
-                            label="Cedula de ciudadania del empleado"
-                            fullWidth
-                            variant="standard"
-                            sx={{
-                                display: "flex",
-                                textAlign: "center",
-                            }}
-                        ></TextField>
+                        {BasicTable()}
                     </Box>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button onClick={() => handleViewChange("SingUpView")}>
-                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                            <PersonAddIcon />
-                        </Box>
-                        Añadir
-                    </Button>
-                </Box>
-                <Box
-                    sx={{
-                        display: "flex",
-                        width: "100%",
-                        height: 600,
-                    }}
-                >
-                    {BasicTable()}
-                </Box>
-            </Container>
-        </Fade>
-    );
+                </Container>
+            </Fade>
+        );
+    }
 };
 
 export default HomeView;

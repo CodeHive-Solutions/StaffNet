@@ -21,8 +21,11 @@ import Fade from '@mui/material/Fade';
 import LinearProgress from '@mui/material/LinearProgress';
 import Grid from "@mui/material/Grid";
 import Cookies from "js-cookie";
+import Header from "./Header";
 
 const PermissionsView = ({ handleViewChange }) => {
+
+    const [access, setAccess] = useState(false);
 
     useEffect(() => {
         setTransition(!transition)
@@ -45,13 +48,12 @@ const PermissionsView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
-                console.log(
-                    "status:",
-                    data.status,
-                    "error",
-                    data.error,
-
-                );
+                console.log(data);
+                if (data.status !== "False") {
+                    setAccess(true);
+                } else {
+                    handleViewChange("LoginView");
+                }
             })
             .catch((error) => {
                 handleClickSnack(
@@ -65,7 +67,6 @@ const PermissionsView = ({ handleViewChange }) => {
     const [openDialog, setOpenDialog] = React.useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [openSnack, setOpenSnack] = React.useState(false);
-    const [openSnackSession, setOpenSnackSession] = React.useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [open, setOpen] = useState(false);
     const [openSearch, setOpenSearch] = useState(true);
@@ -94,14 +95,6 @@ const PermissionsView = ({ handleViewChange }) => {
         setOpenDialog(false);
     };
 
-    const handleClickSnackSession = () => {
-        setOpenSnackSession(true);
-    };
-
-    const handleCloseSession = () => {
-        setOpenSnackSession(false);
-    };
-
     const handleSubmitSearch = (event) => {
         event.preventDefault();
         setProgressBar(true)
@@ -109,13 +102,15 @@ const PermissionsView = ({ handleViewChange }) => {
         const userValueSearch = userRef.current.value;
         const dataSearch = {
             request: "search",
-            username: userValueSearch
+            username: userValueSearch,
+            token: Cookies.get('token'),
         };
 
         // Fetch search the windows user
         fetch("http://localhost:5000/App", {
             method: "POST",
             body: JSON.stringify(dataSearch),
+
         })
             .then((response) => {
                 // Check if the response was successful
@@ -201,6 +196,7 @@ const PermissionsView = ({ handleViewChange }) => {
                 request: "create",
                 user: userValueSubmit,
                 permissions: permissionsObject,
+                token: Cookies.get('token'),
             };
             fetch("http://localhost:5000", {
                 method: "POST",
@@ -235,6 +231,7 @@ const PermissionsView = ({ handleViewChange }) => {
                 request: "edit",
                 user: userValueSubmit,
                 permissions: permissionsObject,
+                token: Cookies.get('token'),
             };
             fetch("http://localhost:5000", {
                 method: "POST",
@@ -265,202 +262,160 @@ const PermissionsView = ({ handleViewChange }) => {
         }
     };
 
-    return (
-        <Fade in={transition}>
-            <Grid container component="main" sx={{ height: "100vh" }}>
-                <Snackbar
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                    open={openSnackSession}
-                    onClose={handleCloseSession}
-                >
-                    <Alert
-                        severity="warning"
-                        onClose={handleCloseSession}
-                        sx={{ width: "100%" }}
-                    >
-                        ¿Esta seguro que desea cerrar sesion?
-                        <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
-                            <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
-                                Confirmar
-                            </Button>
+    if (access === true) {
+        return (
+            <Fade in={transition}>
+                <Grid container component="main" sx={{ height: "100vh" }}>
+                    <Fade in={progressBar}>
+                        <Box sx={{ width: '100%', position: "absolute" }}>
+                            <LinearProgress open={true} />
                         </Box>
-                    </Alert>
-                </Snackbar>
-                <Fade in={progressBar}>
-                    <Box sx={{ width: '100%', position: "absolute" }}>
-                        <LinearProgress open={true} />
-                    </Box>
-                </Fade>
-                <Dialog
-                    open={openDialog}
-                    onClose={handleCloseDialog}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle sx={{ textAlign: "center" }} id="alert-dialog-title">
-                        {"¿Desea crear este usuario en el sistema?"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText sx={{ textAlign: "center" }} id="alert-dialog-description">
-                            El usuario consultado no se encuentra registrado en nuestro sistema. ¿Desea crearlo?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button color={"error"} onClick={handleCloseDialog}>Descartar</Button>
-                        <Button onClick={handleClickModal} autoFocus={true}>
-                            Continuar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                    </Fade>
 
-                <Snackbar
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                    open={openSnack}
-                    autoHideDuration={6000}
-                    onClose={handleClose}
-                >
-                    <Alert
+                    <Dialog
+                        open={openDialog}
+                        onClose={handleCloseDialog}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle sx={{ textAlign: "center" }} id="alert-dialog-title">
+                            {"¿Desea crear este usuario en el sistema?"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText sx={{ textAlign: "center" }} id="alert-dialog-description">
+                                El usuario consultado no se encuentra registrado en nuestro sistema. ¿Desea crearlo?
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button color={"error"} onClick={handleCloseDialog}>Descartar</Button>
+                            <Button onClick={handleClickModal} autoFocus={true}>
+                                Continuar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Snackbar
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                        open={openSnack}
+                        autoHideDuration={6000}
                         onClose={handleClose}
-                        severity="error"
-                        sx={{ width: "100%" }}
                     >
-                        {error}
-                    </Alert>
-                </Snackbar>
-
-                <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                    <Box
-                        sx={{
-                            my: 2,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            px: 15,
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                userSelect: "none",
-                            }}
+                        <Alert
+                            onClose={handleClose}
+                            severity="error"
+                            sx={{ width: "100%" }}
                         >
-                            <LogoST></LogoST>
-                        </Box>
-                        <Box>
-                            <Button
-                                size="Large"
-                                color="error"
-                                onClick={() => handleClickSnackSession()}
-                            >
-                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                    <LogoutIcon></LogoutIcon>
-                                </Box>
-                                Cerrar Sesion
-                            </Button>
-                        </Box>
-                    </Box>
+                            {error}
+                        </Alert>
+                    </Snackbar>
 
-                    <Box sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "80vh",
-                    }}>
 
-                        <Box component="form"
-                            onSubmit={handleSubmitSearch}
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                gap: "15px"
-                            }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                        <Header handleViewChange={handleViewChange}></Header>
 
-                            <TextField
-                                sx={{
-                                    width: "550px",
-                                }}
-                                id="user"
-                                label="Usuario de windows"
-                                variant="standard"
-                                inputRef={userRef}
-                                disabled={isDisabled}
-                                autoComplete="off"
-                            />
+                        <Box sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: "70%"
+                        }}>
 
-                            <Box>
-                                <Collapse in={openSearch}>
-                                    <Button type="submit">
-                                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                            <PersonSearchIcon />
-                                        </Box>
-                                        Buscar
-                                    </Button>
-                                </Collapse>
-                            </Box>
-                        </Box>
-
-                        <Collapse in={open}>
-                            <Box
-                                component="form"
-                                onSubmit={handleSubmit}
+                            <Box component="form"
+                                onSubmit={handleSubmitSearch}
                                 sx={{
                                     display: "flex",
                                     flexDirection: "column",
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    height: "150px",
-                                    gap: "15px",
-                                }}
-                            >
+                                    gap: "15px"
+                                }}>
+
+                                <TextField
+                                    sx={{
+                                        width: "550px",
+                                    }}
+                                    id="user"
+                                    label="Usuario de windows"
+                                    variant="standard"
+                                    inputRef={userRef}
+                                    disabled={isDisabled}
+                                    autoComplete="off"
+                                />
 
                                 <Box>
-                                    <Autocomplete
-                                        multiple
-                                        onChange={(event, value) => {
-                                            setSelectedPermissions(value)
-                                        }
-                                        }
-                                        value={selectedPermissions}
-                                        id="multiple-limit-tags"
-                                        options={permissions}
-                                        getOptionLabel={(permissions) => permissions}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Permisos"
-                                                placeholder="Permisos"
-                                            />
-                                        )}
-                                        sx={{ width: "570px" }}
-                                    />
-                                </Box>
-                                <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-                                    <Box>
-                                        <Button type="button" color="error" onClick={handleClear}>
-                                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                                <CancelIcon />
-                                            </Box>
-                                            Cancelar
-                                        </Button>
-                                    </Box>
-                                    <Box>
+                                    <Collapse in={openSearch}>
                                         <Button type="submit">
                                             <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                                <SaveIcon />
+                                                <PersonSearchIcon />
                                             </Box>
-                                            Guardar
+                                            Buscar
                                         </Button>
-                                    </Box>
+                                    </Collapse>
                                 </Box>
                             </Box>
-                        </Collapse>
+
+                            <Collapse in={open}>
+                                <Box
+                                    component="form"
+                                    onSubmit={handleSubmit}
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        height: "150px",
+                                        gap: "15px",
+                                    }}
+                                >
+
+                                    <Box>
+                                        <Autocomplete
+                                            multiple
+                                            onChange={(event, value) => {
+                                                setSelectedPermissions(value)
+                                            }
+                                            }
+                                            value={selectedPermissions}
+                                            id="multiple-limit-tags"
+                                            options={permissions}
+                                            getOptionLabel={(permissions) => permissions}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Permisos"
+                                                    placeholder="Permisos"
+                                                />
+                                            )}
+                                            sx={{ width: "570px" }}
+                                        />
+                                    </Box>
+                                    <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+                                        <Box>
+                                            <Button type="button" color="error" onClick={handleClear}>
+                                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                                    <CancelIcon />
+                                                </Box>
+                                                Cancelar
+                                            </Button>
+                                        </Box>
+                                        <Box>
+                                            <Button type="submit">
+                                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                                    <SaveIcon />
+                                                </Box>
+                                                Guardar
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            </Collapse>
+                        </Box>
                     </Box>
-                </Box>
-            </Grid>
-        </Fade>
-    );
+                </Grid>
+            </Fade>
+        );
+    }
 };
 
 export default PermissionsView;

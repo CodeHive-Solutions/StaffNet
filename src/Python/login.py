@@ -26,9 +26,11 @@ def consulta_login(body, conexion, cursor):
         password_bd_encode = bytes(result_query[0], 'utf-8')
         if bcrypt.checkpw(bytes(password, 'utf-8'), password_bd_encode):
             print("Logged by MYSQL")
-            token = generate_token(body["user"], result_query[1],
-                                   result_query[2], result_query[3], result_query[4], result_query[5])
-            response = {'login': 'success', 'token': token}
+            payload = {"username": user, "consult": result_query[1],
+                       "create": result_query[2], "edit": result_query[3], "disable": result_query[4], 'create_admins': result_query[5]}
+            token = generate_token(payload)
+            response = {'login': 'success', 'token': token,
+                        'create_admins': result_query[5]}
         else:
             status, result, response, _ = consulta_usuario_ad(user, 'name')
             if len(response) >= 4:
@@ -40,7 +42,8 @@ def consulta_login(body, conexion, cursor):
                         server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True)
                     token = generate_token(
                         body["user"], result_query[1], result_query[2], result_query[3], result_query[4])
-                    response = {'login': 'success', 'token': token}
+                    response = {'login': 'success', 'token': token,
+                                'create_admins': result_query[5]}
                     try:
                         hashed_password = encriptar_password(password)
                         consulta = "UPDATE users SET password = '{}' WHERE user = '{}'".format(
