@@ -1,11 +1,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import LogoST from "./LogoST";
-import LogoutIcon from "@mui/icons-material/Logout";
 import TextField from "@mui/material/TextField";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -19,9 +16,8 @@ import PersonOffIcon from "@mui/icons-material/PersonOff";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from '@mui/material/Fade';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import Cookies from "js-cookie";
+import Header from "./Header";
 
 function createData(cedula, nombre, celular, correo, estado) {
     return { cedula, nombre, celular, correo, estado };
@@ -239,15 +235,6 @@ const BasicTable = () => {
 const HomeView = ({ handleViewChange }) => {
 
     const [transition, setTransition] = React.useState(false);
-    const [openSnack, setOpenSnack] = React.useState(false);
-
-    const handleClickSnack = () => {
-        setOpenSnack(true);
-    };
-
-    const handleClose = () => {
-        setOpenSnack(false);
-    };
 
     const [access, setAccess] = useState(false)
     useEffect(() => {
@@ -281,61 +268,12 @@ const HomeView = ({ handleViewChange }) => {
             });
         setTransition(!transition)
     }, []);
+    
     if (access) {
         return (
             <Fade in={transition}>
-
                 <Container>
-                    <Snackbar
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                        open={openSnack}
-                        onClose={handleClose}
-                        key={{ vertical: "top", horizontal: "center" }}
-                    >
-                        <Alert
-                            severity="warning"
-                            onClose={handleClose}
-                            sx={{ width: "100%" }}
-                        >
-                            ¿Esta seguro que desea cerrar sesion?
-                            <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
-                                <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
-                                    Confirmar
-                                </Button>
-                            </Box>
-                        </Alert>
-                    </Snackbar>
-
-                    <Grid item xs={12}>
-                        <Box
-                            sx={{
-                                my: 2,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    userSelect: "none",
-                                }}
-                            >
-                                <LogoST></LogoST>
-                            </Box>
-                            <Box>
-                                <Button
-                                    size="Large"
-                                    color="error"
-                                    onClick={() => handleClickSnack()}
-                                >
-                                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                        <LogoutIcon></LogoutIcon>
-                                    </Box>
-                                    Cerrar Sesion
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Grid>
+                    <Header handleViewChange={handleViewChange}></Header>
                     <Box
                         sx={{
                             display: "flex",

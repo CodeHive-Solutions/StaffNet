@@ -14,7 +14,8 @@ def start_ldap():
     return conn, server
 
 
-def consulta_login(body, conexion, cursor):
+def consulta_login(body, conexion):
+    cursor = conexion.cursor()
     password = body['password']
     user = body['user']
     query = "SELECT password, permission_consult, permission_create, permission_edit, permission_disable, permission_create_admins FROM users WHERE `user` = %s"

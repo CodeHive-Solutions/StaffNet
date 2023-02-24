@@ -5,8 +5,6 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import SaveIcon from "@mui/icons-material/Save";
-import LogoST from "./LogoST";
-import LogoutIcon from "@mui/icons-material/Logout";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import Collapse from '@mui/material/Collapse';
@@ -19,9 +17,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Fade from '@mui/material/Fade';
 import LinearProgress from '@mui/material/LinearProgress';
-import Grid from "@mui/material/Grid";
 import Cookies from "js-cookie";
 import Header from "./Header";
+import Container from '@mui/material/Container';
+import SnackAlert from "./SnackAlert";
 
 const PermissionsView = ({ handleViewChange }) => {
 
@@ -67,6 +66,8 @@ const PermissionsView = ({ handleViewChange }) => {
     const [openDialog, setOpenDialog] = React.useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [openSnack, setOpenSnack] = React.useState(false);
+    const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
+    const [openSnackAlert2, setOpenSnackAlert2] = React.useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [open, setOpen] = useState(false);
     const [openSearch, setOpenSearch] = useState(true);
@@ -80,6 +81,15 @@ const PermissionsView = ({ handleViewChange }) => {
         setOpenSnack(true);
         setError(error);
     };
+
+    const handleCloseSnack = () => {
+        setOpenSnackAlert(false);
+    };
+
+    const handleCloseSnack2 = () => {
+        setOpenSnackAlert2(false);
+    };
+
 
     const handleClickModal = () => {
         setOpenDialog(false);
@@ -217,6 +227,8 @@ const PermissionsView = ({ handleViewChange }) => {
                         data.error,
                         typeof data.login
                     );
+                    setOpenSnackAlert2(true);
+                    handleClear()
                 })
                 .catch((error) => {
                     handleClickSnack(
@@ -252,6 +264,8 @@ const PermissionsView = ({ handleViewChange }) => {
                         data.error,
                         typeof data.login
                     );
+                    setOpenSnackAlert(true);
+                    handleClear()
                 })
                 .catch((error) => {
                     handleClickSnack(
@@ -264,72 +278,65 @@ const PermissionsView = ({ handleViewChange }) => {
 
     if (access === true) {
         return (
-            <Fade in={transition}>
-                <Grid container component="main" sx={{ height: "100vh" }}>
-                    <Fade in={progressBar}>
-                        <Box sx={{ width: '100%', position: "absolute" }}>
-                            <LinearProgress open={true} />
-                        </Box>
-                    </Fade>
+            <>
+                <Fade in={progressBar}>
+                    <Box sx={{ width: '100%', position: "absolute" }}>
+                        <LinearProgress open={true} />
+                    </Box>
+                </Fade>
 
-                    <Dialog
-                        open={openDialog}
-                        onClose={handleCloseDialog}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle sx={{ textAlign: "center" }} id="alert-dialog-title">
-                            {"¿Desea crear este usuario en el sistema?"}
-                        </DialogTitle>
-                        <DialogContent>
-                            <DialogContentText sx={{ textAlign: "center" }} id="alert-dialog-description">
-                                El usuario consultado no se encuentra registrado en nuestro sistema. ¿Desea crearlo?
-                            </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button color={"error"} onClick={handleCloseDialog}>Descartar</Button>
-                            <Button onClick={handleClickModal} autoFocus={true}>
-                                Continuar
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
+                <Fade in={transition}>
+                    <Container>
 
-                    <Snackbar
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                        open={openSnack}
-                        autoHideDuration={6000}
-                        onClose={handleClose}
-                    >
-                        <Alert
-                            onClose={handleClose}
-                            severity="error"
-                            sx={{ width: "100%" }}
+                        <SnackAlert severity={"success"} message={"Edicion realizada correctamente"} open={openSnackAlert} close={handleCloseSnack}></SnackAlert>
+
+                        <SnackAlert severity={"success"} message={"Creacion realizada correctamente"} open={openSnackAlert2} close={handleCloseSnack2}></SnackAlert>
+
+                        <Dialog
+                            open={openDialog}
+                            onClose={handleCloseDialog}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
                         >
-                            {error}
-                        </Alert>
-                    </Snackbar>
+                            <DialogTitle sx={{ textAlign: "center" }} id="alert-dialog-title">
+                                {"¿Desea crear este usuario en el sistema?"}
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText sx={{ textAlign: "center" }} id="alert-dialog-description">
+                                    El usuario consultado no se encuentra registrado en nuestro sistema. ¿Desea crearlo?
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button color={"error"} onClick={handleCloseDialog}>Descartar</Button>
+                                <Button onClick={handleClickModal} autoFocus={true}>
+                                    Continuar
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
 
+                        <Snackbar
+                            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                            open={openSnack}
+                            autoHideDuration={6000}
+                            onClose={handleClose}
+                        >
+                            <Alert
+                                onClose={handleClose}
+                                severity="error"
+                                sx={{ width: "100%" }}
+                            >
+                                {error}
+                            </Alert>
+                        </Snackbar>
 
-                    <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
                         <Header handleViewChange={handleViewChange}></Header>
 
-                        <Box sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            height: "70%"
-                        }}>
 
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", height: "75vh" }}>
                             <Box component="form"
                                 onSubmit={handleSubmitSearch}
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    gap: "15px"
-                                }}>
+                                sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}
+                            >
 
                                 <TextField
                                     sx={{
@@ -355,6 +362,7 @@ const PermissionsView = ({ handleViewChange }) => {
                                 </Box>
                             </Box>
 
+
                             <Collapse in={open}>
                                 <Box
                                     component="form"
@@ -364,8 +372,8 @@ const PermissionsView = ({ handleViewChange }) => {
                                         flexDirection: "column",
                                         justifyContent: "center",
                                         alignItems: "center",
-                                        height: "150px",
                                         gap: "15px",
+                                        heigh: "100%"
                                     }}
                                 >
 
@@ -390,6 +398,7 @@ const PermissionsView = ({ handleViewChange }) => {
                                             sx={{ width: "570px" }}
                                         />
                                     </Box>
+
                                     <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
                                         <Box>
                                             <Button type="button" color="error" onClick={handleClear}>
@@ -399,6 +408,7 @@ const PermissionsView = ({ handleViewChange }) => {
                                                 Cancelar
                                             </Button>
                                         </Box>
+
                                         <Box>
                                             <Button type="submit">
                                                 <Box sx={{ display: "flex", paddingRight: ".5em" }}>
@@ -407,13 +417,18 @@ const PermissionsView = ({ handleViewChange }) => {
                                                 Guardar
                                             </Button>
                                         </Box>
+
                                     </Box>
+
                                 </Box>
+
                             </Collapse>
                         </Box>
-                    </Box>
-                </Grid>
-            </Fade>
+
+                    </Container>
+
+                </Fade>
+            </>
         );
     }
 };

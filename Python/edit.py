@@ -1,5 +1,6 @@
 
-def edit(tabla, campos, condicion, params, conexion, cursor):
+def edit(tabla, campos, condicion, params, conexion):
+    cursor = conexion.cursor()
     results = run_query(tabla, campos, condicion, conexion, cursor, params)
     response = process_query(results)
     return response

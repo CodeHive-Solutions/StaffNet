@@ -1,6 +1,7 @@
 
-def insert(tabla, columna, params, conexion, cursor):
+def insert(tabla, columna, params, conexion):
     """Recuerda mandar los datos encerrados por comillas dobles y no simples, el valor "columna" debe ser "" si insertaras valores para cada campo, por el contrario debes especificar las columnas si no es asi."""
+    cursor = conexion.cursor()
     results = run_query(tabla, columna, params, conexion, cursor)
     response = process_query(results)
     return response

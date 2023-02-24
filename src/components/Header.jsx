@@ -5,7 +5,6 @@ import LogoST from "./LogoST"
 import LogoutIcon from "@mui/icons-material/Logout";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { height } from "@mui/system";
 
 const Header = (handleViewChange) => {
     handleViewChange = handleViewChange.handleViewChange
@@ -43,11 +42,10 @@ const Header = (handleViewChange) => {
 
             <Box
                 sx={{
-                    my: 2,
+                    py: 2,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    px: 15,
                     width: "100%",
                 }}
             >
