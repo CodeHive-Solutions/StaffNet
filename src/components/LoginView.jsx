@@ -270,7 +270,7 @@ const LoginView = ({ handleViewChange }) => {
                                 Iniciar Sesion
                             </Button>
                             <Button
-                                onClick={() => handleViewChange("PermissionsView")}
+                                onClick={() => handleViewChange("HomeView")}
                             >
                                 SH
                             </Button>

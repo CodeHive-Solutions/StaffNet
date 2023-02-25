@@ -4,16 +4,24 @@ import Button from "@mui/material/Button"
 import LogoST from "./LogoST"
 import LogoutIcon from "@mui/icons-material/Logout";
 import Alert from "@mui/material/Alert";
+import Link from "@mui/material/Link";
 import Snackbar from "@mui/material/Snackbar";
+import Cookies from "js-cookie";
 
-const Header = (handleViewChange) => {
-    handleViewChange = handleViewChange.handleViewChange
+const Header = ({ handleViewChange, logoRedirection }) => {
+
+    console.log(noHome)
 
     const [openSnackSession, setOpenSnackSession] = React.useState(false);
 
     const handleCloseSession = () => {
         setOpenSnackSession(false);
     };
+
+    const closeSesion = () => {
+        Cookies.remove("token")
+        handleViewChange("LoginView")
+    }
 
     const handleClickSnackSession = () => {
         setOpenSnackSession(true);
@@ -33,7 +41,7 @@ const Header = (handleViewChange) => {
                 >
                     ¿Esta seguro que desea cerrar sesion?
                     <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
-                        <Button color="inherit" onClick={() => handleViewChange("LoginView")}>
+                        <Button color="inherit" onClick={() => closeSesion()}>
                             Confirmar
                         </Button>
                     </Box>
@@ -54,7 +62,14 @@ const Header = (handleViewChange) => {
                         userSelect: "none",
                     }}
                 >
-                    <LogoST></LogoST>
+                    <Link
+                        color="inherit"
+                        underline="none"
+                        onClick={() => handleViewChange(logoRedirection)}
+                        sx={{ cursor: cursorType }}
+                    >
+                        <LogoST></LogoST>
+                    </Link>
                 </Box>
                 <Box>
                     <Button

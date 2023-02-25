@@ -143,7 +143,10 @@ const handleInhabilitate = (cedula) => {
     console.log(`Inhabilitate register with cedula ${cedula}`);
 
     // Send a POST request to the server
-    const dataP = { cedula };
+    const dataP = {
+        request: "inhabilitate",
+        cedula: cedula,
+    };
     fetch("http://localhost:5000/App", {
         method: "POST",
         body: JSON.stringify(dataP),

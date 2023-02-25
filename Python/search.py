@@ -1,7 +1,7 @@
 from login import consulta_usuario_ad
 
 
-def search(campos, tabla, condicion, params, cursor, active_directory, user_ad):
+def search(campos, tabla, condicion, params, cursor, active_directory=None, user_ad=None):
     results = run_query(campos, tabla, condicion, cursor, params)
     response = process_query(results, active_directory, user_ad)
     return response

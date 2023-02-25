@@ -111,7 +111,7 @@ const PermissionsView = ({ handleViewChange }) => {
 
         const userValueSearch = userRef.current.value;
         const dataSearch = {
-            request: "search",
+            request: "search_user_ad",
             username: userValueSearch,
             token: Cookies.get('token'),
         };
@@ -140,7 +140,8 @@ const PermissionsView = ({ handleViewChange }) => {
                 );
                 if (data.status === "success" && data.info === undefined) {
                     setOpenDialog(true);
-                    setCreate(!create);
+                    console.log("entrea?")
+                    setCreate(true);
                 }
                 if (
                     data.status === "success" && data.info !== undefined) {
@@ -188,6 +189,8 @@ const PermissionsView = ({ handleViewChange }) => {
         setIsDisabled(!isDisabled)
         setOpenSearch(!openSearch)
         setSelectedPermissions([]);
+        setCreate(false);
+        console.log(create)
     };
 
     const handleSubmit = (event) => {
@@ -201,6 +204,7 @@ const PermissionsView = ({ handleViewChange }) => {
             inhabilitar: selectedPermissions.includes('Inhabilitar'),
         };
 
+        console.log(create)
         if (create === true) {
             const dataCreate = {
                 request: "create",
@@ -266,6 +270,7 @@ const PermissionsView = ({ handleViewChange }) => {
                     );
                     setOpenSnackAlert(true);
                     handleClear()
+                    console.log(userRef.current.value)
                 })
                 .catch((error) => {
                     handleClickSnack(
@@ -329,7 +334,7 @@ const PermissionsView = ({ handleViewChange }) => {
                             </Alert>
                         </Snackbar>
 
-                        <Header handleViewChange={handleViewChange}></Header>
+                        <Header noHome={true} handleViewChange={handleViewChange} currentView={currentView} ></Header>
 
 
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", height: "75vh" }}>

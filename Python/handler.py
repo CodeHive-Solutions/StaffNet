@@ -8,7 +8,7 @@ from login import consulta_login
 from edit import edit
 from search import search
 from sessions import verify_token
-from transaction import transaction
+from transaction import insert_or_update_transaction
 # Port number to use for the server
 PORT = 5000
 
@@ -71,11 +71,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             else:
                 response = {'status': 'False'}
 
-        elif request == 'search':
-            parametros = (body['username'],)
-            print("Tipo: ", type(parametros))
+        elif request == 'search_user_ad':
+            print(len(body))
+            username = (body['username'],)
             response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
-                              'WHERE user = %s', parametros, cursor, True, body['username'])
+                              'WHERE user = %s', username, cursor, True, body['username'])
 
         elif request == 'edit':
             table = "users"
@@ -84,7 +84,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             parameters = (body["permissions"]["consultar"], body["permissions"]["crear"], body[
                 "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
             response = edit(table, fields,
-                            condition, parameters, conexion, cursor)
+                            condition, parameters, conexion)
 
         elif request == 'create':
             parameters = (body["user"], body["permissions"]["consultar"], body["permissions"]["crear"], body[
@@ -93,7 +93,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                        "permission_create", "permission_edit", "permission_disable")
             response = insert('users', columns, parameters, conexion)
 
-        elif request == "transaction":
+        elif request == "insert_transaction":
+
             info_tables = {
                 "personal_information": {
                     "cedula": body["cedula"], "nombre": body["nombre"], "fecha_nacimiento": body["fecha_nacimiento"],
@@ -149,7 +150,68 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     "estado": body["estado"]
                 }
             }
-            response = transaction(conexion, info_tables)
+            response = insert_or_update_transaction(conexion, info_tables)
+        elif request == "update_transaction":
+            info_tables = {
+                "personal_information": {
+                    "cedula": body["cedula"], "nombre": body["nombre"], "fecha_nacimiento": body["fecha_nacimiento"],
+                    "genero": body["genero"], "edad": body["edad"], "rh": body["rh"],
+                    "estado_civil": body["estado_civil"], "hijos": body["hijos"], "personas_a_cargo": body["personas_a_cargo"],
+                    "estrato": body["estrato"], "tel_fijo": body["tel_fijo"], "celular": body["celular"],
+                    "correo": body["correo"], "direccion": body["direccion"], "barrio": body["barrio"],
+                    "contacto_emergencia": body["contacto_emergencia"], "parentesco": body["parentesco"], "tel_contacto": body["tel_contacto"]},
+                "educational_information": {
+                    "cedula": body["cedula"],
+                    "nivel_escolaridad": body["nivel_escolaridad"],
+                    "profesion": body["profesion"],
+                    "estudios_en_curso": body["estudios_en_curso"]
+                },
+                "employment_information": {
+                    "cedula": body["cedula"], "fecha_afiliacion": body["fecha_afiliacion"], "eps": body["eps"],
+                    "pension": body["pension"], "cesantias": body["cesantias"], "cambio_eps_pension_fecha": body["cambio_eps_pension_fecha"],
+                    "cuenta_nomina": body["cuenta_nomina"], "fecha_ingreso": body["fecha_ingreso"], "cargo": body["cargo"],
+                    "gerencia": body["gerencia"], "campana_general": body["campana_general"], "area_negocio": body["area_negocio"],
+                    "tipo_contrato": body["tipo_contrato"], "salario_2023": body["salario_2023"], "subsidio_transporte_2023": body["subsidio_transporte_2023"],
+                    "fecha_cambio_campana_periodo_prueba": body["fecha_cambio_campana_periodo_prueba"]
+                },
+                "performance_evaluation": {
+                    "cedula": body["cedula"],
+                    "desempeno_1_sem_2016": body["desempeno_1_sem_2016"],
+                    "desempeno_2_sem_2016": body["desempeno_2_sem_2016"],
+                    "desempeno_2017": body["desempeno_2017"],
+                    "desempeno_2018": body["desempeno_2018"],
+                    "desempeno_2019": body["desempeno_2019"],
+                    "desempeno_2020": body["desempeno_2020"],
+                    "desempeno_2021": body["desempeno_2021"]
+                },
+                "disciplinary_actions": {
+                    "cedula": body["cedula"],
+                    "llamado_atencion": body["llamado_atencion"],
+                    "memorando_1": body["memorando_1"],
+                    "memorando_2": body["memorando_2"],
+                    "memorando_3": body["memorando_3"]
+                },
+                "vacation_information": {
+                    "cedula": body["cedula"],
+                    "licencia_no_remunerada": body["licencia_no_remunerada"],
+                    "periodo_tomado_vacaciones": body["periodo_tomado_vacaciones"],
+                    "periodos_faltantes_vacaciones": body["periodos_faltantes_vacaciones"],
+                    "fecha_salida_vacaciones": body["fecha_salida_vacaciones"],
+                    "fecha_ingreso_vacaciones": body["fecha_ingreso_vacaciones"]
+                },
+                "leave_information": {
+                    "cedula": body["cedula"],
+                    "fecha_retiro": body["fecha_retiro"],
+                    "tipo_de_retiro": body["tipo_de_retiro"],
+                    "motivo_de_retiro": body["motivo_de_retiro"],
+                    "estado": body["estado"]
+                }
+            }
+            response = insert_or_update_transaction(
+                conexion, info_tables, "cedula")
+        elif request == "inhabilitate":
+            response = edit("leave_information", "estado",
+                            "WHERE cedula = %s", body["cedula"], conexion)
         # Enviar respuesta
         print("Respuesta: ", response)
         self.wfile.write(json.dumps(response).encode())
