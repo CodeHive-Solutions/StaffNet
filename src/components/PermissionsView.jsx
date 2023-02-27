@@ -334,7 +334,7 @@ const PermissionsView = ({ handleViewChange }) => {
                             </Alert>
                         </Snackbar>
 
-                        <Header noHome={true} handleViewChange={handleViewChange} currentView={currentView} ></Header>
+                        <Header handleViewChange={handleViewChange} logoRedirection={"PermissionsView"} ></Header>
 
 
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", height: "75vh" }}>
@@ -344,6 +344,7 @@ const PermissionsView = ({ handleViewChange }) => {
                             >
 
                                 <TextField
+                                    autoFocus
                                     sx={{
                                         width: "550px",
                                     }}

@@ -18,6 +18,8 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from '@mui/material/Fade';
 import Cookies from "js-cookie";
 import Header from "./Header";
+import PersonIcon from '@mui/icons-material/Person';
+import Switch from '@mui/material/Switch';
 
 function createData(cedula, nombre, celular, correo, estado) {
     return { cedula, nombre, celular, correo, estado };
@@ -25,19 +27,19 @@ function createData(cedula, nombre, celular, correo, estado) {
 
 const rows = [
     createData(
+        1000065648,
+        "Ejemplo Nombre Completo",
+        1234567890,
+        "ejemplocorreo@gmail.com",
+        0
+    ),
+    createData(
         1234567890,
         "Ejemplo Nombre Completo",
         1234567890,
         "ejemplocorreo@gmail.com",
-        "Activo"
+        1
     ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
     // createData(
     //     1234567890,
     //     "Ejemplo Nombre Completo",
@@ -138,14 +140,15 @@ const rows = [
     // ),
 ];
 
-const handleInhabilitate = (cedula) => {
+const handleInhabilitate = () => {
     // Do something with the cedula, like send it to the server to update the database
-    console.log(`Inhabilitate register with cedula ${cedula}`);
-
+    console.log(`Inhabilitate register with cedula 1`, "switch: ", document.getElementById('Switch').checked);
     // Send a POST request to the server
     const dataP = {
-        request: "inhabilitate",
-        cedula: cedula,
+        request: "change_state",
+        cedula: 1000065648,
+        token: Cookies.get('token'),
+        change_to: document.getElementById('Switch').checked,
     };
     fetch("http://localhost:5000/App", {
         method: "POST",
@@ -159,26 +162,24 @@ const handleInhabilitate = (cedula) => {
             return response.json();
         })
         .then((data) => {
-            console.log(
-                "conn:",
-                data.login,
-                "error",
-                data.error,
-                typeof data.login
-            );
+            console.log(data);
         })
         .catch((error) => {
             console.error("Error:", error);
         });
 };
 
+
+
 const BasicTable = () => {
     return (
+
         <TableContainer
             component={Paper}
             elevation={0}
             sx={{ marginTop: "30px" }}
         >
+
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                     <TableRow>
@@ -186,10 +187,9 @@ const BasicTable = () => {
                         <TableCell align="center">Nombre</TableCell>
                         <TableCell align="center">Celular</TableCell>
                         <TableCell align="center">Correo</TableCell>
-                        <TableCell align="center">Estado</TableCell>
                         <TableCell align="center">Detalles</TableCell>
                         <TableCell align="center">Editar</TableCell>
-                        <TableCell align="center">Inhabilitar</TableCell>
+                        <TableCell align="center">Estado</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -206,7 +206,6 @@ const BasicTable = () => {
                             <TableCell align="center">{row.nombre}</TableCell>
                             <TableCell align="center">{row.celular}</TableCell>
                             <TableCell align="center">{row.correo}</TableCell>
-                            <TableCell align="center">{row.estado}</TableCell>
                             <TableCell align="center">
                                 <Button title="Detalles">
                                     <MoreIcon></MoreIcon>
@@ -218,28 +217,42 @@ const BasicTable = () => {
                                 </Button>
                             </TableCell>
                             <TableCell align="center">
-                                <Button
-                                    title="Inhabilitar"
-                                    onClick={() =>
-                                        handleInhabilitate(row.cedula)
-                                    }
-                                >
-                                    <PersonOffIcon></PersonOffIcon>
-                                </Button>
+                                {true ? console.log("sirve") : console.log("No")}
+                                <Switch defaultChecked id="Switch" onClick={(event) => { handleInhabilitate() }} />
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
+                {/* <TableFooter>
+                    <TableRow>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                            colSpan={3}
+                            count={rows.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            SelectProps={{
+                                inputProps: {
+                                    'aria-label': 'rows per page',
+                                },
+                                native: true,
+                            }}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            ActionsComponent={TablePaginationActions}
+                        />
+                    </TableRow>
+                </TableFooter> */}
             </Table>
         </TableContainer>
     );
 };
-
 const HomeView = ({ handleViewChange }) => {
 
     const [transition, setTransition] = React.useState(false);
-
     const [access, setAccess] = useState(false)
+    const [employees, setEmployees] = useState(false)
+
     useEffect(() => {
         const validate = {
             request: "validate_consult",
@@ -270,13 +283,43 @@ const HomeView = ({ handleViewChange }) => {
                 console.error("Error:", error);
             });
         setTransition(!transition)
+
+        const consult = {
+            request: "search_employees",
+            token: Cookies.get('token'),
+        };
+
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(consult),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data, "Este");
+                if (data.status !== "False") {
+                    console.log(data.data[0][4])
+                    document.getElementById("Switch").display = false
+                    setEmployees(data.data[0][4]);
+                } else {
+                    handleViewChange("LoginView");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     }, []);
-    
+
     if (access) {
         return (
             <Fade in={transition}>
                 <Container>
-                    <Header handleViewChange={handleViewChange}></Header>
+                    <Header handleViewChange={handleViewChange} logoRedirection={"HomeView"}></Header>
                     <Box
                         sx={{
                             display: "flex",
@@ -290,6 +333,7 @@ const HomeView = ({ handleViewChange }) => {
                             }}
                         >
                             <TextField
+                                autoFocus
                                 label="Cedula de ciudadania del empleado"
                                 fullWidth
                                 variant="standard"

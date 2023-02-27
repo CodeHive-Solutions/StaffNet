@@ -8,9 +8,7 @@ import Link from "@mui/material/Link";
 import Snackbar from "@mui/material/Snackbar";
 import Cookies from "js-cookie";
 
-const Header = ({ handleViewChange, logoRedirection }) => {
-
-    console.log(noHome)
+const Header = ({ handleViewChange, logoRedirection, pointer }) => {
 
     const [openSnackSession, setOpenSnackSession] = React.useState(false);
 
@@ -26,6 +24,12 @@ const Header = ({ handleViewChange, logoRedirection }) => {
     const handleClickSnackSession = () => {
         setOpenSnackSession(true);
     };
+
+    let pointerMouse = "pointer"
+
+    if (pointer === undefined) {
+        pointerMouse = "default"
+    }
 
     return (
         <>
@@ -66,7 +70,7 @@ const Header = ({ handleViewChange, logoRedirection }) => {
                         color="inherit"
                         underline="none"
                         onClick={() => handleViewChange(logoRedirection)}
-                        sx={{ cursor: cursorType }}
+                        sx={{ cursor: pointerMouse }}
                     >
                         <LogoST></LogoST>
                     </Link>

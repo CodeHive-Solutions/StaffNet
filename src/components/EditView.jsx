@@ -11,17 +11,23 @@ import Fade from '@mui/material/Fade';
 import Header from "./Header";
 import MenuItem from '@mui/material/MenuItem';
 import SaveIcon from '@mui/icons-material/Save';
+import SnackAlert from "./SnackAlert";
 
 const pageInputs = [
     // Inputs Pagina Información Personal
     {
         title: "Información Personal",
         inputs: [
-            { id: "1", label: "Cedula", name: "cedula", type: "number" },
-            { id: "2", label: "Nombre", name: "nombre", type: "text" },
+            { id: "1", label: "Cedula", name: "cedula", type: "number", tab: 1 },
+            { id: "2", label: "Nombre", name: "nombre", type: "text", tab: 3 },
             { id: "3", label: "Fecha de nacimiento", name: "fecha_nacimiento", type: "date", shrink: true },
-            { id: "4", label: "Genero", name: "genero", type: "text" },
-            { id: "5", label: "Edad", name: "edad", type: "number" },
+            {
+                id: "4", label: "Genero", name: "genero", type: "select", options: [
+                    { value: 'Femenino', label: 'Femenino' },
+                    { value: 'Masculino', label: 'Masculino' },
+                ]
+            },
+            { id: "5", label: "Edad", name: "edad", type: "number", tab: 2 },
             {
                 id: "7", label: "RH", name: "rh", type: "select", options: [
                     { value: 'O+', label: 'O+' },
@@ -32,11 +38,6 @@ const pageInputs = [
                     { value: 'AB-', label: 'AB-' },
                 ]
             },
-        ],
-    },
-    {
-        title: "Información Personal",
-        inputs: [
             {
                 id: "8", label: "Estado Civil", name: "estado_civil", type: "select", options: [
                     { value: 'Soltero', label: 'Soltero' },
@@ -60,11 +61,6 @@ const pageInputs = [
             },
             { id: "11", label: "Telefono Fijo", name: "tel_fijo", type: "number" },
             { id: "12", label: "Celular", name: "celular", type: "text" },
-        ],
-    },
-    {
-        title: "Información Personal",
-        inputs: [
             { id: "13", label: "Correo", name: "correo", type: "email" },
             { id: "14", label: "Direccion", name: "direccion", type: "text" },
             { id: "15", label: "Barrio", name: "barrio", type: "text" },
@@ -73,6 +69,7 @@ const pageInputs = [
             { id: "18", label: "Telefono de contacto", name: "tel_contacto", type: "number" },
         ],
     },
+
     // Inputs Pagina Información Educativa
     {
         title: "Información Educativa",
@@ -91,11 +88,6 @@ const pageInputs = [
             { id: "pension", label: "Pension", name: "pension", type: "number" },
             { id: "cesantias", label: "Cesantias", name: "cesantias", type: "number" },
             { id: "cambio_eps_pension_fecha", label: "Cambio de eps y fecha de pension", name: "cambio_eps_pension_fecha", type: "date", shrink: true },
-        ],
-    },
-    {
-        title: "Información Empleado",
-        inputs: [
             { id: "cuenta_nomina", label: "Cuenta nomina", name: "cuenta_nomina", type: "number" },
             { id: "fecha_ingreso", label: "Fecha de ingreso", name: "fecha_ingreso", type: "date", shrink: true },
             {
@@ -184,11 +176,6 @@ const pageInputs = [
                     { value: 'Banco Agrario', label: "Banco Agrario" },
                 ]
             },
-        ],
-    },
-    {
-        title: "Información Empleado",
-        inputs: [
             { id: "area_negocio", label: "Area de negocio", name: "area_negocio", type: "text" },
             {
                 id: "tipo_contrato", label: "Tipo de contrato", name: "tipo_contrato", type: "select", options: [
@@ -207,6 +194,7 @@ const pageInputs = [
             { id: "fecha_cambio_campana_periodo_prueba", label: "Fecha de cambio de campaña y periodo de prueba", name: "fecha_cambio_campana_periodo_prueba", type: "date", shrink: true },
         ],
     },
+
 
     // Inputs Pagina Evaluacion de Desempeño
     {
@@ -289,14 +277,19 @@ const pageInputs = [
 
 const totalPages = pageInputs.length;
 
-const SingUpView = ({ handleViewChange }) => {
+const EditView = ({ handleViewChange }) => {
     const [formData, setFormData] = useState({});
     const [page, setPage] = useState(1);
     const [open, setOpen] = useState(false);
+    const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
 
     useEffect(() => {
         setOpen(!open)
     }, []);
+
+    const handleCloseSnack = () => {
+        setOpenSnackAlert(false);
+    };
 
     const handleFormChange = (event) => {
         const { name, value } = event.target;
@@ -313,6 +306,10 @@ const SingUpView = ({ handleViewChange }) => {
 
 
     const handleSubmit = (event) => {
+        setOpenSnackAlert(true);
+        handleViewChange("HomeView")
+
+        setPage(1);
         event.preventDefault();
         formData.request = "insert_transaction"
 
@@ -336,12 +333,12 @@ const SingUpView = ({ handleViewChange }) => {
     return (
         <Fade in={open}>
             <Container>
-
+                <SnackAlert severity={"success"} message={"Edicion realizada correctamente"} open={openSnackAlert} close={handleCloseSnack}></SnackAlert>
                 <Header handleViewChange={handleViewChange} logoRedirection={"HomeView"} pointer={true}></Header>
 
                 <Box sx={{ display: "flex", justifyContent: "center" }}>
                     <Typography variant="h3" gutterBottom>
-                        Registrar <b>Usuarios</b>
+                        Editar <b>Usuarios</b>
                     </Typography>
                 </Box>
                 <Box
@@ -363,8 +360,9 @@ const SingUpView = ({ handleViewChange }) => {
                     </Box>
                     <Box component="form" onSubmit={handleSubmit} sx={{
                         display: "flex",
-                        height: "100%",
+                        height: "25rem",
                         flexDirection: "column",
+                        flexWrap: "wrap",
                         gap: "10px",
                         p: "40px",
                     }}>
@@ -379,7 +377,7 @@ const SingUpView = ({ handleViewChange }) => {
                                         name={input.name}
                                         onChange={handleFormChange}
                                         variant="outlined"
-                                        required
+                                        tabIndex={input.tab}
                                     >
                                         {
                                             input.options.map((option) => (
@@ -401,11 +399,10 @@ const SingUpView = ({ handleViewChange }) => {
                                         value={formData[input.name] || ''}
                                         name={input.name}
                                         type={input.type}
+                                        tabIndex={input.tab}
                                         onChange={handleFormChange}
                                         inputProps={{ min: "0" }}
-                                        required
                                         variant="outlined"
-                                        width="100px"
                                     />
                                 );
                             }
@@ -419,11 +416,8 @@ const SingUpView = ({ handleViewChange }) => {
                             </Button>
                         )}
                     </Box>
-
                     <Pagination
-                        sx={{
-                            display: "flex", width: "100%", justifyContent: "center"
-                        }}
+                        sx={{ display: "flex", width: "100%", justifyContent: "center" }}
                         count={totalPages}
                         page={page}
                         onChange={handlePageChange}
@@ -434,4 +428,4 @@ const SingUpView = ({ handleViewChange }) => {
     );
 };
 
-export default SingUpView;
+export default EditView;

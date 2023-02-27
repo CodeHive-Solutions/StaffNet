@@ -4,6 +4,7 @@ import LoginView from "./Components/LoginView";
 import HomeView from "./Components/HomeView";
 import PermissionsView from "./Components/PermissionsView";
 import SingUpView from "./Components/SingUpView";
+import EditView from "./Components/EditView";
 import { useState } from "react";
 // Create a theme for the UI design
 
@@ -26,6 +27,9 @@ const App = () => {
             )}
             {currentView === "SingUpView" && (
                 <SingUpView handleViewChange={handleViewChange} />
+            )}
+            {currentView === "EditView" && (
+                <EditView handleViewChange={handleViewChange} />
             )}
         </div>
     );

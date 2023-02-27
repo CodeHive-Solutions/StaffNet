@@ -1,6 +1,6 @@
 // Import the material-ui components
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -30,6 +30,7 @@ const LoginView = ({ handleViewChange }) => {
     const [error, setError] = React.useState("");
     const [transition, setTransition] = React.useState(false);
     const [progressBar, setProgressBar] = React.useState(false);
+    const inputRef = useRef();
 
     // Custom styles to the logo
     const customStyles = {
@@ -130,6 +131,7 @@ const LoginView = ({ handleViewChange }) => {
         return () => clearInterval(intervalId);
     }, []);
 
+    console.log(inputRef)
     // Get the single digit of the current date
     let numDate = date.toISOString()[9];
     // images array to change the image show it each day in the loggin
@@ -149,7 +151,18 @@ const LoginView = ({ handleViewChange }) => {
     // Function to handle toggling the collapse state
     const handleClick = () => {
         setOpen(!open);
+        inputRef.current.focus()
     };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            inputRef.current.focus();
+        }, 0); // zero delay
+
+        return () => {
+            clearTimeout(timeoutId); // clear timeout on unmount
+        };
+    }, []);
 
     return (
         <Fade in={transition}>
@@ -237,8 +250,7 @@ const LoginView = ({ handleViewChange }) => {
                                 label="Contraseña"
                                 type="password"
                                 id="clave"
-                                autoFocus={true}
-
+                                inputRef={inputRef}
                                 autoComplete="off"
                                 aria-autocomplete="off"
                             />
@@ -270,7 +282,7 @@ const LoginView = ({ handleViewChange }) => {
                                 Iniciar Sesion
                             </Button>
                             <Button
-                                onClick={() => handleViewChange("HomeView")}
+                                onClick={() => handleViewChange("EditView")}
                             >
                                 SH
                             </Button>
