@@ -1,7 +1,7 @@
 import mysql.connector
 
 
-def transaction(conexion, table_info, update_key=None, search_table=None, where=None, insert=None, join_tables=None, join_condition=None):
+def transaction(table_info, update_key=None, search_table=None, where=None, insert=None, join=None, join_condition=None):
     """The "table_content" is a dictionary that contains the name of the table
     and her columns is maded in this format:
     {
@@ -17,6 +17,15 @@ def transaction(conexion, table_info, update_key=None, search_table=None, where=
         }
     }
     """
+    try:
+        conexion = mysql.connector.connect(
+            host="172.16.0.6",
+            user="root",
+            password="*4b0g4d0s4s*",
+            database='StaffNet'
+        )
+    except Exception as err:
+        print("Error conexion MYSQL: ", err)
     # Create a cursor
     mycursor = conexion.cursor()
 
@@ -36,20 +45,6 @@ def transaction(conexion, table_info, update_key=None, search_table=None, where=
                 column_names = ", ".join(column_names)
                 sql = f"SELECT {column_names} FROM {table_names} WHERE {where}"
                 # Execute the SQL statement with search_value as parameter
-                print(sql)
-                mycursor.execute(sql)
-                result = mycursor.fetchall()
-                response = {"status": "success", "data": result}
-                return response
-            if join_tables:
-                print(columns)
-                print(table_name)
-                for tables in columns:
-                    print(tables)
-                    # Build the SQL JOIN statement
-                    sql = f"SELECT * FROM {tables} JOIN {join_tables} ON {join_condition}"
-                    print("2", tables)
-                # Execute the SQL statement
                 mycursor.execute(sql)
                 result = mycursor.fetchall()
                 response = {"status": "success", "data": result}
@@ -61,7 +56,6 @@ def transaction(conexion, table_info, update_key=None, search_table=None, where=
                 primary_value = columns[update_key]
                 # Remove the update_key from the columns dictionary
                 columns = {k: v for k, v in columns.items() if k != update_key}
-                print(sql)
                 # Add the update_key value to the end of the tuple of column values
                 values = tuple(columns.values()) + (primary_value,)
             elif insert:
@@ -79,7 +73,7 @@ def transaction(conexion, table_info, update_key=None, search_table=None, where=
 
     except mysql.connector.Error as error:
         # Roll back the transaction if there's an error
-        print(f"Error inserting or updating data in the tables: {error}")
+        print(f"Error: {error}")
         conexion.rollback()
         error = str(error)
         response = {"status": "error", "error": error}
@@ -88,3 +82,48 @@ def transaction(conexion, table_info, update_key=None, search_table=None, where=
         # Close the cursor and database connection
         mycursor.close()
         conexion.close()
+
+
+def join_tables(*join_args):
+    try:
+        conexion = mysql.connector.connect(
+            host="172.16.0.6",
+            user="root",
+            password="*4b0g4d0s4s*",
+            database='StaffNet'
+        )
+    except Exception as err:
+        print("Error conexion MYSQL: ", err)
+        return {"status": "error", "message": str(err)}
+
+    # Create a cursor
+    mycursor = conexion.cursor()
+
+    join_conditions = []
+    select_columns = []
+    for table1, table2, columns in join_args:
+        for col1, col2 in columns:
+            select_columns.append(f"{table1}.{col1} AS {table1}_{col1}")
+            select_columns.append(f"{table2}.{col2} AS {table2}_{col2}")
+            join_conditions.append(f"{table1}.{col1} = {table2}.{col2}")
+
+    select_columns_str = ", ".join(select_columns)
+    join_conditions_str = " AND ".join(join_conditions)
+    sql = f"SELECT {select_columns_str} FROM `{join_args[0][0]}` JOIN `{join_args[0][1]}` ON {join_conditions_str}"
+    for table1, table2, columns in join_args[1:]:
+        join_conditions = []
+        for col1, col2 in columns:
+            join_conditions.append(f"`{table1}`.`{col1}` = `{table2}`.`{col2}`")
+        join_conditions_str = " AND ".join(join_conditions)
+        sql = f"SELECT * FROM ({sql}) AS joined_tables JOIN `{table2}` ON {join_conditions_str}"
+    print(sql)
+    try:
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        response = {"status": "success", "data": result}
+    except Exception as e:
+        response = {"status": "error", "message": str(e)}
+    finally:
+        conexion.close()
+
+    return response

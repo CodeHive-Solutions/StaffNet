@@ -17,6 +17,8 @@ import LoginIcon from "@mui/icons-material/Login";
 import Cookies from "js-cookie";
 import Fade from '@mui/material/Fade';
 import LinearProgress from '@mui/material/LinearProgress';
+import LogotipoServicesV from "../Images/LogotipoServicesV.avif"
+import Image1 from "../Images/LogotipoServicesV.avif"
 
 
 const LoginView = ({ handleViewChange }) => {
@@ -131,7 +133,6 @@ const LoginView = ({ handleViewChange }) => {
         return () => clearInterval(intervalId);
     }, []);
 
-    console.log(inputRef)
     // Get the single digit of the current date
     let numDate = date.toISOString()[9];
     // images array to change the image show it each day in the loggin

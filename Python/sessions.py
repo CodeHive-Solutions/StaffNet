@@ -17,7 +17,6 @@ def verify_token(token, permission):
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
         # Extract the user ID from the decoded payload
         permission = payload[permission]
-        print(payload)
         if permission == 1:
             return True
         else:

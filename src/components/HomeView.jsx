@@ -10,248 +10,74 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import MoreIcon from "@mui/icons-material/More";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from '@mui/material/Fade';
 import Cookies from "js-cookie";
 import Header from "./Header";
-import PersonIcon from '@mui/icons-material/Person';
+import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
+import TableFooter from '@mui/material/TableFooter';
+import TablePagination from '@mui/material/TablePagination';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
 
-function createData(cedula, nombre, celular, correo, estado) {
-    return { cedula, nombre, celular, correo, estado };
-}
-
-const rows = [
-    createData(
-        1000065648,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        0
-    ),
-    createData(
-        1234567890,
-        "Ejemplo Nombre Completo",
-        1234567890,
-        "ejemplocorreo@gmail.com",
-        1
-    ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-    // createData(
-    //     1234567890,
-    //     "Ejemplo Nombre Completo",
-    //     1234567890,
-    //     "ejemplocorreo@gmail.com",
-    //     "Activo"
-    // ),
-];
-
-const handleInhabilitate = () => {
-    // Do something with the cedula, like send it to the server to update the database
-    console.log(`Inhabilitate register with cedula 1`, "switch: ", document.getElementById('Switch').checked);
-    // Send a POST request to the server
-    const dataP = {
-        request: "change_state",
-        cedula: 1000065648,
-        token: Cookies.get('token'),
-        change_to: document.getElementById('Switch').checked,
-    };
-    fetch("http://localhost:5000/App", {
-        method: "POST",
-        body: JSON.stringify(dataP),
-    })
-        .then((response) => {
-            // Check if the response was successful
-            if (!response.ok) {
-                throw Error(response.statusText);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
-};
-
-
-
-const BasicTable = () => {
-    return (
-
-        <TableContainer
-            component={Paper}
-            elevation={0}
-            sx={{ marginTop: "30px" }}
-        >
-
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell align="center">Cedula</TableCell>
-                        <TableCell align="center">Nombre</TableCell>
-                        <TableCell align="center">Celular</TableCell>
-                        <TableCell align="center">Correo</TableCell>
-                        <TableCell align="center">Detalles</TableCell>
-                        <TableCell align="center">Editar</TableCell>
-                        <TableCell align="center">Estado</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {rows.map((row) => (
-                        <TableRow
-                            key={row.cedula}
-                            sx={{
-                                "&:last-child td, &:last-child th": {
-                                    border: 0,
-                                },
-                            }}
-                        >
-                            <TableCell align="center">{row.cedula}</TableCell>
-                            <TableCell align="center">{row.nombre}</TableCell>
-                            <TableCell align="center">{row.celular}</TableCell>
-                            <TableCell align="center">{row.correo}</TableCell>
-                            <TableCell align="center">
-                                <Button title="Detalles">
-                                    <MoreIcon></MoreIcon>
-                                </Button>
-                            </TableCell>
-                            <TableCell align="center">
-                                <Button title="Editar">
-                                    <EditIcon></EditIcon>
-                                </Button>
-                            </TableCell>
-                            <TableCell align="center">
-                                {true ? console.log("sirve") : console.log("No")}
-                                <Switch defaultChecked id="Switch" onClick={(event) => { handleInhabilitate() }} />
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-                {/* <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={3}
-                            count={rows.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                inputProps: {
-                                    'aria-label': 'rows per page',
-                                },
-                                native: true,
-                            }}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                        />
-                    </TableRow>
-                </TableFooter> */}
-            </Table>
-        </TableContainer>
-    );
-};
 const HomeView = ({ handleViewChange }) => {
 
     const [transition, setTransition] = React.useState(false);
+    const [tableData, setTableData] = React.useState([]);
     const [access, setAccess] = useState(false)
     const [employees, setEmployees] = useState(false)
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+    const dataExample = [
+        [1000, 'Julio Garabito', '1000000', 'ejemplo@gmail.com', 1],
+        [1000065648, 'Ejemplo nombre', '10000002', 'ejemplo2@gmail.com', 0]
+    ];
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(+event.target.value);
+        setPage(0);
+    };
+
+    const handleEdit = () => {
+        console.log("hola")
+    };
+
+    const handleInhabilitate = () => {
+        // Send a POST request to the server
+        const dataP = {
+            request: "change_state",
+            cedula: 1000065648,
+            token: Cookies.get('token'),
+            change_to: document.getElementById('Switch').checked,
+        };
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(dataP),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    };
 
     useEffect(() => {
         const validate = {
@@ -301,19 +127,37 @@ const HomeView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data, "Este");
-                if (data.status !== "False") {
-                    console.log(data.data[0][4])
-                    document.getElementById("Switch").display = false
-                    setEmployees(data.data[0][4]);
-                } else {
-                    handleViewChange("LoginView");
-                }
+                setTableData(data.data)
             })
             .catch((error) => {
                 console.error("Error:", error);
             });
     }, []);
+
+    const createData = (cedula, nombre, celular, correo, estado) => {
+        return { cedula, nombre, celular, correo, estado };
+    }
+
+    const columns = [
+        { id: 'cedula', label: 'Cedula_ejemplo', minWidth: 170, align: 'center' },
+        { id: 'nombre', label: 'Nombre', minWidth: 100, align: 'center' },
+        { id: 'celular', label: 'Celular', minWidth: 100, align: 'center' },
+        { id: 'correo', label: 'Correo', minWidth: 100, align: 'center' },
+        { id: 'detalles', label: 'Detalles', minWidth: 100, align: 'center' },
+        { id: 'editar', label: 'Editar', minWidth: 100, align: 'center' },
+        { id: 'estado', label: 'Estado', minWidth: 100, align: 'center' },
+    ];
+
+
+    const rows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
+        cedula,
+        nombre,
+        celular,
+        correo,
+        estado: estado === 1 ? true : false,
+    }));
+
+    console.log(rows);
 
     if (access) {
         return (
@@ -359,7 +203,64 @@ const HomeView = ({ handleViewChange }) => {
                             height: 600,
                         }}
                     >
-                        {BasicTable()}
+
+                        <Paper elevation={0} sx={{ width: '100%', }}>
+                            <TableContainer sx={{ maxHeight: 550, width: "100%" }}>
+                                <Table stickyHeader aria-label="sticky table">
+                                    <TableHead>
+                                        <TableRow>
+                                            {columns.map((column) => (
+                                                <TableCell
+                                                    key={column.id}
+                                                    align={column.align}
+                                                    style={{ minWidth: column.minWidth }}
+                                                >
+                                                    {column.label}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {rows
+                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                            .map((row) => {
+                                                return (
+                                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.cedula}>
+                                                        {columns.map((column) => {
+                                                            const value = row[column.id];
+                                                            return (
+                                                                <TableCell key={column.id} align={column.align}>
+                                                                    {column.id === 'detalles'
+                                                                        ? <Button title="Detalles">
+                                                                            <MoreIcon></MoreIcon>
+                                                                        </Button>
+                                                                        : column.id === 'editar'
+                                                                            ? <Button title="Editar">
+                                                                                <EditIcon onClick={() => handleEdit()}></EditIcon>
+                                                                            </Button> :
+                                                                            column.id === 'estado' ?
+                                                                                <Switch checked={row.estado}></Switch> :
+                                                                                value}
+                                                                </TableCell>
+                                                            );
+                                                        })}
+                                                    </TableRow>
+                                                );
+                                            })}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <TablePagination
+                                sx={{ display: "flex", justifyContent: "center" }}
+                                rowsPerPageOptions={[10, 25, 100]}
+                                component="div"
+                                count={rows.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                        </Paper>
                     </Box>
                 </Container>
             </Fade>

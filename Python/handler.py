@@ -8,7 +8,7 @@ from login import consulta_login
 from update import update
 from search import search
 from sessions import verify_token
-from transaction import transaction
+from transaction import transaction, join_tables
 # Port number to use for the server
 PORT = 5000
 
@@ -27,7 +27,7 @@ def conexion_mysql():
         global cursor
         cursor = conexion.cursor()
     except Exception as err:
-        print(err)
+        print("Error conexion MYSQL: ", err)
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -79,7 +79,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             where = "personal_information.cedula = leave_information.cedula"
             if verify_token(token, "consult"):
                 response = transaction(
-                    conexion, table_info, search_table=True, where=where)
+                    table_info, search_table=True, where=where)
             else:
                 response = {'status': 'False', 'error': 'No tienes permisos'}
         elif request == 'search_user_ad':
@@ -169,7 +169,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         "estado": body["estado"]
                     }
                 }
-                response = transaction(conexion, info_tables, insert=True)
+                response = transaction(info_tables, insert=True)
             else:
                 response = {'status': 'False', 'error': 'No tienes permisos'}
 
@@ -230,8 +230,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         "estado": body["estado"]
                     }
                 }
-                response = transaction(
-                    conexion, info_tables, "cedula")
+                response = transaction(info_tables, "cedula")
             else:
                 response = {'status': 'False', 'error': 'No tienes permisos'}
 
@@ -243,16 +242,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 response = {'status': 'False', 'error': 'No tienes permisos'}
         elif request == "join":
             if verify_token(token, "consult"):
-                table_info = {"tables": {
-                    "leave_information",
-                    "employment_information"
-                }}
-                transaction(conexion, table_info, join_tables=True)
-
+                table_info = {
+                    "personal_information": "cedula",
+                    "educational_information": "cedula",
+                    "employment_information": "cedula",
+                    "performance_evaluation": "cedula",
+                    "disciplinary_actions": "cedula",
+                    "vacation_information": "cedula",
+                    "leave_information": "cedula"
+                }
+                response = join_tables(
+                    ("personal_information", "educational_information",
+                     [("cedula", "cedula")]),
+                    ("employment_information",
+                     "performance_evaluation", [("cedula", "cedula")])
+                )
         # Enviar respuesta
         print("Respuesta: ", response)
         self.wfile.write(json.dumps(response).encode())
-
+        conexion.close()
+        print("respuesta enviada")
 # Start the server and serve forever
 
 
@@ -263,4 +272,4 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 with ThreadedHTTPServer(("", PORT), Handler) as httpd:
     print("Serving at port", PORT)
     httpd.serve_forever()
-conexion.close()
+print("Archivo terminado")
