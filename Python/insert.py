@@ -1,3 +1,16 @@
+import mysql.connector
+
+
+try:
+    conexion = mysql.connector.connect(
+        host="172.16.0.6",
+        user="root",
+        password="*4b0g4d0s4s*",
+        database='StaffNet'
+    )
+except Exception as err:
+    print("Error conexion MYSQL: ", err)
+
 
 def insert(tabla, columna, params, conexion):
     """Recuerda mandar los datos encerrados por comillas dobles y no simples, el valor "columna" debe ser "" si insertaras valores para cada campo, por el contrario debes especificar las columnas si no es asi."""

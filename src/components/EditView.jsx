@@ -12,6 +12,7 @@ import Header from "./Header";
 import MenuItem from '@mui/material/MenuItem';
 import SaveIcon from '@mui/icons-material/Save';
 import SnackAlert from "./SnackAlert";
+import Cookies from "js-cookie";
 
 const pageInputs = [
     // Inputs Pagina Información Personal
@@ -278,22 +279,37 @@ const pageInputs = [
 const totalPages = pageInputs.length;
 
 const EditView = ({ handleViewChange }) => {
-    const [formData, setFormData] = useState({});
     const [page, setPage] = useState(1);
     const [open, setOpen] = useState(false);
+    const [data, setData] = useState("");
     const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
+
 
     useEffect(() => {
         setOpen(!open)
+        const request = {
+            "request": "join",
+            "cedula": "1000065648",
+            token: Cookies.get('token')
+        }
+        fetch('http://localhost:5000/App', {
+            method: 'POST',
+            body: JSON.stringify(request),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                // Handle successful response here
+            })
+            .catch(error => {
+                // Handle error here
+                console.error('Hubo un problema: ', error);
+            });
     }, []);
 
     const handleCloseSnack = () => {
         setOpenSnackAlert(false);
-    };
-
-    const handleFormChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
     const handlePageChange = (event, value) => {
@@ -311,12 +327,10 @@ const EditView = ({ handleViewChange }) => {
 
         setPage(1);
         event.preventDefault();
-        formData.request = "insert_transaction"
-
 
         fetch('http://localhost:5000/App', {
             method: 'POST',
-            body: JSON.stringify(formData),
+            body: JSON.stringify(),
         })
             .then(response => {
                 if (!response.ok) {
@@ -373,9 +387,9 @@ const EditView = ({ handleViewChange }) => {
                                         key={input.id}
                                         select
                                         label={input.label}
-                                        value={formData[input.name] || ''}
+                                        value={''}
                                         name={input.name}
-                                        onChange={handleFormChange}
+                                        onChange={""}
                                         variant="outlined"
                                         tabIndex={input.tab}
                                     >
@@ -396,11 +410,11 @@ const EditView = ({ handleViewChange }) => {
                                             shrink: input.shrink,
                                         }}
                                         label={input.label}
-                                        value={formData[input.name] || ''}
+                                        value={''}
                                         name={input.name}
                                         type={input.type}
                                         tabIndex={input.tab}
-                                        onChange={handleFormChange}
+                                        onChange={""}
                                         inputProps={{ min: "0" }}
                                         variant="outlined"
                                     />

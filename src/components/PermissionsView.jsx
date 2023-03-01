@@ -244,7 +244,7 @@ const PermissionsView = ({ handleViewChange }) => {
 
             // Send a POST request to the server
             const dataEdit = {
-                request: "edit",
+                request: "edit_admin",
                 user: userValueSubmit,
                 permissions: permissionsObject,
                 token: Cookies.get('token'),

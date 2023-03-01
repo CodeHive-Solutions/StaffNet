@@ -1,6 +1,19 @@
 from ldap3 import Server, Connection, SAFE_SYNC,  SUBTREE
 import bcrypt
 from sessions import generate_token
+import mysql.connector
+
+
+try:
+    conexion = mysql.connector.connect(
+        host="172.16.0.6",
+        user="root",
+        password="*4b0g4d0s4s*",
+        database='StaffNet'
+    )
+    cursor = conexion.cursor()
+except Exception as err:
+    print("Error conexion MYSQL: ", err)
 # from session import start_session
 
 # LDAP
@@ -14,7 +27,7 @@ def start_ldap():
     return conn, server
 
 
-def consulta_login(body, conexion):
+def consulta_login(body):
     cursor = conexion.cursor()
     password = body['password']
     user = body['user']

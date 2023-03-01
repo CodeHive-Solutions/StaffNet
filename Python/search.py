@@ -1,7 +1,20 @@
 from login import consulta_usuario_ad
+import mysql.connector
 
 
-def search(campos, tabla, condicion, params, cursor, active_directory=None, user_ad=None):
+try:
+    conexion = mysql.connector.connect(
+        host="172.16.0.6",
+        user="root",
+        password="*4b0g4d0s4s*",
+        database='StaffNet'
+    )
+    cursor = conexion.cursor()
+except Exception as err:
+    print("Error conexion MYSQL: ", err)
+
+
+def search(campos, tabla, condicion, params, active_directory=None, user_ad=None):
     results = run_query(campos, tabla, condicion, cursor, params)
     response = process_query(results, active_directory, user_ad)
     return response
