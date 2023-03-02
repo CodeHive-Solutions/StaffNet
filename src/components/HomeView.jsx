@@ -20,14 +20,10 @@ import Header from "./Header";
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
 import Modal from '@mui/material/Modal';
-import TableFooter from '@mui/material/TableFooter';
 import TablePagination from '@mui/material/TablePagination';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
+import MenuItem from '@mui/material/MenuItem';
 
 const HomeView = ({ handleViewChange }) => {
 
@@ -35,19 +31,32 @@ const HomeView = ({ handleViewChange }) => {
     const [tableData, setTableData] = React.useState([]);
     const [access, setAccess] = useState(false)
     const [page, setPage] = React.useState(0);
-    const [employees, setEmployees] = useState(false)
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [openModal, setOpenModal] = React.useState(false);
+    const [edit, setEdit] = React.useState(true);
+    const [detalles, setDetalles] = React.useState({});
+
+    const handleEdit = () => {
+        setEdit(!edit)
+    }
+
+    const handleInputChange = (id, value) => {
+        setInputs((prevInputs) =>
+            prevInputs.map((input) =>
+                input.id === id ? { ...input, value: value } : input
+            )
+        );
+    };
 
     const handleOpenModal = (cedula) => {
-        const request = {
+        const request_get = {
             "request": "join",
             "cedula": cedula,
             token: Cookies.get('token')
         }
         fetch('http://localhost:5000/App', {
             method: 'POST',
-            body: JSON.stringify(request),
+            body: JSON.stringify(request_get),
         })
             .then(response => {
                 if (!response.ok) {
@@ -58,6 +67,7 @@ const HomeView = ({ handleViewChange }) => {
             .then((data) => {
                 console.log(data.data);
                 setOpenModal(true)
+                setDetalles(data.data[0])
             })
             .catch(error => {
                 // Handle error here
@@ -65,52 +75,19 @@ const HomeView = ({ handleViewChange }) => {
             });
 
     };
-    const handleCloseModal = () => setOpenModal(false);
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setEdit(true)
+    }
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
-    const dataExample = [
-        [1000, 'Julio Garabito', '1000000', 'ejemplo@gmail.com', 1],
-        [1000065648, 'Ejemplo nombre', '10000002', 'ejemplo2@gmail.com', 0]
-    ];
+
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-    const submit_edit = () => {
-        const request_edit = {
-            request: "update_transaction",
-            token: Cookies.get('token'),
-            // Aqui va un objeto que contenga todos los datos, usted decida si los manda dentro de data o no
-            // data: {JSON que contiene todos los valores}
-            // O los puede mandar diretamente
-            // dato1: valor1
-            // dato2: valor2
-        };
-        fetch("http://localhost:5000/App", {
-            method: "POST",
-            body: JSON.stringify(request_edit),
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                if (data.status !== "False") {
-                    setAccess(true);
-                } else {
-                    handleViewChange("LoginView");
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-    }
 
     const handleInhabilitate = () => {
         // Send a POST request to the server
@@ -139,6 +116,38 @@ const HomeView = ({ handleViewChange }) => {
             });
     };
 
+    const submit_edit = () => {
+        const request_edit = {
+            request: "update_transaction",
+            token: Cookies.get('token'),
+            // Aqui va un objeto que contenga todos los datos, usted decida si los manda dentro de data o no
+            // data: {JSON que contiene todos los valores}
+            // O los puede mandar diretamente
+            // dato1: valor1
+            // dato2: valor2
+        };
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(request_edit),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                if (data.status === "success") {
+                    handleCloseModal()
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+
     useEffect(() => {
         const consult = {
             request: "search_employees",
@@ -166,29 +175,14 @@ const HomeView = ({ handleViewChange }) => {
         setTransition(!transition)
     }, []);
 
-    const createData = (cedula, nombre, celular, correo, estado) => {
-        return { cedula, nombre, celular, correo, estado };
-    }
-
     const columns = [
-        { id: 'cedula', label: 'Cedula_ejemplo', minWidth: 170, align: 'center' },
+        { id: 'cedula', label: 'Cedula', minWidth: 170, align: 'center' },
         { id: 'nombre', label: 'Nombre', minWidth: 100, align: 'center' },
         { id: 'celular', label: 'Celular', minWidth: 100, align: 'center' },
         { id: 'correo', label: 'Correo', minWidth: 100, align: 'center' },
         { id: 'detalles', label: 'Detalles', minWidth: 100, align: 'center' },
         { id: 'estado', label: 'Estado', minWidth: 100, align: 'center' },
     ];
-
-
-    const rows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
-        cedula,
-        nombre,
-        celular,
-        correo,
-        estado: estado === 1 ? true : false,
-    }));
-
-    console.log(rows);
 
     const pageInputs = [
         // Inputs Pagina Información Personal
@@ -452,6 +446,61 @@ const HomeView = ({ handleViewChange }) => {
         },
     ];
 
+    pageInputs.forEach(page => {
+        page.inputs.forEach(input => {
+            if (input.name in detalles) {
+                input.value = detalles[input.name];
+            }
+        });
+    });
+
+    const [inputs, setInputs] = useState(pageInputs);
+
+    const [tableResults, setTableResults] = React.useState([]);
+
+    const rows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
+        cedula,
+        nombre,
+        celular,
+        correo,
+        estado: estado === 1 ? true : false,
+    }));
+
+    /* Creation of the search function */
+    const [searchTerm, setSearchTerm] = useState('');
+
+
+    if (tableResults.length == 0) {
+        console.log("correcto")
+    }
+
+    useEffect(() => {
+        console.log(searchTerm.length)
+        if (tableResults.length == 0 || searchTerm.length < 1) {
+            setTableResults(tableResults.concat(rows));
+        }
+    }, [rows]);
+
+
+    const search_employees = () => {
+        setSearchTerm(event.target.value);
+
+        console.log(searchTerm)
+        if (searchTerm.length >= 1) {
+            setTableResults(rows.filter(person => {
+                for (const key in person) {
+                    if (person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
+                        return true;
+                    }
+                }
+                return false;
+            }))
+        }
+    }
+
+
+    console.log(tableResults)
+
     const stylesModal = {
         position: 'absolute',
         top: '50%',
@@ -478,8 +527,8 @@ const HomeView = ({ handleViewChange }) => {
                         sx={{ display: "flex", borderRadius: "30px" }}
                     >
                         <Box sx={stylesModal}>
-                            <Button title="Editar" onClick={() => edit()}>
-                                <EditIcon ></EditIcon>
+                            <Button title="Editar" onClick={() => handleEdit()}>
+                                <EditIcon></EditIcon>
                             </Button>
                             <List sx={{ overflow: 'auto', maxHeight: "515px" }}>
                                 <Typography sx={{ display: "flex", justifyContent: "center" }} id="modal-modal-title" variant="h5" component="h3">
@@ -491,19 +540,43 @@ const HomeView = ({ handleViewChange }) => {
                                             <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}</Typography>
                                             {section.inputs.map((input) => (
                                                 <Box key={input.id} sx={{ m: 2 }}>
-                                                    <TextField InputLabelProps={{
-                                                        shrink: true,
-                                                    }} disabled label={input.label} type={input.type} sx={{ width: "220px" }}></TextField>
+                                                    {input.id == 1
+                                                        ?
+                                                        <TextField disabled label={input.label} type={input.type} value={input.value} sx={{ width: "220px" }}>
+                                                        </TextField>
+                                                        :
+                                                        input.type == "select" ?
+                                                            <TextField
+                                                                sx={{ width: "220px" }}
+                                                                key={input.id}
+                                                                select
+                                                                label={input.label}
+                                                                value={input.value}
+                                                                name={input.name}
+                                                                variant="outlined"
+                                                                onChange={(e) => handleInputChange(input.id, e.target.value)}
+                                                                disabled={edit}
+                                                            >
+                                                                {
+                                                                    input.options.map((option) => (
+                                                                        <MenuItem key={option.value} value={option.value}>
+                                                                            {option.label}
+                                                                        </MenuItem>
+                                                                    ))
+                                                                }
+                                                            </TextField>
+                                                            :
+                                                            <TextField disabled={edit} onChange={(e) => handleInputChange(input.id, e.target.value)} label={input.label} type={input.type} value={input.value} sx={{ width: "220px" }}>
+                                                            </TextField>}
                                                 </Box>
                                             ))}
-
                                         </Box>
                                     ))}
                                 </Box>
                             </List>
 
                             <Box sx={{ display: "flex", justifyContent: "flex-end", mx: "50px" }}>
-                                <Button onClick={() => submit_edit()}>
+                                <Button disabled={edit} onClick={() => submit_edit()}>
                                     <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                                         <SaveIcon />
                                     </Box>
@@ -530,6 +603,8 @@ const HomeView = ({ handleViewChange }) => {
                                 autoFocus
                                 label="Cedula de ciudadania del empleado"
                                 fullWidth
+                                value={searchTerm}
+                                onChange={search_employees}
                                 variant="standard"
                                 sx={{
                                     display: "flex",
@@ -572,7 +647,7 @@ const HomeView = ({ handleViewChange }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {rows
+                                        {tableResults
                                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             .map((row) => {
                                                 return (
@@ -582,7 +657,8 @@ const HomeView = ({ handleViewChange }) => {
                                                             return (
                                                                 <TableCell key={column.id} align={column.align}>
                                                                     {column.id === 'detalles'
-                                                                        ? <Button title="Detalles" onClick={() => handleOpenModal(row.cedula)}>
+                                                                        ?
+                                                                        <Button title="Detalles" onClick={() => handleOpenModal(row.cedula)}>
                                                                             <MoreIcon></MoreIcon>
                                                                         </Button>
                                                                         // : column.id === 'editar'
@@ -590,8 +666,10 @@ const HomeView = ({ handleViewChange }) => {
                                                                         //         <EditIcon ></EditIcon>
                                                                         //     </Button> 
                                                                         :
-                                                                        column.id === 'estado' ?
-                                                                            <Switch></Switch> :
+                                                                        column.id === 'estado'
+                                                                            ?
+                                                                            <Switch></Switch>
+                                                                            :
                                                                             value}
                                                                 </TableCell>
                                                             );
@@ -606,7 +684,7 @@ const HomeView = ({ handleViewChange }) => {
                                 sx={{ display: "flex", justifyContent: "center" }}
                                 rowsPerPageOptions={[10, 25, 100]}
                                 component="div"
-                                count={rows.length}
+                                count={tableResults.length}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}

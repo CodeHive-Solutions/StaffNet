@@ -36,7 +36,6 @@ def consulta_login(body):
     cursor.execute(query, (user,))
     result_query = cursor.fetchone()
     if result_query != None and result_query != []:
-        # print(bcrypt.hashpw(bytes("", 'utf-8'), bcrypt.gensalt()))
         password_bd_encode = bytes(result_query[0], 'utf-8')
         if bcrypt.checkpw(bytes(password, 'utf-8'), password_bd_encode):
             print("Logged by MYSQL")

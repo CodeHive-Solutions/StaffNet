@@ -11,6 +11,7 @@ import Fade from '@mui/material/Fade';
 import Header from "./Header";
 import MenuItem from '@mui/material/MenuItem';
 import SaveIcon from '@mui/icons-material/Save';
+import Cookies from "js-cookie";
 
 const pageInputs = [
     // Inputs Pagina Información Personal
@@ -315,7 +316,7 @@ const SingUpView = ({ handleViewChange }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         formData.request = "insert_transaction"
-
+        formData.token = Cookies.get('token')
 
         fetch('http://localhost:5000/App', {
             method: 'POST',
@@ -325,6 +326,7 @@ const SingUpView = ({ handleViewChange }) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                console.log("llegue")
                 // Handle successful response here
             })
             .catch(error => {

@@ -11,16 +11,30 @@ def generate_token(json_payload):
 # Verify token
 
 
-def verify_token(token, permission):
+def verify_token(token, dato):
     try:
         # Decode the token using the secret key and HS256 algorithm
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
-        # Extract the user ID from the decoded payload
-        permission = payload[permission]
-        if permission == 1:
+
+        if dato in payload:
             return True
         else:
             return False
+    except jwt.exceptions.InvalidTokenError:
+        # Return None if the token is invalid or cannot be decoded
+        print("Error decoding token", jwt.exceptions.InvalidTokenError)
+        return False
+
+
+def decrypt(token, dato):
+    try:
+        # Decode the token using the secret key and HS256 algorithm
+        payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+
+        if dato in payload:
+            return payload[dato]
+        else:
+            return "Dato no encontrado en el token"
     except jwt.exceptions.InvalidTokenError:
         # Return None if the token is invalid or cannot be decoded
         print("Error decoding token", jwt.exceptions.InvalidTokenError)

@@ -2,17 +2,16 @@ import http.server
 import threading
 import socketserver
 import json
+import datetime
+import logging
 from insert import insert
 from login import consulta_login
 from update import update
 from search import search
-from sessions import verify_token
+from sessions import verify_token, decrypt
 from transaction import transaction, join_tables
-import logging
 
 
-logging.basicConfig(filename='./logs/Registros.log', level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
 # Port number to use for the server
 PORT = 5000
 
@@ -30,23 +29,28 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     # Handle POST requests
     def do_POST(self):
         try:
+            logging.basicConfig(filename='../logs/Registros_'+str(datetime.date.today().year)+".log", level=logging.INFO,
+                                format='%(asctime)s:%(levelname)s:%(message)s')
             # Get the content length of the request body
             content_length = int(self.headers.get('Content-Length', 0))
             # Read the request body and convert in a JSON object
             body = json.loads(self.rfile.read(content_length))
             # Log the request data
             print("Peticion: ", body)
-            logging.info(body)
+            request = body['request']
+            if request == 'login':
+                logging.info("Peticion: user: " +
+                             str(body["user"])+" "+str(request))
+            else:
+                token = body['token']
+                user = decrypt(token, "username")
+                logging.info("Peticion: user: "+str(user)+str(body))
             # Send a response to the client
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
             # Manejar la petición
-            request = body['request']
-            if request != 'login':
-                token = body['token']
-
             if request == 'login':
                 response = consulta_login(body)
 
@@ -250,9 +254,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # Enviar respuesta
             print("Respuesta: ", response)
             self.wfile.write(json.dumps(response).encode())
-            logging.info(response)
+            logging.info("Respuesta: "+str(response))
         except Exception as e:
-            logging.warning(e, exc_info=True)
+            print("Error: ", e)
+            logging.warning("Error: "+str(e), exc_info=True)
 
 
 # Start the server and serve forever
