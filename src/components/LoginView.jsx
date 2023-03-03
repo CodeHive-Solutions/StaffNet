@@ -152,7 +152,6 @@ const LoginView = ({ handleViewChange }) => {
     // Function to handle toggling the collapse state
     const handleClick = () => {
         setOpen(!open);
-        inputRef.current.focus()
     };
 
     useEffect(() => {
@@ -281,14 +280,6 @@ const LoginView = ({ handleViewChange }) => {
                                     <LoginIcon></LoginIcon>
                                 </Box>
                                 Iniciar Sesion
-                            </Button>
-                            <Button
-                                onClick={() => handleViewChange("EditView")}
-                            >
-                                SH
-                            </Button>
-                            <Button onClick={() => handleViewChange("SingUpView")}>
-                                ALG
                             </Button>
                             <Link href="#" onClick={handleClick}>
                                 ¿Has olvidado tu contraseña?

@@ -2,16 +2,18 @@ import http.server
 import threading
 import socketserver
 import json
-import datetime
-import logging
+import mysql.connector
 from insert import insert
 from login import consulta_login
 from update import update
 from search import search
-from sessions import verify_token, decrypt
-from transaction import transaction, join_tables
+from sessions import verify_token
+from transaction import transaction, join_tables, update_data
+import logging
 
 
+logging.basicConfig(filename='../logs/Registros.log', level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 # Port number to use for the server
 PORT = 5000
 
@@ -21,38 +23,57 @@ PORT = 5000
 class Handler(http.server.SimpleHTTPRequestHandler):
     # Override the end_headers method to add a header to allow cross-origin requests
     def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin',
-                         'http://localhost:5173')
+
+        # Define a list of allowed origins
+        allowed_origins = ["http://localhost:5173", "http://localhost:3000"]
+
+        # Get the request origin
+        request_origin = self.headers.get("Origin")
+
+        # Check if the request origin is in the list
+        if request_origin in allowed_origins:
+            # Set the response header with the request origin
+            self.send_header("Access-Control-Allow-Origin", request_origin)
+        else:
+            # Deny access or use a default origin
+            self.send_header("Access-Control-Allow-Origin",
+                             "http://localhost:5173")
         self.send_header('Access-Control-Allow-Credentials', 'true')
         http.server.SimpleHTTPRequestHandler.end_headers(self)
 
     # Handle POST requests
     def do_POST(self):
         try:
-            logging.basicConfig(filename='../logs/Registros_'+str(datetime.date.today().year)+".log", level=logging.INFO,
-                                format='%(asctime)s:%(levelname)s:%(message)s')
+            try:
+                conexion = mysql.connector.connect(
+                    host="172.16.0.6",
+                    user="root",
+                    password="*4b0g4d0s4s*",
+                    database='StaffNet'
+                )
+                cursor = conexion.cursor()
+            except Exception as err:
+                print("Error conexion MYSQL: ", err)
+            # Create a cursor
             # Get the content length of the request body
             content_length = int(self.headers.get('Content-Length', 0))
             # Read the request body and convert in a JSON object
             body = json.loads(self.rfile.read(content_length))
             # Log the request data
             print("Peticion: ", body)
-            request = body['request']
-            if request == 'login':
-                logging.info("Peticion: user: " +
-                             str(body["user"])+" "+str(request))
-            else:
-                token = body['token']
-                user = decrypt(token, "username")
-                logging.info("Peticion: user: "+str(user)+str(body))
+            logging.info(body)
             # Send a response to the client
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
             # Manejar la petición
+            request = body['request']
+            if request != 'login':
+                token = body['token']
+
             if request == 'login':
-                response = consulta_login(body)
+                response = consulta_login(body, conexion)
 
             elif request == 'validate_create_admins':
                 if verify_token(token, "create_admins"):
@@ -84,7 +105,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 if verify_token(token, "consult"):
                     username = (body['username'],)
                     response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
-                                      'WHERE user = %s', username, True, body['username'])
+                                      'WHERE user = %s', username, cursor, True, body['username'])
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
@@ -107,7 +128,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         "permissions"]["editar"], body["permissions"]["inhabilitar"],)
                     columns = ("user", "permission_consult",
                                "permission_create", "permission_edit", "permission_disable")
-                    response = insert('users', columns, parameters)
+                    response = insert('users', columns, parameters, conexion)
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
@@ -231,7 +252,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                             "estado": body["estado"]
                         }
                     }
-                    response = transaction(info_tables, "cedula")
+                    response = update_data(
+                        conexion, info_tables, "cedula = "+body["cedula"])
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
@@ -254,10 +276,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # Enviar respuesta
             print("Respuesta: ", response)
             self.wfile.write(json.dumps(response).encode())
-            logging.info("Respuesta: "+str(response))
+
+            logging.info(response)
         except Exception as e:
             print("Error: ", e)
-            logging.warning("Error: "+str(e), exc_info=True)
+            logging.warning(e, exc_info=True)
+        finally:
+            cursor.close()
+            conexion.close()
 
 
 # Start the server and serve forever

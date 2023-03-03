@@ -1,20 +1,6 @@
 from ldap3 import Server, Connection, SAFE_SYNC,  SUBTREE
 import bcrypt
 from sessions import generate_token
-import mysql.connector
-
-
-try:
-    conexion = mysql.connector.connect(
-        host="172.16.0.6",
-        user="root",
-        password="*4b0g4d0s4s*",
-        database='StaffNet'
-    )
-    cursor = conexion.cursor()
-except Exception as err:
-    print("Error conexion MYSQL: ", err)
-# from session import start_session
 
 # LDAP
 server = Server('CYC-SERVICES.COM.CO')
@@ -27,7 +13,7 @@ def start_ldap():
     return conn, server
 
 
-def consulta_login(body):
+def consulta_login(body, conexion):
     cursor = conexion.cursor()
     password = body['password']
     user = body['user']
@@ -36,6 +22,7 @@ def consulta_login(body):
     cursor.execute(query, (user,))
     result_query = cursor.fetchone()
     if result_query != None and result_query != []:
+        # print(bcrypt.hashpw(bytes("", 'utf-8'), bcrypt.gensalt()))
         password_bd_encode = bytes(result_query[0], 'utf-8')
         if bcrypt.checkpw(bytes(password, 'utf-8'), password_bd_encode):
             print("Logged by MYSQL")
@@ -78,6 +65,7 @@ def consulta_login(body):
     else:
         response = {'login': 'failure',
                     'error': 'usuario no encontrado'}
+    cursor.close()
     return response
 
 

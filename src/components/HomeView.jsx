@@ -1,6 +1,6 @@
 import React from "react";
 import SaveIcon from '@mui/icons-material/Save';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -35,18 +35,19 @@ const HomeView = ({ handleViewChange }) => {
     const [openModal, setOpenModal] = React.useState(false);
     const [edit, setEdit] = React.useState(true);
     const [detalles, setDetalles] = React.useState({});
+    const [inputValues, setInputValues] = useState({});
+    const [checkedRows, setCheckedRows] = useState({});
+
+    const handleToggle = (row) => {
+        const newCheckedRows = { ...checkedRows };
+        newCheckedRows[row.estado] = !newCheckedRows[row.estado];
+        setCheckedRows(newCheckedRows);
+        // Send fetch request to backend here
+    };
 
     const handleEdit = () => {
         setEdit(!edit)
     }
-
-    const handleInputChange = (id, value) => {
-        setInputs((prevInputs) =>
-            prevInputs.map((input) =>
-                input.id === id ? { ...input, value: value } : input
-            )
-        );
-    };
 
     const handleOpenModal = (cedula) => {
         const request_get = {
@@ -117,18 +118,18 @@ const HomeView = ({ handleViewChange }) => {
     };
 
     const submit_edit = () => {
-        const request_edit = {
-            request: "update_transaction",
-            token: Cookies.get('token'),
-            // Aqui va un objeto que contenga todos los datos, usted decida si los manda dentro de data o no
-            // data: {JSON que contiene todos los valores}
-            // O los puede mandar diretamente
-            // dato1: valor1
-            // dato2: valor2
-        };
+
+        inputValues.request = "update_transaction"
+        inputValues.token = Cookies.get('token')
+        // Aqui va un objeto que contenga todos los datos, usted decida si los manda dentro de data o no
+        // data: {JSON que contiene todos los valores}
+        // O los puede mandar diretamente
+        // dato1: valor1
+        // dato2: valor2
+
         fetch("http://localhost:5000/App", {
             method: "POST",
-            body: JSON.stringify(request_edit),
+            body: JSON.stringify(inputValues),
         })
             .then((response) => {
                 // Check if the response was successful
@@ -454,7 +455,20 @@ const HomeView = ({ handleViewChange }) => {
         });
     });
 
-    const [inputs, setInputs] = useState(pageInputs);
+    useEffect(() => {
+        const initialInputValues = {};
+        pageInputs.forEach((section) => {
+            section.inputs.forEach((input) => {
+                initialInputValues[input.name] = input.value;
+            });
+        });
+        setInputValues(initialInputValues);
+    }, [openModal]);
+
+    useEffect(() => {
+        const me = document.getElementById('1001185389')
+        console.log(me)
+    }, []);
 
     const [tableResults, setTableResults] = React.useState([]);
 
@@ -469,37 +483,22 @@ const HomeView = ({ handleViewChange }) => {
     /* Creation of the search function */
     const [searchTerm, setSearchTerm] = useState('');
 
-
-    if (tableResults.length == 0) {
-        console.log("correcto")
-    }
-
     useEffect(() => {
-        console.log(searchTerm.length)
-        if (tableResults.length == 0 || searchTerm.length < 1) {
+        if (searchTerm.length == 0) {
             setTableResults(tableResults.concat(rows));
         }
-    }, [rows]);
+    }, [tableData]);
 
-
-    const search_employees = () => {
-        setSearchTerm(event.target.value);
-
-        console.log(searchTerm)
-        if (searchTerm.length >= 1) {
-            setTableResults(rows.filter(person => {
-                for (const key in person) {
-                    if (person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
-                        return true;
-                    }
+    useEffect(() => {
+        setTableResults(rows.filter(person => {
+            for (const key in person) {
+                if (person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
+                    return true;
                 }
-                return false;
-            }))
-        }
-    }
-
-
-    console.log(tableResults)
+            }
+            return false;
+        }))
+    }, [searchTerm]);
 
     const stylesModal = {
         position: 'absolute',
@@ -513,6 +512,19 @@ const HomeView = ({ handleViewChange }) => {
         p: 4,
         borderRadius: "20px",
         overflow: 'hidden'
+    };
+
+    const checkedArrayRef = useRef(tableResults.map(row => row.estado));
+
+    const handleChange = (event, index) => {
+        // get the new value of checked from event.target.checked
+        const newChecked = event.target.checked;
+
+        // update the ref variable by assigning a new array with updated value at index to its current property
+        checkedArrayRef.current = checkedArrayRef.current.map((item, i) => i === index ? newChecked : item);
+
+        // do something else with newChecked if needed
+        console.log(newChecked);
     };
 
     if (access) {
@@ -551,11 +563,15 @@ const HomeView = ({ handleViewChange }) => {
                                                                 key={input.id}
                                                                 select
                                                                 label={input.label}
-                                                                value={input.value}
+                                                                value={inputValues[input.name]}
                                                                 name={input.name}
                                                                 variant="outlined"
-                                                                onChange={(e) => handleInputChange(input.id, e.target.value)}
-                                                                disabled={edit}
+                                                                onChange={(event) => {
+                                                                    setInputValues({
+                                                                        ...inputValues,
+                                                                        [input.name]: event.target.value,
+                                                                    });
+                                                                }} disabled={edit}
                                                             >
                                                                 {
                                                                     input.options.map((option) => (
@@ -566,7 +582,15 @@ const HomeView = ({ handleViewChange }) => {
                                                                 }
                                                             </TextField>
                                                             :
-                                                            <TextField disabled={edit} onChange={(e) => handleInputChange(input.id, e.target.value)} label={input.label} type={input.type} value={input.value} sx={{ width: "220px" }}>
+                                                            <TextField disabled={edit}
+                                                                onChange={(event) => {
+                                                                    setInputValues({
+                                                                        ...inputValues,
+                                                                        [input.name]: event.target.value,
+                                                                    });
+                                                                }}
+                                                                label={input.label} type={input.type} value={inputValues[input.name]}
+                                                                sx={{ width: "220px" }}>
                                                             </TextField>}
                                                 </Box>
                                             ))}
@@ -604,7 +628,7 @@ const HomeView = ({ handleViewChange }) => {
                                 label="Cedula de ciudadania del empleado"
                                 fullWidth
                                 value={searchTerm}
-                                onChange={search_employees}
+                                onChange={e => setSearchTerm(e.target.value)}
                                 variant="standard"
                                 sx={{
                                     display: "flex",
@@ -647,36 +671,37 @@ const HomeView = ({ handleViewChange }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {tableResults
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((row) => {
-                                                return (
-                                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.cedula}>
-                                                        {columns.map((column) => {
-                                                            const value = row[column.id];
+                                        {tableResults.map((row, index) => {
+                                            return (
+                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.cedula}>
+                                                    {columns.map((column) => {
+                                                        const value = row[column.id];
+                                                        if (column.id === 'detalles') {
                                                             return (
                                                                 <TableCell key={column.id} align={column.align}>
-                                                                    {column.id === 'detalles'
-                                                                        ?
-                                                                        <Button title="Detalles" onClick={() => handleOpenModal(row.cedula)}>
-                                                                            <MoreIcon></MoreIcon>
-                                                                        </Button>
-                                                                        // : column.id === 'editar'
-                                                                        //     ? <Button title="Editar" onClick={() => handleViewChange("EditView")}>
-                                                                        //         <EditIcon ></EditIcon>
-                                                                        //     </Button> 
-                                                                        :
-                                                                        column.id === 'estado'
-                                                                            ?
-                                                                            <Switch></Switch>
-                                                                            :
-                                                                            value}
+                                                                    <Button title="Detalles" onClick={() => handleOpenModal(row.cedula)}>
+                                                                        <MoreIcon></MoreIcon>
+                                                                    </Button>
                                                                 </TableCell>
                                                             );
-                                                        })}
-                                                    </TableRow>
-                                                );
-                                            })}
+                                                        } else if (column.id === 'estado') {
+                                                            return (
+                                                                <TableCell key={`${column.id}`} align={column.align}>
+                                                                    {/* pass checkedArrayRef.current[index] as checked prop and pass index as second argument to handleChange */}
+                                                                    <Switch id={row.cedula.toString()} checked={checkedArrayRef.current[index]} onChange={(event) => handleChange(event, index)} />
+                                                                </TableCell>
+                                                            );
+                                                        } else {
+                                                            return (
+                                                                <TableCell key={column.id} align={column.align}>
+                                                                    {value}
+                                                                </TableCell>
+                                                            );
+                                                        }
+                                                    })}
+                                                </TableRow>
+                                            );
+                                        })}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -699,5 +724,3 @@ const HomeView = ({ handleViewChange }) => {
 };
 
 export default HomeView;
-
-

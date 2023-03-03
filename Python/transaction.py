@@ -1,6 +1,33 @@
 from datetime import date
-import json
 import mysql.connector
+import json
+
+
+def update_data(conexion, info_tables, where):
+    try:
+        mycursor = conexion.cursor()
+        response = {"status": "failed", "error": "No hubo ningun cambio"}
+        for table_name, columns in info_tables.items():
+            values = []
+            for column_name, value in columns.items():
+                values.append(column_name + "=%s")
+            sql = "UPDATE " + table_name + " SET " + \
+                ", ".join(values) + " WHERE " + where
+            params = tuple(columns.values())
+            print("SQL: ", sql % params)
+            mycursor.execute(sql, params)
+            if mycursor.rowcount > 0:
+                response = {"status": "success"}
+        conexion.commit()
+        return response
+
+    except mysql.connector.Error as error:
+        print("Error: ", error)
+        response = {"status": "failed", "error": str(error)}
+        return response
+
+    finally:
+        mycursor.close()
 
 
 def transaction(table_info, update_key=None, search_table=None, where=None, insert=None):
@@ -32,8 +59,10 @@ def transaction(table_info, update_key=None, search_table=None, where=None, inse
     mycursor = conexion.cursor()
 
     try:
+        response = {"status": "success"}
         # Start a transaction
         mycursor.execute("START TRANSACTION")
+
         # Loop through each table in the table_info dictionary
         for table_name, columns in table_info.items():
             if search_table:
@@ -50,26 +79,20 @@ def transaction(table_info, update_key=None, search_table=None, where=None, inse
                 response = {"status": "success", "data": result}
                 return response
             elif update_key:
-                # Build the SQL UPDATE statement
-                sql = f"UPDATE {table_name} SET {', '.join([f'{col}=%s' for col in columns if col != update_key])} WHERE {update_key}=%s"
-                primary_value = columns[update_key]
-                # Remove the update_key from the columns dictionary
-                columns = {k: v for k, v in columns.items() if k != update_key}
-                # Add the update_key value to the end of the tuple of column values
-                values = tuple(columns.values()) + (primary_value,)
-                response = {"status": "success"}
-                mycursor.execute(sql, values)
-                if mycursor.rowcount == 0:
-                    response = {"status": "false", "error": "Ningun cambio fue efectuado"}
-                return response
+                pass
             elif insert:
                 # Build the SQL INSERT statement
                 sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(columns))})"
                 # Build the tuple of column values
                 values = tuple(columns.values())
-                response = {"status": "success"}
             # Execute the SQL statement
-            mycursor.execute(sql, values)
+        print(sql)
+        print("valores", values)
+        print("Aqui ", sql % (values,))
+        mycursor.execute(sql, values)
+        if mycursor.rowcount == 0:
+            response = {"status": "error",
+                        "message": "Ninguna fila fue afectada."}
         # Commit the transaction
         conexion.commit()
         return response
@@ -80,7 +103,6 @@ def transaction(table_info, update_key=None, search_table=None, where=None, inse
         conexion.rollback()
         error = str(error)
         response = {"status": "error", "error": error}
-        return response
 
     finally:
         # Close the cursor and database connection

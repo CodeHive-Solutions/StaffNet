@@ -326,7 +326,6 @@ const SingUpView = ({ handleViewChange }) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                console.log("llegue")
                 // Handle successful response here
             })
             .catch(error => {
