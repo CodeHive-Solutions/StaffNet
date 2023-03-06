@@ -1,9 +1,13 @@
+import {
+    createBrowserRouter,
+    RouterProvider,
+} from "react-router-dom";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
+import HomeView from "./Components/HomeView";
 import CssBaseline from "@mui/material/CssBaseline";
-
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme({
     typography: {
@@ -12,11 +16,22 @@ const theme = createTheme({
     // any other styles you want to apply
 });
 
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <App />,
+    },
+    {
+        path: "home",
+        element: <HomeView />,
+    },
+]);
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <ThemeProvider theme={theme}>
         <CssBaseline>
-            <App />
+            <RouterProvider router={router} />
         </CssBaseline>
     </ThemeProvider>
 );

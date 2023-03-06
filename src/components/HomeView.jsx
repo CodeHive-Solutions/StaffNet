@@ -36,18 +36,7 @@ const HomeView = ({ handleViewChange }) => {
     const [edit, setEdit] = React.useState(true);
     const [detalles, setDetalles] = React.useState({});
     const [inputValues, setInputValues] = useState({});
-    const [checkedRows, setCheckedRows] = useState({});
-
-    const handleToggle = (row) => {
-        const newCheckedRows = { ...checkedRows };
-        newCheckedRows[row.estado] = !newCheckedRows[row.estado];
-        setCheckedRows(newCheckedRows);
-        // Send fetch request to backend here
-    };
-
-    const handleEdit = () => {
-        setEdit(!edit)
-    }
+    const handleEdit = () => setEdit(!edit)
 
     const handleOpenModal = (cedula) => {
         const request_get = {
@@ -90,66 +79,7 @@ const HomeView = ({ handleViewChange }) => {
         setPage(0);
     };
 
-    const handleInhabilitate = () => {
-        // Send a POST request to the server
-        const dataP = {
-            request: "change_state",
-            cedula: 1000065648,
-            token: Cookies.get('token'),
-            change_to: "here_checked",
-        };
-        fetch("http://localhost:5000/App", {
-            method: "POST",
-            body: JSON.stringify(dataP),
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-    };
-
-    const submit_edit = () => {
-
-        inputValues.request = "update_transaction"
-        inputValues.token = Cookies.get('token')
-        // Aqui va un objeto que contenga todos los datos, usted decida si los manda dentro de data o no
-        // data: {JSON que contiene todos los valores}
-        // O los puede mandar diretamente
-        // dato1: valor1
-        // dato2: valor2
-
-        fetch("http://localhost:5000/App", {
-            method: "POST",
-            body: JSON.stringify(inputValues),
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                if (data.status === "success") {
-                    handleCloseModal()
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-    }
-
-    useEffect(() => {
+    const searchEmployees = () => {
         const consult = {
             request: "search_employees",
             token: Cookies.get('token'),
@@ -168,12 +98,17 @@ const HomeView = ({ handleViewChange }) => {
             })
             .then((data) => {
                 setTableData(data.data)
+                console.log(data.data)
                 setAccess(true);
             })
             .catch((error) => {
                 console.error("Error:", error);
             });
         setTransition(!transition)
+    }
+
+    useEffect(() => {
+        searchEmployees()
     }, []);
 
     const columns = [
@@ -190,7 +125,7 @@ const HomeView = ({ handleViewChange }) => {
         {
             title: "Información Personal",
             inputs: [
-                { id: "1", label: "Cedula", name: "cedula", type: "number", tab: 1 },
+                { id: "1", label: "Cedula", name: "cedula", type: "text", tab: 1 },
                 { id: "2", label: "Nombre", name: "nombre", type: "text", tab: 3 },
                 { id: "3", label: "Fecha de nacimiento", name: "fecha_nacimiento", type: "date", shrink: true },
                 {
@@ -465,11 +400,6 @@ const HomeView = ({ handleViewChange }) => {
         setInputValues(initialInputValues);
     }, [openModal]);
 
-    useEffect(() => {
-        const me = document.getElementById('1001185389')
-        console.log(me)
-    }, []);
-
     const [tableResults, setTableResults] = React.useState([]);
 
     const rows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
@@ -514,18 +444,99 @@ const HomeView = ({ handleViewChange }) => {
         overflow: 'hidden'
     };
 
-    const checkedArrayRef = useRef(tableResults.map(row => row.estado));
+    const handleChange = (row) => {
 
-    const handleChange = (event, index) => {
-        // get the new value of checked from event.target.checked
-        const newChecked = event.target.checked;
+        console.log(row.cedula)
+        const updatedTableResults = tableResults.map((item) => {
+            if (item.cedula === row.cedula) {
+                return { ...item, estado: !item.estado };
+            } else {
+                return item;
+            }
+        })
+        setTableResults(updatedTableResults)
 
-        // update the ref variable by assigning a new array with updated value at index to its current property
-        checkedArrayRef.current = checkedArrayRef.current.map((item, i) => i === index ? newChecked : item);
+        console.log(!row.estado)
 
-        // do something else with newChecked if needed
-        console.log(newChecked);
-    };
+        const dataP = {
+            request: "change_state",
+            cedula: row.cedula,
+            token: Cookies.get('token'),
+            change_to: !row.estado,
+        };
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(dataP),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+
+    const searchEmployeesEdit = () => {
+        const consult = {
+            request: "search_employees",
+            token: Cookies.get('token'),
+        };
+
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(consult),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setTableData(data.data)
+                setSearchTerm('')
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+
+    const submit_edit = () => {
+
+        inputValues.request = "update_transaction"
+        inputValues.token = Cookies.get('token')
+
+        fetch("http://localhost:5000/App", {
+            method: "POST",
+            body: JSON.stringify(inputValues),
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                if (data.status === "success") {
+                    setTableResults([])
+                    handleCloseModal()
+                    searchEmployeesEdit()
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
 
     if (access) {
         return (
@@ -538,76 +549,80 @@ const HomeView = ({ handleViewChange }) => {
                         aria-describedby="modal-modal-description"
                         sx={{ display: "flex", borderRadius: "30px" }}
                     >
-                        <Box sx={stylesModal}>
-                            <Button title="Editar" onClick={() => handleEdit()}>
-                                <EditIcon></EditIcon>
-                            </Button>
-                            <List sx={{ overflow: 'auto', maxHeight: "515px" }}>
-                                <Typography sx={{ display: "flex", justifyContent: "center" }} id="modal-modal-title" variant="h5" component="h3">
-                                    Detalles del empleado
-                                </Typography>
-                                <Box sx={{ p: 2 }}>
-                                    {pageInputs.map((section) => (
-                                        <Box key={section.title} sx={{ mb: 2, display: "flex", flexWrap: "wrap", width: "100%" }}>
-                                            <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}</Typography>
-                                            {section.inputs.map((input) => (
-                                                <Box key={input.id} sx={{ m: 2 }}>
-                                                    {input.id == 1
-                                                        ?
-                                                        <TextField disabled label={input.label} type={input.type} value={input.value} sx={{ width: "220px" }}>
-                                                        </TextField>
-                                                        :
-                                                        input.type == "select" ?
-                                                            <TextField
-                                                                sx={{ width: "220px" }}
-                                                                key={input.id}
-                                                                select
-                                                                label={input.label}
-                                                                value={inputValues[input.name]}
-                                                                name={input.name}
-                                                                variant="outlined"
-                                                                onChange={(event) => {
-                                                                    setInputValues({
-                                                                        ...inputValues,
-                                                                        [input.name]: event.target.value,
-                                                                    });
-                                                                }} disabled={edit}
-                                                            >
-                                                                {
-                                                                    input.options.map((option) => (
-                                                                        <MenuItem key={option.value} value={option.value}>
-                                                                            {option.label}
-                                                                        </MenuItem>
-                                                                    ))
-                                                                }
+                        <Fade in={openModal}>
+                            <Box sx={stylesModal}>
+                                <Button title="Editar" onClick={() => handleEdit()}>
+                                    <EditIcon></EditIcon>
+                                </Button>
+                                <List sx={{ overflow: 'auto', maxHeight: "515px" }}>
+                                    <Typography sx={{ display: "flex", justifyContent: "center" }} id="modal-modal-title" variant="h5" component="h3">
+                                        Detalles del empleado
+                                    </Typography>
+                                    <Box sx={{ p: 2 }}>
+                                        {pageInputs.map((section) => (
+                                            <Box key={section.title} sx={{ mb: 2, display: "flex", flexWrap: "wrap", width: "100%" }}>
+                                                <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}</Typography>
+                                                {section.inputs.map((input) => (
+                                                    <Box key={input.id} sx={{ m: 2 }}>
+                                                        {input.id == 1
+                                                            ?
+                                                            <TextField disabled required label={input.label} type={input.type} value={input.value} sx={{ width: "220px" }}>
                                                             </TextField>
                                                             :
-                                                            <TextField disabled={edit}
-                                                                onChange={(event) => {
-                                                                    setInputValues({
-                                                                        ...inputValues,
-                                                                        [input.name]: event.target.value,
-                                                                    });
-                                                                }}
-                                                                label={input.label} type={input.type} value={inputValues[input.name]}
-                                                                sx={{ width: "220px" }}>
-                                                            </TextField>}
-                                                </Box>
-                                            ))}
-                                        </Box>
-                                    ))}
-                                </Box>
-                            </List>
-
-                            <Box sx={{ display: "flex", justifyContent: "flex-end", mx: "50px" }}>
-                                <Button disabled={edit} onClick={() => submit_edit()}>
-                                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                        <SaveIcon />
+                                                            input.type == "select" ?
+                                                                <TextField
+                                                                    sx={{ width: "220px" }}
+                                                                    select
+                                                                    required
+                                                                    label={input.label}
+                                                                    value={inputValues[input.name]}
+                                                                    name={input.name}
+                                                                    variant="outlined"
+                                                                    onChange={(event) => {
+                                                                        setInputValues({
+                                                                            ...inputValues,
+                                                                            [input.name]: event.target.value,
+                                                                        });
+                                                                    }} disabled={edit}
+                                                                >
+                                                                    {
+                                                                        input.options.map((option) => (
+                                                                            <MenuItem key={option.value} value={option.value}>
+                                                                                {option.label}
+                                                                            </MenuItem>
+                                                                        ))
+                                                                    }
+                                                                </TextField>
+                                                                :
+                                                                <TextField disabled={edit}
+                                                                    required
+                                                                    onChange={(event) => {
+                                                                        setInputValues({
+                                                                            ...inputValues,
+                                                                            [input.name]: event.target.value,
+                                                                        });
+                                                                    }}
+                                                                    label={input.label} type={input.type} value={inputValues[input.name]}
+                                                                    sx={{ width: "220px" }}>
+                                                                </TextField>}
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        ))}
                                     </Box>
-                                    Guardar
-                                </Button>
+                                </List>
+
+                                <Box sx={{ display: "flex", justifyContent: "flex-end", mx: "50px" }}>
+                                    <Button disabled={edit} onClick={() => submit_edit()}>
+                                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                            <SaveIcon />
+                                        </Box>
+                                        Guardar
+                                    </Button>
+                                </Box>
                             </Box>
-                        </Box>
+                        </Fade>
+
                     </Modal>
 
                     <Header handleViewChange={handleViewChange} logoRedirection={"HomeView"}></Header>
@@ -671,9 +686,9 @@ const HomeView = ({ handleViewChange }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {tableResults.map((row, index) => {
+                                        {tableResults.map((row) => {
                                             return (
-                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.cedula}>
+                                                <TableRow hover role="checkbox" key={row.cedula}>
                                                     {columns.map((column) => {
                                                         const value = row[column.id];
                                                         if (column.id === 'detalles') {
@@ -686,9 +701,8 @@ const HomeView = ({ handleViewChange }) => {
                                                             );
                                                         } else if (column.id === 'estado') {
                                                             return (
-                                                                <TableCell key={`${column.id}`} align={column.align}>
-                                                                    {/* pass checkedArrayRef.current[index] as checked prop and pass index as second argument to handleChange */}
-                                                                    <Switch id={row.cedula.toString()} checked={checkedArrayRef.current[index]} onChange={(event) => handleChange(event, index)} />
+                                                                <TableCell key={column.id} align={column.align}>
+                                                                    <Switch checked={row.estado} onChange={() => handleChange(row)} />
                                                                 </TableCell>
                                                             );
                                                         } else {

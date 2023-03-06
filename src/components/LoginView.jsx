@@ -1,5 +1,6 @@
 // Import the material-ui components
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -65,7 +66,9 @@ const LoginView = ({ handleViewChange }) => {
             // If the remember username checkbox is not checked, remove the username from local storage
             localStorage.removeItem("username");
         }
-
+        const changeRoute = function (route) {
+            useNavigate(route)
+        }
         // Send a POST request to the server
         const dataP = {
             request: "login",
@@ -90,7 +93,7 @@ const LoginView = ({ handleViewChange }) => {
                 setProgressBar(false);
                 console.log("conn:", data.login, "error", data.error);
                 if (data.login === "success") {
-
+                    const navigate = useNavigate()
                     const expirationDate = new Date(Date.now() + 3600000);
                     console.log(data.username);
                     Cookies.set("token", data.token, {
@@ -98,9 +101,9 @@ const LoginView = ({ handleViewChange }) => {
                         expires: expirationDate,
                     });
                     if (data.create_admins) {
-                        handleViewChange("PermissionsView")
+                        <Navigate to="/PermissionsView" replace />
                     } else {
-                        handleViewChange("HomeView");
+                        navigate("/home")
                     }
 
                     console.log(data.token)

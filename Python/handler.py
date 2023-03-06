@@ -253,7 +253,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         }
                     }
                     response = update_data(
-                        conexion, info_tables, "cedula = "+body["cedula"])
+                        conexion, info_tables, "cedula = "+str(body["cedula"]))
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
@@ -261,7 +261,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             elif request == "change_state":
                 if verify_token(token, "disable"):
                     response = update("leave_information", ("estado",),
-                                      (body["change_to"], body["cedula"]), "WHERE cedula = %s")
+                                      (body["change_to"], body["cedula"]), "WHERE cedula = %s", conexion)
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
