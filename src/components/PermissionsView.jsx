@@ -21,19 +21,24 @@ import Cookies from "js-cookie";
 import Header from "./Header";
 import Container from '@mui/material/Container';
 import SnackAlert from "./SnackAlert";
+import { useNavigate } from "react-router-dom";
 
-const PermissionsView = ({ handleViewChange }) => {
-
+const PermissionsView = () => {
+    const navigate = useNavigate()
     const [access, setAccess] = useState(false);
+    const token = Cookies.get("token")
 
     useEffect(() => {
         setTransition(!transition)
         // Make fetch request to validate session
+        if (!token) {
+            navigate("/")
+        }
+
         const validate = {
             request: "validate_create_admins",
-            token: Cookies.get('token'),
+            token: JSON.parse(token).token
         };
-
         // Fetch validate the session
         fetch("http://localhost:5000/App", {
             method: "POST",
@@ -48,10 +53,10 @@ const PermissionsView = ({ handleViewChange }) => {
             })
             .then((data) => {
                 console.log(data);
-                if (data.status !== "False") {
+                if (data.status === "success") {
                     setAccess(true);
                 } else {
-                    handleViewChange("LoginView");
+                    navigate("/")
                 }
             })
             .catch((error) => {
@@ -113,7 +118,7 @@ const PermissionsView = ({ handleViewChange }) => {
         const dataSearch = {
             request: "search_user_ad",
             username: userValueSearch,
-            token: Cookies.get('token'),
+            token: JSON.parse(token).token
         };
 
         // Fetch search the windows user
@@ -131,16 +136,9 @@ const PermissionsView = ({ handleViewChange }) => {
             })
             .then((data) => {
                 setProgressBar(false)
-                console.log(
-                    "status:",
-                    data.status,
-                    "error",
-                    data.error,
-                    "info: ", data.info
-                );
+                console.log(data);
                 if (data.status === "success" && data.info === undefined) {
                     setOpenDialog(true);
-                    console.log("entrea?")
                     setCreate(true);
                 }
                 if (
@@ -210,7 +208,7 @@ const PermissionsView = ({ handleViewChange }) => {
                 request: "create",
                 user: userValueSubmit,
                 permissions: permissionsObject,
-                token: Cookies.get('token'),
+                token: JSON.parse(token).token
             };
             fetch("http://localhost:5000", {
                 method: "POST",
@@ -224,13 +222,7 @@ const PermissionsView = ({ handleViewChange }) => {
                     return response.json();
                 })
                 .then((data) => {
-                    console.log(
-                        "conn:",
-                        data.login,
-                        "error",
-                        data.error,
-                        typeof data.login
-                    );
+                    console.log(data);
                     setOpenSnackAlert2(true);
                     handleClear()
                 })
@@ -247,7 +239,7 @@ const PermissionsView = ({ handleViewChange }) => {
                 request: "edit_admin",
                 user: userValueSubmit,
                 permissions: permissionsObject,
-                token: Cookies.get('token'),
+                token: JSON.parse(token).token
             };
             fetch("http://localhost:5000", {
                 method: "POST",
@@ -261,16 +253,14 @@ const PermissionsView = ({ handleViewChange }) => {
                     return response.json();
                 })
                 .then((data) => {
-                    console.log(
-                        "conn:",
-                        data.login,
-                        "error",
-                        data.error,
-                        typeof data.login
-                    );
-                    setOpenSnackAlert(true);
+                    console.log(data);
+                    if (data.status === "success") {
+                        setOpenSnackAlert(true);
+                    }
+                    else {
+                        handleClickSnack("Hubo un error: " + data.error)
+                    }
                     handleClear()
-                    console.log(userRef.current.value)
                 })
                 .catch((error) => {
                     handleClickSnack(
@@ -334,7 +324,7 @@ const PermissionsView = ({ handleViewChange }) => {
                             </Alert>
                         </Snackbar>
 
-                        <Header handleViewChange={handleViewChange} logoRedirection={"PermissionsView"} ></Header>
+                        <Header></Header>
 
 
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", height: "75vh" }}>

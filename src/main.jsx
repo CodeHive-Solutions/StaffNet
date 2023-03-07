@@ -5,10 +5,11 @@ import {
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./App";
+import PermissionsView from "./Components/PermissionsView";
 import HomeView from "./Components/HomeView";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import LoginView from "./Components/LoginView";
 const theme = createTheme({
     typography: {
         fontFamily: '"Open Sans", sans-serif',
@@ -18,13 +19,17 @@ const theme = createTheme({
 
 const router = createBrowserRouter([
     {
-        path: "/",
-        element: <App />,
+        path: "*",
+        element: <LoginView />,
     },
     {
         path: "home",
         element: <HomeView />,
     },
+    {
+        path: "permissions",
+        element: <PermissionsView />,
+    }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

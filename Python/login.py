@@ -28,6 +28,7 @@ def consulta_login(body, conexion):
             print("Logged by MYSQL")
             payload = {"username": user, "consult": result_query[1],
                        "create": result_query[2], "edit": result_query[3], "disable": result_query[4], 'create_admins': result_query[5]}
+            print(payload)
             token = generate_token(payload)
             response = {'login': 'success', 'token': token,
                         'create_admins': result_query[5]}
@@ -40,8 +41,10 @@ def consulta_login(body, conexion):
                 try:
                     login = Connection(
                         server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True)
-                    token = generate_token(
-                        body["user"], result_query[1], result_query[2], result_query[3], result_query[4])
+                    payload = {"username": user, "consult": result_query[1],
+                       "create": result_query[2], "edit": result_query[3], "disable": result_query[4], 'create_admins': result_query[5]}
+                    print(payload)
+                    token = generate_token(payload)
                     response = {'login': 'success', 'token': token,
                                 'create_admins': result_query[5]}
                     try:

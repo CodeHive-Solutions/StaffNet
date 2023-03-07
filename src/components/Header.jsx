@@ -7,9 +7,13 @@ import Alert from "@mui/material/Alert";
 import Link from "@mui/material/Link";
 import Snackbar from "@mui/material/Snackbar";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
-const Header = ({ handleViewChange, logoRedirection, pointer }) => {
 
+
+
+const Header = () => {
+    const navigate = useNavigate();
     const [openSnackSession, setOpenSnackSession] = React.useState(false);
 
     const handleCloseSession = () => {
@@ -18,18 +22,12 @@ const Header = ({ handleViewChange, logoRedirection, pointer }) => {
 
     const closeSesion = () => {
         Cookies.remove("token")
-        handleViewChange("LoginView")
+        navigate("/", { replace: true })
     }
 
     const handleClickSnackSession = () => {
         setOpenSnackSession(true);
     };
-
-    let pointerMouse = "pointer"
-
-    if (pointer === undefined) {
-        pointerMouse = "default"
-    }
 
     return (
         <>
@@ -69,8 +67,6 @@ const Header = ({ handleViewChange, logoRedirection, pointer }) => {
                     <Link
                         color="inherit"
                         underline="none"
-                        onClick={() => handleViewChange(logoRedirection)}
-                        sx={{ cursor: pointerMouse }}
                     >
                         <LogoST></LogoST>
                     </Link>

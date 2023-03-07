@@ -1,4 +1,5 @@
 // Import the material-ui components
+import Cookies from "js-cookie";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
@@ -15,15 +16,13 @@ import Collapse from "@mui/material/Collapse";
 import Snackbar from "@mui/material/Snackbar";
 import CustomLogoST from "./LogoST";
 import LoginIcon from "@mui/icons-material/Login";
-import Cookies from "js-cookie";
 import Fade from '@mui/material/Fade';
 import LinearProgress from '@mui/material/LinearProgress';
 import LogotipoServicesV from "../Images/LogotipoServicesV.avif"
 import Image1 from "../Images/LogotipoServicesV.avif"
 
 
-const LoginView = ({ handleViewChange }) => {
-
+const LoginView = () => {
     // State variables for keeping track of the checkbox state, username, date, and collapse state
     const [rememberUsername, setRememberUsername] = useState(true);
     const [username, setUsername] = useState("");
@@ -34,7 +33,7 @@ const LoginView = ({ handleViewChange }) => {
     const [transition, setTransition] = React.useState(false);
     const [progressBar, setProgressBar] = React.useState(false);
     const inputRef = useRef();
-
+    const navigate = useNavigate()
     // Custom styles to the logo
     const customStyles = {
         letterSpacing: "9px",
@@ -66,9 +65,6 @@ const LoginView = ({ handleViewChange }) => {
             // If the remember username checkbox is not checked, remove the username from local storage
             localStorage.removeItem("username");
         }
-        const changeRoute = function (route) {
-            useNavigate(route)
-        }
         // Send a POST request to the server
         const dataP = {
             request: "login",
@@ -93,20 +89,22 @@ const LoginView = ({ handleViewChange }) => {
                 setProgressBar(false);
                 console.log("conn:", data.login, "error", data.error);
                 if (data.login === "success") {
-                    const navigate = useNavigate()
-                    const expirationDate = new Date(Date.now() + 3600000);
-                    console.log(data.username);
-                    Cookies.set("token", data.token, {
-                        secure: true,
-                        expires: expirationDate,
-                    });
+                    const expirationDate = new Date(Date.now() + 43200000);
                     if (data.create_admins) {
-                        <Navigate to="/PermissionsView" replace />
+                        let info = { token: data.token, accessTo: "permissions" }
+                        Cookies.set("token", JSON.stringify(info), {
+                            secure: true,
+                            expires: expirationDate,
+                        });
+                        navigate("/permissions")
                     } else {
+                        let info = { token: data.token, accessTo: "home" }
+                        Cookies.set("token", JSON.stringify(info), {
+                            secure: true,
+                            expires: expirationDate,
+                        });
                         navigate("/home")
                     }
-
-                    console.log(data.token)
                 } else {
                     handleClickSnack(data.error);
                 }
@@ -125,6 +123,16 @@ const LoginView = ({ handleViewChange }) => {
         // Use effect hook to update the username from local storage if it exists
         if (localStorage.getItem("username") != null) {
             setUsername(localStorage.getItem("username"));
+        }
+
+        if (Cookies.get('token')) {
+            let cookie = JSON.parse(Cookies.get('token'))
+            if (cookie.accessTo === "permissions") {
+                navigate("/permissions")
+            }
+            else {
+                navigate("/home")
+            }
         }
 
         // Set the date on an interval to change each day the image show it in the loggin
@@ -166,11 +174,9 @@ const LoginView = ({ handleViewChange }) => {
             clearTimeout(timeoutId); // clear timeout on unmount
         };
     }, []);
-
     return (
         <Fade in={transition}>
             <Grid container component="main" sx={{ height: "100vh" }}>
-
                 <Fade in={progressBar}>
                     <Box sx={{ width: '100%', position: "absolute" }}>
                         <LinearProgress open={true} />

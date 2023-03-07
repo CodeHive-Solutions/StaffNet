@@ -7,7 +7,7 @@ from insert import insert
 from login import consulta_login
 from update import update
 from search import search
-from sessions import verify_token
+from sessions import verify_token, decrypt
 from transaction import transaction, join_tables, update_data
 import logging
 
@@ -102,7 +102,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
             elif request == 'search_user_ad':
-                if verify_token(token, "consult"):
+                if verify_token(token, "create_admins"):
                     username = (body['username'],)
                     response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
                                       'WHERE user = %s', username, cursor, True, body['username'])
@@ -111,13 +111,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                                 'error': 'No tienes permisos'}
 
             elif request == 'edit_admin':
-                if verify_token(token, "edit"):
+                print(body["user"])
+                print(decrypt(token, "username"))
+                if verify_token(token, "create_admins") and decrypt(token, "username") != body["user"]:
                     table = "users"
                     fields = "permission_consult", "permission_create", "permission_edit", "permission_disable"
                     condition = "WHERE user = %s"
                     parameters = (body["permissions"]["consultar"], body["permissions"]["crear"], body[
                         "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
-                    response = update(table, fields, parameters, condition)
+                    response = update(
+                        table, fields, parameters, condition, conexion)
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}

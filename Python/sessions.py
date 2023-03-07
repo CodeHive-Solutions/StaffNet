@@ -16,7 +16,7 @@ def verify_token(token, dato):
         # Decode the token using the secret key and HS256 algorithm
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
 
-        if dato in payload:
+        if dato in payload and payload[dato] != False:
             return True
         else:
             return False

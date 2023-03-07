@@ -24,9 +24,10 @@ import TablePagination from '@mui/material/TablePagination';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import MenuItem from '@mui/material/MenuItem';
+import { useNavigate } from "react-router-dom";
 
-const HomeView = ({ handleViewChange }) => {
-
+const HomeView = () => {
+    const navigate = useNavigate()
     const [transition, setTransition] = React.useState(false);
     const [tableData, setTableData] = React.useState([]);
     const [access, setAccess] = useState(false)
@@ -42,7 +43,7 @@ const HomeView = ({ handleViewChange }) => {
         const request_get = {
             "request": "join",
             "cedula": cedula,
-            token: Cookies.get('token')
+            token: JSON.parse(Cookies.get('token')).token
         }
         fetch('http://localhost:5000/App', {
             method: 'POST',
@@ -55,9 +56,9 @@ const HomeView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data.data);
-                setOpenModal(true)
                 setDetalles(data.data[0])
+                setOpenModal(true);
+
             })
             .catch(error => {
                 // Handle error here
@@ -82,7 +83,7 @@ const HomeView = ({ handleViewChange }) => {
     const searchEmployees = () => {
         const consult = {
             request: "search_employees",
-            token: Cookies.get('token'),
+            token: JSON.parse(Cookies.get('token')).token,
         };
 
         fetch("http://localhost:5000/App", {
@@ -97,9 +98,15 @@ const HomeView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
+
+                if (data.status === "success") {
+                    setAccess(true);
+                }
+                else {
+                    navigate("/")
+                }
                 setTableData(data.data)
-                console.log(data.data)
-                setAccess(true);
+
             })
             .catch((error) => {
                 console.error("Error:", error);
@@ -390,6 +397,7 @@ const HomeView = ({ handleViewChange }) => {
         });
     });
 
+    // useEffect assing inputs' values
     useEffect(() => {
         const initialInputValues = {};
         pageInputs.forEach((section) => {
@@ -400,7 +408,6 @@ const HomeView = ({ handleViewChange }) => {
         setInputValues(initialInputValues);
     }, [openModal]);
 
-    const [tableResults, setTableResults] = React.useState([]);
 
     const rows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
         cedula,
@@ -413,14 +420,51 @@ const HomeView = ({ handleViewChange }) => {
     /* Creation of the search function */
     const [searchTerm, setSearchTerm] = useState('');
 
+    const [tableResults, setTableResults] = React.useState([]);
+
     useEffect(() => {
-        if (searchTerm.length == 0) {
-            setTableResults(tableResults.concat(rows));
-        }
+        console.log(rows)
+        console.log("entrando")
+        setTableResults(tableResults.concat(rows));
     }, [tableData]);
 
     useEffect(() => {
-        setTableResults(rows.filter(person => {
+        if (searchTerm.length == 0) {
+            const consult = {
+                request: "search_employees",
+                token: JSON.parse(Cookies.get('token')).token,
+            };
+
+            fetch("http://localhost:5000/App", {
+                method: "POST",
+                body: JSON.stringify(consult),
+            })
+                .then((response) => {
+                    // Check if the response was successful
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+
+                    if (data.status === "success") {
+                        setAccess(true);
+                    }
+                    else {
+                        navigate("/")
+                    }
+                    setTableResults([])
+                    setTableData(data.data)
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+        }
+    }, [searchTerm]);
+
+    useEffect(() => {
+        setTableResults(tableResults.filter(person => {
             for (const key in person) {
                 if (person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
                     return true;
@@ -430,23 +474,9 @@ const HomeView = ({ handleViewChange }) => {
         }))
     }, [searchTerm]);
 
-    const stylesModal = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 1150,
-        height: "80vh",
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: "20px",
-        overflow: 'hidden'
-    };
 
-    const handleChange = (row) => {
+    const handleSwitch = (row) => {
 
-        console.log(row.cedula)
         const updatedTableResults = tableResults.map((item) => {
             if (item.cedula === row.cedula) {
                 return { ...item, estado: !item.estado };
@@ -454,14 +484,13 @@ const HomeView = ({ handleViewChange }) => {
                 return item;
             }
         })
-        setTableResults(updatedTableResults)
 
-        console.log(!row.estado)
+        setTableResults(updatedTableResults)
 
         const dataP = {
             request: "change_state",
             cedula: row.cedula,
-            token: Cookies.get('token'),
+            token: JSON.parse(Cookies.get('token')).token,
             change_to: !row.estado,
         };
         fetch("http://localhost:5000/App", {
@@ -486,7 +515,7 @@ const HomeView = ({ handleViewChange }) => {
     const searchEmployeesEdit = () => {
         const consult = {
             request: "search_employees",
-            token: Cookies.get('token'),
+            token: JSON.parse(Cookies.get('token')).token,
         };
 
         fetch("http://localhost:5000/App", {
@@ -526,7 +555,6 @@ const HomeView = ({ handleViewChange }) => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 if (data.status === "success") {
                     setTableResults([])
                     handleCloseModal()
@@ -537,6 +565,20 @@ const HomeView = ({ handleViewChange }) => {
                 console.error("Error:", error);
             });
     }
+
+    const stylesModal = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '82%',
+        height: "80%",
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: "20px",
+        overflow: "auto",
+    };
 
     if (access) {
         return (
@@ -550,11 +592,21 @@ const HomeView = ({ handleViewChange }) => {
                         sx={{ display: "flex", borderRadius: "30px" }}
                     >
                         <Fade in={openModal}>
-                            <Box sx={stylesModal}>
-                                <Button title="Editar" onClick={() => handleEdit()}>
-                                    <EditIcon></EditIcon>
-                                </Button>
-                                <List sx={{ overflow: 'auto', maxHeight: "515px" }}>
+                            <Box sx={stylesModal} component="form" onSubmit={submit_edit}>
+                                <Box sx={{ display: "flex", justifyContent: "space-between", mx: "10px" }}>
+                                    <Button title="Editar" onClick={() => handleEdit()}>
+                                        <EditIcon></EditIcon>
+                                    </Button>
+                                    <Box>
+                                        <Button disabled={edit} type="submit">
+                                            <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                                <SaveIcon />
+                                            </Box>
+                                            Guardar
+                                        </Button>
+                                    </Box>
+                                </Box>
+                                <List sx={{ overflow: 'auto', maxHeight: "505px" }}>
                                     <Typography sx={{ display: "flex", justifyContent: "center" }} id="modal-modal-title" variant="h5" component="h3">
                                         Detalles del empleado
                                     </Typography>
@@ -566,24 +618,30 @@ const HomeView = ({ handleViewChange }) => {
                                                     <Box key={input.id} sx={{ m: 2 }}>
                                                         {input.id == 1
                                                             ?
-                                                            <TextField disabled required label={input.label} type={input.type} value={input.value} sx={{ width: "220px" }}>
+                                                            <TextField InputLabelProps={{
+                                                                shrink: true,
+                                                            }} disabled required label={input.label} type={input.type} value={input.value || ""} sx={{ width: "220px" }}>
                                                             </TextField>
                                                             :
                                                             input.type == "select" ?
                                                                 <TextField
-                                                                    sx={{ width: "220px" }}
                                                                     select
                                                                     required
-                                                                    label={input.label}
-                                                                    value={inputValues[input.name]}
+                                                                    disabled={edit}
                                                                     name={input.name}
                                                                     variant="outlined"
+                                                                    label={input.label}
+                                                                    sx={{ width: "220px" }}
+                                                                    value={inputValues[input.name] || ""}
+                                                                    InputLabelProps={{
+                                                                        shrink: true,
+                                                                    }}
                                                                     onChange={(event) => {
                                                                         setInputValues({
                                                                             ...inputValues,
                                                                             [input.name]: event.target.value,
                                                                         });
-                                                                    }} disabled={edit}
+                                                                    }}
                                                                 >
                                                                     {
                                                                         input.options.map((option) => (
@@ -594,16 +652,23 @@ const HomeView = ({ handleViewChange }) => {
                                                                     }
                                                                 </TextField>
                                                                 :
-                                                                <TextField disabled={edit}
+                                                                <TextField
                                                                     required
+                                                                    disabled={edit}
+                                                                    type={input.type}
+                                                                    label={input.label}
+                                                                    sx={{ width: "220px" }}
+                                                                    value={inputValues[input.name]}
+                                                                    InputLabelProps={{
+                                                                        shrink: true,
+                                                                    }}
                                                                     onChange={(event) => {
                                                                         setInputValues({
                                                                             ...inputValues,
                                                                             [input.name]: event.target.value,
                                                                         });
                                                                     }}
-                                                                    label={input.label} type={input.type} value={inputValues[input.name]}
-                                                                    sx={{ width: "220px" }}>
+                                                                >
                                                                 </TextField>}
                                                     </Box>
                                                 ))}
@@ -612,20 +677,12 @@ const HomeView = ({ handleViewChange }) => {
                                     </Box>
                                 </List>
 
-                                <Box sx={{ display: "flex", justifyContent: "flex-end", mx: "50px" }}>
-                                    <Button disabled={edit} onClick={() => submit_edit()}>
-                                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                            <SaveIcon />
-                                        </Box>
-                                        Guardar
-                                    </Button>
-                                </Box>
                             </Box>
                         </Fade>
 
                     </Modal>
 
-                    <Header handleViewChange={handleViewChange} logoRedirection={"HomeView"}></Header>
+                    <Header></Header>
                     <Box
                         sx={{
                             display: "flex",
@@ -653,7 +710,7 @@ const HomeView = ({ handleViewChange }) => {
                         </Box>
                     </Box>
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                        <Button onClick={() => handleViewChange("SingUpView")}>
+                        <Button>
                             <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                                 <PersonAddIcon />
                             </Box>
@@ -702,7 +759,7 @@ const HomeView = ({ handleViewChange }) => {
                                                         } else if (column.id === 'estado') {
                                                             return (
                                                                 <TableCell key={column.id} align={column.align}>
-                                                                    <Switch checked={row.estado} onChange={() => handleChange(row)} />
+                                                                    <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
                                                                 </TableCell>
                                                             );
                                                         } else {
