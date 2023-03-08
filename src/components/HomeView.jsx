@@ -34,6 +34,7 @@ const HomeView = () => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [openModal, setOpenModal] = React.useState(false);
+    const [openModalAdd, setOpenModalAdd] = React.useState(false);
     const [edit, setEdit] = React.useState(true);
     const [detalles, setDetalles] = React.useState({});
     const [inputValues, setInputValues] = useState({});
@@ -64,11 +65,18 @@ const HomeView = () => {
                 // Handle error here
                 console.error('Hubo un problema: ', error);
             });
-
     };
+
+    const handleOpenModalAdd = () => setOpenModalAdd(true);
+
     const handleCloseModal = () => {
         setOpenModal(false);
         setEdit(true)
+        setDetalles({})
+    }
+
+    const handleCloseModalAdd = () => {
+        setOpenModalAdd(false);
     }
 
     const handleChangePage = (event, newPage) => {
@@ -326,11 +334,11 @@ const HomeView = () => {
                     name: "desempeno_2_sem_2016",
                     type: "text"
                 },
-                { id: "44", label: "Desempeño 2017", name: "desempeno_2017", type: "text" },
-                { id: "45", label: "Desempeño 2018", name: "desempeno_2018", type: "text" },
-                { id: "46", label: "Desempeño 2019", name: "desempeno_2019", type: "text" },
-                { id: "47", label: "Desempeño 2020", name: "desempeno_2020", type: "text" },
-                { id: "48", label: "Desempeño 2021", name: "desempeno_2021", type: "text" },
+                { id: "44", label: "Desempeño 2017", name: "desempeno_2017", type: "Number" },
+                { id: "45", label: "Desempeño 2018", name: "desempeno_2018", type: "Number" },
+                { id: "46", label: "Desempeño 2019", name: "desempeno_2019", type: "Number" },
+                { id: "47", label: "Desempeño 2020", name: "desempeno_2020", type: "Number" },
+                { id: "48", label: "Desempeño 2021", name: "desempeno_2021", type: "Number" },
             ],
         },
         // Inputs Pagina Acciones Diciplinarias
@@ -408,84 +416,55 @@ const HomeView = () => {
         setInputValues(initialInputValues);
     }, [openModal]);
 
-
-    const rows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
-        cedula,
-        nombre,
-        celular,
-        correo,
-        estado: estado === 1 ? true : false,
-    }));
-
-    /* Creation of the search function */
+    // Search and table functionality
+    const [rows, setRows] = useState([]);
+    const [tableResults, setTableResults] = React.useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const [tableResults, setTableResults] = React.useState([]);
-
     useEffect(() => {
-        console.log(rows)
-        console.log("entrando")
-        setTableResults(tableResults.concat(rows));
+        const newRows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
+            cedula,
+            nombre,
+            celular,
+            correo,
+            estado: estado === 1 ? true : false,
+        }));
+        setRows(newRows);
     }, [tableData]);
 
-    useEffect(() => {
-        if (searchTerm.length == 0) {
-            const consult = {
-                request: "search_employees",
-                token: JSON.parse(Cookies.get('token')).token,
-            };
-
-            fetch("http://localhost:5000/App", {
-                method: "POST",
-                body: JSON.stringify(consult),
-            })
-                .then((response) => {
-                    // Check if the response was successful
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-
-                    if (data.status === "success") {
-                        setAccess(true);
-                    }
-                    else {
-                        navigate("/")
-                    }
-                    setTableResults([])
-                    setTableData(data.data)
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                });
-        }
-    }, [searchTerm]);
 
     useEffect(() => {
-        setTableResults(tableResults.filter(person => {
+        setTableResults(rows.filter(person => {
             for (const key in person) {
                 if (person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
                     return true;
                 }
             }
             return false;
-        }))
-    }, [searchTerm]);
+        }));
+    }, [searchTerm, rows]);
 
-
+    // Disable functionality
     const handleSwitch = (row) => {
-
         const updatedTableResults = tableResults.map((item) => {
             if (item.cedula === row.cedula) {
                 return { ...item, estado: !item.estado };
             } else {
                 return item;
             }
-        })
+        });
 
-        setTableResults(updatedTableResults)
+        setTableResults(updatedTableResults);
+
+        const updatedRows = rows.map((item) => {
+            if (item.cedula === row.cedula) {
+                return { ...item, estado: !item.estado };
+            } else {
+                return item;
+            }
+        });
+
+        setRows(updatedRows);
 
         const dataP = {
             request: "change_state",
@@ -512,12 +491,12 @@ const HomeView = () => {
             });
     }
 
+    // Edit functionality
     const searchEmployeesEdit = () => {
         const consult = {
             request: "search_employees",
             token: JSON.parse(Cookies.get('token')).token,
         };
-
         fetch("http://localhost:5000/App", {
             method: "POST",
             body: JSON.stringify(consult),
@@ -538,10 +517,11 @@ const HomeView = () => {
             });
     }
 
-    const submit_edit = () => {
-
+    const submitEdit = (event) => {
+        event.preventDefault()
+        console.log("subiendo")
         inputValues.request = "update_transaction"
-        inputValues.token = Cookies.get('token')
+        inputValues.token = JSON.parse(Cookies.get('token')).token
 
         fetch("http://localhost:5000/App", {
             method: "POST",
@@ -566,6 +546,27 @@ const HomeView = () => {
             });
     }
 
+    const submitAdd = (event) => {
+        event.preventDefault();
+        formData.request = "insert_transaction"
+        formData.token = JSON.parse(Cookies.get('token')).token
+
+        fetch('http://localhost:5000/App', {
+            method: 'POST',
+            body: JSON.stringify(formData),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                // Handle successful response here
+            })
+            .catch(error => {
+                // Handle error here
+                console.error('There was a problem submitting the form:', error);
+            });
+    };
+
     const stylesModal = {
         position: 'absolute',
         top: '50%',
@@ -584,6 +585,7 @@ const HomeView = () => {
         return (
             <Fade in={transition}>
                 <Container>
+                    {/* Edit Modal */}
                     <Modal
                         open={openModal}
                         onClose={handleCloseModal}
@@ -592,7 +594,7 @@ const HomeView = () => {
                         sx={{ display: "flex", borderRadius: "30px" }}
                     >
                         <Fade in={openModal}>
-                            <Box sx={stylesModal} component="form" onSubmit={submit_edit}>
+                            <Box sx={stylesModal} component="form" onSubmit={submitEdit}>
                                 <Box sx={{ display: "flex", justifyContent: "space-between", mx: "10px" }}>
                                     <Button title="Editar" onClick={() => handleEdit()}>
                                         <EditIcon></EditIcon>
@@ -606,7 +608,7 @@ const HomeView = () => {
                                         </Button>
                                     </Box>
                                 </Box>
-                                <List sx={{ overflow: 'auto', maxHeight: "505px" }}>
+                                <List sx={{ overflow: 'auto', maxHeight: "515px" }}>
                                     <Typography sx={{ display: "flex", justifyContent: "center" }} id="modal-modal-title" variant="h5" component="h3">
                                         Detalles del empleado
                                     </Typography>
@@ -620,19 +622,20 @@ const HomeView = () => {
                                                             ?
                                                             <TextField InputLabelProps={{
                                                                 shrink: true,
-                                                            }} disabled required label={input.label} type={input.type} value={input.value || ""} sx={{ width: "220px" }}>
+                                                            }} disabled required label={input.label} type={input.type} value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+
+                                                                sx={{ width: "220px" }}>
                                                             </TextField>
                                                             :
                                                             input.type == "select" ?
                                                                 <TextField
                                                                     select
                                                                     required
-                                                                    disabled={edit}
                                                                     name={input.name}
                                                                     variant="outlined"
                                                                     label={input.label}
                                                                     sx={{ width: "220px" }}
-                                                                    value={inputValues[input.name] || ""}
+                                                                    value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                     InputLabelProps={{
                                                                         shrink: true,
                                                                     }}
@@ -654,32 +657,86 @@ const HomeView = () => {
                                                                 :
                                                                 <TextField
                                                                     required
-                                                                    disabled={edit}
                                                                     type={input.type}
                                                                     label={input.label}
                                                                     sx={{ width: "220px" }}
-                                                                    value={inputValues[input.name]}
-                                                                    InputLabelProps={{
-                                                                        shrink: true,
-                                                                    }}
-                                                                    onChange={(event) => {
-                                                                        setInputValues({
-                                                                            ...inputValues,
-                                                                            [input.name]: event.target.value,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                </TextField>}
+                                                                    value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                    InputLabelProps={{ shrink: true }}
+                                                                    onChange={(event) => { setInputValues({ ...inputValues, [input.name]: event.target.value, }); }} />
+                                                        }
                                                     </Box>
                                                 ))}
                                             </Box>
                                         ))}
                                     </Box>
                                 </List>
-
                             </Box>
                         </Fade>
+                    </Modal>
 
+                    {/* Add modal */}
+                    <Modal
+                        open={openModalAdd}
+                        onClose={handleCloseModalAdd}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                        sx={{ display: "flex", borderRadius: "30px" }}
+                    >
+                        <Fade in={openModalAdd}>
+                            <Box sx={stylesModal} component="form" onSubmit={submitAdd}>
+                                <Box sx={{ display: "flex", justifyContent: "space-between", mx: "10px" }}>
+                                    <Button type="submit">
+                                        <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                            <SaveIcon />
+                                        </Box>
+                                        Guardar
+                                    </Button>
+                                </Box>
+                                <List sx={{ overflow: 'auto', maxHeight: "515px" }}>
+                                    <Typography sx={{ display: "flex", justifyContent: "center" }} id="modal-modal-title" variant="h5" component="h3">
+                                        Añadir empleado
+                                    </Typography>
+                                    <Box sx={{ p: 2 }}>
+                                        {pageInputs.map((section) => (
+                                            <Box key={section.title} sx={{ mb: 2, display: "flex", flexWrap: "wrap", width: "100%" }}>
+                                                <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}</Typography>
+                                                {section.inputs.map((input) => (
+                                                    <Box key={input.id} sx={{ m: 2 }}>
+                                                        {input.type == "select" ?
+                                                            <TextField
+                                                                select
+                                                                required
+                                                                name={input.name}
+                                                                variant="outlined"
+                                                                label={input.label}
+                                                                sx={{ width: "220px" }}
+                                                            >
+                                                                {
+                                                                    input.options.map((option) => (
+                                                                        <MenuItem key={option.value} value={option.value}>
+                                                                            {option.label}
+                                                                        </MenuItem>
+                                                                    ))
+                                                                }
+                                                            </TextField>
+                                                            :
+                                                            <TextField
+                                                                InputLabelProps={{
+                                                                    shrink: input.shrink,
+                                                                }}
+                                                                required
+                                                                type={input.type}
+                                                                label={input.label}
+                                                                sx={{ width: "220px" }} />
+                                                        }
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </List>
+                            </Box>
+                        </Fade>
                     </Modal>
 
                     <Header></Header>
@@ -710,7 +767,7 @@ const HomeView = () => {
                         </Box>
                     </Box>
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                        <Button>
+                        <Button onClick={() => { handleOpenModalAdd() }}>
                             <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                                 <PersonAddIcon />
                             </Box>
@@ -795,3 +852,4 @@ const HomeView = () => {
 };
 
 export default HomeView;
+

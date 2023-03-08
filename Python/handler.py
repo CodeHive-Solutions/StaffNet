@@ -113,14 +113,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             elif request == 'edit_admin':
                 print(body["user"])
                 print(decrypt(token, "username"))
-                if verify_token(token, "create_admins") and decrypt(token, "username") != body["user"]:
-                    table = "users"
-                    fields = "permission_consult", "permission_create", "permission_edit", "permission_disable"
-                    condition = "WHERE user = %s"
-                    parameters = (body["permissions"]["consultar"], body["permissions"]["crear"], body[
-                        "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
-                    response = update(
-                        table, fields, parameters, condition, conexion)
+                if verify_token(token, "create_admins"):
+                    if decrypt(token, "username") != body["user"]:
+                        table = "users"
+                        fields = "permission_consult", "permission_create", "permission_edit", "permission_disable"
+                        condition = "WHERE user = %s"
+                        parameters = (body["permissions"]["consultar"], body["permissions"]["crear"], body[
+                            "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
+                        response = update(
+                            table, fields, parameters, condition, conexion)
+                    else:
+                        response = {'status': 'False',
+                                    'error': 'No puedes cambiar tus permisos.'}
                 else:
                     response = {'status': 'False',
                                 'error': 'No tienes permisos'}
