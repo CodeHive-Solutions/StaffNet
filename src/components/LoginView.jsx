@@ -23,6 +23,11 @@ import Image1 from "../Images/LogotipoServicesV.avif"
 
 
 const LoginView = () => {
+
+    const handleSingUp = () => {
+        navigate("/singUp")
+    }
+
     // State variables for keeping track of the checkbox state, username, date, and collapse state
     const [rememberUsername, setRememberUsername] = useState(true);
     const [username, setUsername] = useState("");
@@ -32,6 +37,7 @@ const LoginView = () => {
     const [error, setError] = React.useState("");
     const [transition, setTransition] = React.useState(false);
     const [progressBar, setProgressBar] = React.useState(false);
+    
     const inputRef = useRef();
     const navigate = useNavigate()
     // Custom styles to the logo
@@ -293,6 +299,7 @@ const LoginView = () => {
                             <Link href="#" onClick={handleClick}>
                                 ¿Has olvidado tu contraseña?
                             </Link>
+                            <Button onClick={handleSingUp}>A</Button>
                             <Collapse in={open}>
                                 <Alert severity="info">
                                     En caso de olvido o perdida de la contraseña
