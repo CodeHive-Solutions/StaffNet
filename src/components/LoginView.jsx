@@ -37,6 +37,7 @@ const LoginView = () => {
     const [error, setError] = React.useState("");
     const [transition, setTransition] = React.useState(false);
     const [progressBar, setProgressBar] = React.useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
     
     const inputRef = useRef();
     const navigate = useNavigate()
@@ -57,6 +58,11 @@ const LoginView = () => {
     const handleClose = () => {
         setOpenSnack(false);
     };
+
+    useEffect(() => {
+        const newIndex = Math.floor(Math.random() * images.length);
+        setCurrentIndex(newIndex);
+    }, []);
 
 
     // Submit function that submits the form data to the server
@@ -209,7 +215,7 @@ const LoginView = () => {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: `url(${images[numDate]})`,
+                        backgroundImage: `url(${images[currentIndex]})`,
                         backgroundRepeat: "no-repeat",
                         backgroundColor: (t) =>
                             t.palette.mode === "light"

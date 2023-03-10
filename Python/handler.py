@@ -25,7 +25,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
 
         # Define a list of allowed origins
-        allowed_origins = ["http://localhost:5173", "http://localhost:3000"]
+        allowed_origins = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:8080"]
 
         # Get the request origin
         request_origin = self.headers.get("Origin")
