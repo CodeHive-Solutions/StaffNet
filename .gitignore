@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.bat
 
 # Editor directories and files
 .vscode/*
@@ -26,3 +27,5 @@ dist-ssr
 
 #Cache
 /Python/__pycache__/
+/Python/flask_session/
+.vscode

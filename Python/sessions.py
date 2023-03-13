@@ -12,6 +12,7 @@ def generate_token(json_payload):
 
 
 def verify_token(token, dato):
+    """Verify if the token have the permissions and return true or false depending"""
     try:
         # Decode the token using the secret key and HS256 algorithm
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
@@ -27,6 +28,7 @@ def verify_token(token, dato):
 
 
 def decrypt(token, dato):
+    """searches for a data in the token and returns the decoded data"""
     try:
         # Decode the token using the secret key and HS256 algorithm
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])

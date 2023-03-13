@@ -30,7 +30,7 @@ def update_data(conexion, info_tables, where):
         mycursor.close()
 
 
-def transaction(table_info, update_key=None, search_table=None, where=None, insert=None):
+def transaction(conexion, table_info, update_key=None, search_table=None, where=None, insert=None, ):
     """The "table_content" is a dictionary that contains the name of the table
     and her columns is maded in this format:
     {
@@ -46,15 +46,6 @@ def transaction(table_info, update_key=None, search_table=None, where=None, inse
         }
     }
     """
-    try:
-        conexion = mysql.connector.connect(
-            host="172.16.0.6",
-            user="root",
-            password="*4b0g4d0s4s*",
-            database='StaffNet'
-        )
-    except Exception as err:
-        print("Error conexion MYSQL: ", err)
     # Create a cursor
     mycursor = conexion.cursor()
 
@@ -117,17 +108,8 @@ class DateEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def join_tables(table_names, select_columns, join_columns, id_column=None, id_value=None):
+def join_tables(conexion, table_names, select_columns, join_columns, id_column=None, id_value=None):
     # Set up the connection to the MySQL database
-    try:
-        conexion = mysql.connector.connect(
-            host="172.16.0.6",
-            user="root",
-            password="*4b0g4d0s4s*",
-            database='StaffNet'
-        )
-    except Exception as err:
-        print("Error conexion MYSQL: ", err)
 
     # Create a cursor
     mycursor = conexion.cursor()
@@ -153,5 +135,7 @@ def join_tables(table_names, select_columns, join_columns, id_column=None, id_va
         json_str = json.dumps(rows, cls=DateEncoder)
         data = json.loads(json_str)
         return {"status": "success", "data": data}
-    except Exception:
-        return {"status": "false", "error": Exception}
+    except Exception as error:
+        print("Error ", error)
+        return {"status": "false", "error": str(error)}
+    

@@ -1,6 +1,5 @@
 from ldap3 import Server, Connection, SAFE_SYNC,  SUBTREE
 import bcrypt
-from sessions import generate_token
 
 # LDAP
 server = Server('CYC-SERVICES.COM.CO')
@@ -26,11 +25,7 @@ def consulta_login(body, conexion):
         password_bd_encode = bytes(result_query[0], 'utf-8')
         if bcrypt.checkpw(bytes(password, 'utf-8'), password_bd_encode):
             print("Logged by MYSQL")
-            payload = {"username": user, "consult": result_query[1],
-                       "create": result_query[2], "edit": result_query[3], "disable": result_query[4], 'create_admins': result_query[5]}
-            print(payload)
-            token = generate_token(payload)
-            response = {'login': 'success', 'token': token,
+            response = {"disable": result_query[4], "edit": result_query[3], 'status': 'success', "consult": result_query[1], "create": result_query[2],
                         'create_admins': result_query[5]}
         else:
             status, result, response, _ = consulta_usuario_ad(user, 'name')
@@ -41,11 +36,7 @@ def consulta_login(body, conexion):
                 try:
                     login = Connection(
                         server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True)
-                    payload = {"username": user, "consult": result_query[1],
-                       "create": result_query[2], "edit": result_query[3], "disable": result_query[4], 'create_admins': result_query[5]}
-                    print(payload)
-                    token = generate_token(payload)
-                    response = {'login': 'success', 'token': token,
+                    response = {"disable": result_query[4], "edit": result_query[3], 'status': 'success', "consult": result_query[1], "create": result_query[2],
                                 'create_admins': result_query[5]}
                     try:
                         hashed_password = encriptar_password(password)
@@ -59,14 +50,14 @@ def consulta_login(body, conexion):
                     login.unbind()
                 except Exception as e:
                     print("Error en la contraseña LDAP: ", e)
-                    response = {'login': 'failure',
+                    response = {'status': 'failure',
                                 'error': 'Contraseña Incorrecta'}
             else:
                 print("usuario no encontrado LDAP")
-                response = {'login': 'failure',
+                response = {'status': 'failure',
                             'error': 'usuario no encontrado'}
     else:
-        response = {'login': 'failure',
+        response = {'status': 'failure',
                     'error': 'usuario no encontrado'}
     cursor.close()
     return response

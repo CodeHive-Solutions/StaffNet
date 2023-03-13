@@ -1,6 +1,6 @@
 import React from "react";
 import SaveIcon from '@mui/icons-material/Save';
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -15,7 +15,6 @@ import MoreIcon from "@mui/icons-material/More";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from '@mui/material/Fade';
-import Cookies from "js-cookie";
 import Header from "./Header";
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
@@ -51,14 +50,9 @@ const HomeView = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const consult = {
-            request: "search_employees",
-            token: JSON.parse(Cookies.get('token')).token,
-        };
-
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/search_employees", {
             method: "POST",
-            body: JSON.stringify(consult),
+            credentials: "include"
         })
             .then((response) => {
                 // Check if the response was successful
@@ -68,15 +62,38 @@ const HomeView = () => {
                 return response.json();
             })
             .then((data) => {
-
                 if (data.status === "success") {
                     setAccess(true);
                 }
                 else {
-                    navigate("/")
+                    fetch("http://localhost:5000/logout", {
+                        method: "POST",
+                        credentials: "include"
+                    })
+                        .then((response) => {
+                            // Check if the response was successful
+                            if (!response.ok) {
+                                throw Error(response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            if (data.status === "success") {
+                                navigate("/", { replace: true })
+                            } else {
+                                handleClickSnack(
+                                    "Por favor envia este error a desarrollo: " + data.error
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            handleClickSnack(
+                                "Por favor envia este error a desarrollo: " + error.message
+                            );
+                            console.error("Error:", error);
+                        });
                 }
                 setTableData(data.data)
-
             })
             .catch((error) => {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
@@ -106,12 +123,14 @@ const HomeView = () => {
     const handleOpenModal = (cedula) => {
         setProgressBar(true)
         const request_get = {
-            "request": "join",
             "cedula": cedula,
-            token: JSON.parse(Cookies.get('token')).token
         }
-        fetch('http://localhost:5000/App', {
+        fetch('http://localhost:5000/get_join_info', {
             method: 'POST',
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(request_get),
         })
             .then(response => {
@@ -476,14 +495,16 @@ const HomeView = () => {
         });
 
         const dataP = {
-            request: "change_state",
             cedula: row.cedula,
-            token: JSON.parse(Cookies.get('token')).token,
-            change_to: !row.estado,
+            change_to: !row.estado
         };
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/change_state", {
             method: "POST",
-            body: JSON.stringify(dataP),
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataP)
         })
             .then((response) => {
                 // Check if the response was successful
@@ -508,11 +529,12 @@ const HomeView = () => {
     const submitEdit = (event) => {
         setProgressBar(true)
         event.preventDefault()
-        inputValues.request = "update_transaction"
-        inputValues.token = JSON.parse(Cookies.get('token')).token
-
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/update_transaction", {
             method: "POST",
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(inputValues),
         })
             .then((response) => {
@@ -543,13 +565,9 @@ const HomeView = () => {
     }
 
     const searchEmployeesEdit = () => {
-        const consult = {
-            request: "search_employees",
-            token: JSON.parse(Cookies.get('token')).token,
-        };
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/search_employees", {
             method: "POST",
-            body: JSON.stringify(consult),
+            credentials: "include"
         })
             .then((response) => {
                 // Check if the response was successful
@@ -575,12 +593,13 @@ const HomeView = () => {
     const submitAdd = (event) => {
         event.preventDefault();
         setProgressBar(true)
-        console.log(formData)
-        formData.request = "insert_transaction"
-        formData.token = JSON.parse(Cookies.get('token')).token
 
-        fetch('http://localhost:5000/App', {
+        fetch('http://localhost:5000/insert_transaction', {
             method: 'POST',
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(formData),
         })
             .then(response => {
@@ -816,19 +835,21 @@ const HomeView = () => {
                                     width: "500px",
                                 }}
                             >
+
                                 <TextField
+                                    style={{ textAlign: 'center' }}
+                                    InputLabelProps={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
                                     autoFocus
-                                    label="Cedula de ciudadania del empleado"
                                     fullWidth
                                     autoComplete="off"
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
-                                    variant="standard"
-                                    sx={{
-                                        display: "flex",
-                                        textAlign: "center",
-                                    }}
-                                ></TextField>
+                                    variant="standard">
+                                </TextField>
                             </Box>
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

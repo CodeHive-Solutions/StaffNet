@@ -26,23 +26,13 @@ import { useNavigate } from "react-router-dom";
 const PermissionsView = () => {
     const navigate = useNavigate()
     const [access, setAccess] = useState(false);
-    const token = Cookies.get("token")
 
     useEffect(() => {
         setTransition(!transition)
         // Make fetch request to validate session
-        if (!token) {
-            navigate("/")
-        }
-
-        const validate = {
-            request: "validate_create_admins",
-            token: JSON.parse(token).token
-        };
-        // Fetch validate the session
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/validate_create_admins", {
             method: "POST",
-            body: JSON.stringify(validate),
+            credentials: "include"
         })
             .then((response) => {
                 // Check if the response was successful
@@ -60,6 +50,9 @@ const PermissionsView = () => {
                 }
             })
             .catch((error) => {
+                if (!access) {
+                    navigate("/", { replace: true })
+                }
                 handleClickSnack(
                     "Por favor envia este error a desarrollo: " + error.message
                 );
@@ -116,16 +109,17 @@ const PermissionsView = () => {
 
         const userValueSearch = userRef.current.value;
         const dataSearch = {
-            request: "search_user_ad",
             username: userValueSearch,
-            token: JSON.parse(token).token
         };
 
         // Fetch search the windows user
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/search_ad", {
             method: "POST",
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(dataSearch),
-
         })
             .then((response) => {
                 // Check if the response was successful
@@ -175,7 +169,6 @@ const PermissionsView = () => {
                 );
                 console.error("Error:", error);
             });
-
     }
 
     const handleClose = (event, reason) => {
@@ -205,13 +198,15 @@ const PermissionsView = () => {
         console.log(create)
         if (create === true) {
             const dataCreate = {
-                request: "create",
                 user: userValueSubmit,
                 permissions: permissionsObject,
-                token: JSON.parse(token).token
             };
-            fetch("http://localhost:5000", {
+            fetch("http://localhost:5000/create", {
                 method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: "include",
                 body: JSON.stringify(dataCreate),
             })
                 .then((response) => {
@@ -236,13 +231,15 @@ const PermissionsView = () => {
 
             // Send a POST request to the server
             const dataEdit = {
-                request: "edit_admin",
                 user: userValueSubmit,
                 permissions: permissionsObject,
-                token: JSON.parse(token).token
             };
-            fetch("http://localhost:5000", {
+            fetch("http://localhost:5000/edit_admin", {
                 method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: "include",
                 body: JSON.stringify(dataEdit),
             })
                 .then((response) => {

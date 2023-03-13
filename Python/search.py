@@ -1,13 +1,14 @@
 from login import consulta_usuario_ad
 
 
-def search(campos, tabla, condicion, params, cursor, active_directory=None, user_ad=None):
-    results = run_query(campos, tabla, condicion, cursor, params)
+def search(campos, tabla, condicion, params, conexion, active_directory=None, user_ad=None):
+    results = run_query(campos, tabla, condicion, conexion, params)
     response = process_query(results, active_directory, user_ad)
     return response
 
 
-def run_query(campos, tabla, condicion, cursor, params):
+def run_query(campos, tabla, condicion, conexion, params):
+    cursor = conexion.cursor()
     query = "SELECT {} FROM {} {}".format(
         campos, tabla, condicion)
     cursor.execute(query, params)

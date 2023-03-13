@@ -21,8 +21,32 @@ const Header = () => {
     };
 
     const closeSesion = () => {
-        Cookies.remove("token")
-        navigate("/", { replace: true })
+        fetch("http://localhost:5000/logout", {
+            method: "POST",
+            credentials: "include"
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.status === "success") {
+                    navigate("/", { replace: true })
+                } else {
+                    handleClickSnack(
+                        "Por favor envia este error a desarrollo: " + data.error
+                    );
+                }
+            })
+            .catch((error) => {
+                handleClickSnack(
+                    "Por favor envia este error a desarrollo: " + error.message
+                );
+                console.error("Error:", error);
+            });
     }
 
     const handleClickSnackSession = () => {

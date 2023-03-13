@@ -38,7 +38,7 @@ const LoginView = () => {
     const [transition, setTransition] = React.useState(false);
     const [progressBar, setProgressBar] = React.useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    
+
     const inputRef = useRef();
     const navigate = useNavigate()
     // Custom styles to the logo
@@ -62,6 +62,35 @@ const LoginView = () => {
     useEffect(() => {
         const newIndex = Math.floor(Math.random() * images.length);
         setCurrentIndex(newIndex);
+        fetch("http://localhost:5000/loged", {
+            method: "POST",
+            credentials: "include",
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    handleClickSnack(response.statusText);
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                if (data.status === "success") {
+                    if (data.access === "permissions") {
+                        navigate("/permissions", { replace: true });
+                    } else {
+                        navigate("/home", { replace: true })
+                    }
+                }
+            })
+            .catch((error) => {
+                setProgressBar(false);
+                handleClickSnack(
+                    "Por favor envia este error a desarrollo: " + error.message
+                );
+                console.error("Error:", error.message);
+            });
     }, []);
 
 
@@ -79,14 +108,16 @@ const LoginView = () => {
         }
         // Send a POST request to the server
         const dataP = {
-            request: "login",
             password: `${document.getElementById("clave").value}`,
-            user: `${document.getElementById("usuario").value}`,
+            user: `${document.getElementById("usuario").value}`
         };
 
-        fetch("http://localhost:5000/App", {
+        fetch("http://localhost:5000/login", {
             method: "POST",
-            credentials: 'include',
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(dataP),
         })
             .then((response) => {
@@ -99,23 +130,12 @@ const LoginView = () => {
             })
             .then((data) => {
                 setProgressBar(false);
-                console.log("conn:", data.login, "error", data.error);
-                if (data.login === "success") {
-                    const expirationDate = new Date(Date.now() + 43200000);
+                console.log(data);
+                if (data.status === "success") {
                     if (data.create_admins) {
-                        let info = { token: data.token, accessTo: "permissions" }
-                        Cookies.set("token", JSON.stringify(info), {
-                            secure: true,
-                            expires: expirationDate,
-                        });
-                        navigate("/permissions")
+                        navigate("/permissions", { replace: true });
                     } else {
-                        let info = { token: data.token, accessTo: "home" }
-                        Cookies.set("token", JSON.stringify(info), {
-                            secure: true,
-                            expires: expirationDate,
-                        });
-                        navigate("/home")
+                        navigate("/home", { replace: true })
                     }
                 } else {
                     handleClickSnack(data.error);
@@ -129,7 +149,6 @@ const LoginView = () => {
                 console.error("Error:", error.message);
             });
     };
-
     useEffect(() => {
         setTransition(!transition)
         // Use effect hook to update the username from local storage if it exists
