@@ -75,7 +75,6 @@ const LoginView = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 if (data.status === "success") {
                     if (data.access === "permissions") {
                         navigate("/permissions", { replace: true });
@@ -165,30 +164,19 @@ const LoginView = () => {
                 navigate("/home")
             }
         }
-
-        // Set the date on an interval to change each day the image show it in the loggin
-        const intervalId = () => {
-            setDate(new Date());
-        };
-
-        // Return a cleanup function to clear the interval to change each day the image show it in the loggin
-        return () => clearInterval(intervalId);
     }, []);
 
-    // Get the single digit of the current date
-    let numDate = date.toISOString()[9];
-    // images array to change the image show it each day in the loggin
     const images = [
-        "https://github.com/S-e-b-a-s/images/blob/main/image1.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image2.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image3.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image4.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image5.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image6.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image7.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image8.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image9.jpg?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image0.jpg?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image1.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image2.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image3.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image4.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image5.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image6.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image7.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image8.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image9.avif?raw=true",
+        "https://github.com/S-e-b-a-s/images/blob/main/image0.avif?raw=true",
     ];
 
     // Function to handle toggling the collapse state

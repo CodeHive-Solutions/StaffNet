@@ -49,6 +49,30 @@ const HomeView = () => {
     const [severityAlert, setSeverityAlert] = React.useState("info");
     const navigate = useNavigate()
 
+
+    useEffect(() => {
+        fetch("http://localhost:5000/validate_consult", {
+            method: "POST",
+            credentials: "include"
+        })
+            .then((response) => {
+                // Check if the response was successful
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data)
+                if (data.status !== "success") {
+                    navigate("/", { replace: true })
+                }
+            })
+            .catch((error) => {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
+            });
+    }, [])
+
     useEffect(() => {
         fetch("http://localhost:5000/search_employees", {
             method: "POST",
@@ -62,44 +86,23 @@ const HomeView = () => {
                 return response.json();
             })
             .then((data) => {
+                console.log(data.data)
                 if (data.status === "success") {
                     setAccess(true);
+                    setTableData(data.data)
+                    console.log(tableData)
                 }
                 else {
-                    fetch("http://localhost:5000/logout", {
-                        method: "POST",
-                        credentials: "include"
-                    })
-                        .then((response) => {
-                            // Check if the response was successful
-                            if (!response.ok) {
-                                throw Error(response.statusText);
-                            }
-                            return response.json();
-                        })
-                        .then((data) => {
-                            if (data.status === "success") {
-                                navigate("/", { replace: true })
-                            } else {
-                                handleClickSnack(
-                                    "Por favor envia este error a desarrollo: " + data.error
-                                );
-                            }
-                        })
-                        .catch((error) => {
-                            handleClickSnack(
-                                "Por favor envia este error a desarrollo: " + error.message
-                            );
-                            console.error("Error:", error);
-                        });
+                    navigate("/")
                 }
-                setTableData(data.data)
             })
             .catch((error) => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
         setTransition(!transition)
     }, []);
+
+    console.log(tableData)
 
     const handleOpenModalAdd = () => {
         setOpenModalAdd(true);
@@ -110,11 +113,11 @@ const HomeView = () => {
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleEdit = () => setEdit(!edit)
 
-    const setShowSnackAlert = (severity, message, error) => {
+    const setShowSnackAlert = (severity, message, errorDev) => {
         setSeverityAlert(severity)
         setMessageAlert(message);
         setOpenSnackAlert(true);
-        if (error !== undefined) {
+        if (errorDev === true) {
             setProgressBar(false)
             console.error('error:', error);
         }
@@ -140,12 +143,16 @@ const HomeView = () => {
                 return response.json();
             })
             .then((data) => {
-                setProgressBar(false)
-                setDetalles(data.data[0])
-                setOpenModal(true);
+                if (data.status === "success") {
+                    setProgressBar(false)
+                    setDetalles(data.data[0])
+                    setOpenModal(true);
+                } else {
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true)
+                }
             })
             .catch(error => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
     };
 
@@ -521,7 +528,7 @@ const HomeView = () => {
 
             })
             .catch((error) => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
     }
 
@@ -560,7 +567,7 @@ const HomeView = () => {
                 }
             })
             .catch((error) => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
     }
 
@@ -580,7 +587,7 @@ const HomeView = () => {
                 setTableData(data.data)
             })
             .catch((error) => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
     }
 
@@ -617,7 +624,7 @@ const HomeView = () => {
             })
             .catch(error => {
                 // Handle error here
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, error)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
     };
 
