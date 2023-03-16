@@ -67,8 +67,6 @@ const HomeView = () => {
                     navigate("/", { replace: true })
                 }
                 setPermissions(data.permissions)
-                console.log(data)
-                console.log(permissions)
             })
 
             .catch((error) => {
@@ -111,14 +109,8 @@ const HomeView = () => {
     const handleCloseSnack = () => setOpenSnackAlert(false);
     const handleChangePage = (event, newPage) => setPage(newPage);
 
-    const handleEdit = () => {
-        if (permissions.includes("edit")) {
-            setEdit(!edit)
-        } else {
-            setShowSnackAlert("info", "No posees permisos para realizar ediciones")
+    const handleEdit = () => setEdit(!edit)
 
-        }
-    }
     const setShowSnackAlert = (severity, message, errorDev) => {
         setSeverityAlert(severity)
         setMessageAlert(message);
@@ -684,7 +676,7 @@ const HomeView = () => {
                                                 <EditIcon></EditIcon>
                                             </Button>
                                             :
-                                            <Button disabled title="Editar" onClick={() => handleEdit()}>
+                                            <Button disabled title="Editar">
                                                 <EditIcon></EditIcon>
                                             </Button>
 
@@ -802,6 +794,7 @@ const HomeView = () => {
                                                         input.type == "select" ?
                                                             <TextField
                                                                 select
+                                                                required
                                                                 sx={{ width: "144px" }}
                                                                 key={input.id}
                                                                 name={input.name}
@@ -821,6 +814,7 @@ const HomeView = () => {
                                                             </TextField>
                                                             :
                                                             <TextField
+                                                                required
                                                                 sx={{ width: "144px" }}
                                                                 key={input.id}
                                                                 name={input.name}
@@ -881,7 +875,7 @@ const HomeView = () => {
                                     Añadir
                                 </Button>
                                 :
-                                <Button disabled onClick={() => { handleOpenModalAdd() }}>
+                                <Button disabled>
                                     <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                                         <PersonAddIcon />
                                     </Box>
@@ -937,7 +931,7 @@ const HomeView = () => {
                                                             } else if (column.id === 'estado' && permissions.disable == 0) {
                                                                 return (
                                                                     <TableCell key={column.id} align={column.align}>
-                                                                        <Switch disabled checked={row.estado} onChange={() => handleSwitch(row)} />
+                                                                        <Switch disabled checked={row.estado} />
                                                                     </TableCell>
                                                                 );
                                                             } else {

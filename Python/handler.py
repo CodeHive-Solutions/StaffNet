@@ -9,14 +9,14 @@ from insert import insert
 from login import consulta_login
 from update import update
 from search import search
-from transaction import transaction, join_tables, update_data
+from transaction import search_transaction, insert_transaction, join_tables, update_data
 
 
 app = Flask(__name__)
-app.config['SESSION_TYPE'] = 'filesystem'
-# app.config['SESSION_TYPE'] = 'redis'
-# app.config['SESSION_REDIS'] = redis.Redis(
-#     host='172.16.0.128', port=6379, password="XXXXXXXX")
+# app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = redis.Redis(
+    host='172.16.0.128', port=6379, password="654321")
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -50,15 +50,12 @@ def conexionMySQL():
 
 @app.before_request
 def logs():
-    print(request.content_type)
-    print(request.headers)
-    # for key in request.cookies.keys:
-    #     print(key)
+    print("llega")
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
         petition = request.url.split("0/")[1]
-        print("Peticion: ", petition)
+        print("Peticion: ", petition, "información: ", request.json)
         if petition != "login":
             logging.info({"User": session["username"], "Peticion": petition,
                          "Valores": request.json})
@@ -127,10 +124,10 @@ def login():
 @ app.route('/loged', methods=['POST'])
 def loged():
     response = {"status": 'false'}
-    if "username" in session:
-        if "consult" in session:
+    if "consult" in session:
+        if session["consult"] == True:
             response = {"status": 'success', "access": "home"}
-        elif "create_admins" in session:
+        elif session["create_admins"] == True:
             response = {"status": 'success', "access": "permissions"}
     return response
 
@@ -144,7 +141,7 @@ def logout():
 
 @ app.route('/validate_create_admins', methods=['POST'])
 def validate_create_admins():
-    if "create_admins" in session:
+    if session["create_admins"] == True:
         response = {'status': 'success'}
     else:
         response = {'status': 'False', 'error': 'No tienes permisos'}
@@ -153,7 +150,7 @@ def validate_create_admins():
 
 @ app.route('/validate_consult', methods=['POST'])
 def validate_consult():
-    if "consult" in session:
+    if session["consult"] == True:
         response = {'status': 'success', "permissions": {
             "create": session["create"], "edit": session["edit"], "disable": session["disable"]}}
     else:
@@ -163,7 +160,7 @@ def validate_consult():
 
 @ app.route('/search_ad', methods=['POST'])
 def search_ad():
-    if "create_admins" in session:
+    if session["create_admins"] == True:
         conexion = conexionMySQL()
         username = (request.json['username'],)
         response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
@@ -176,7 +173,7 @@ def search_ad():
 
 @ app.route('/create', methods=['POST'])
 def crete():
-    if "create" in session:
+    if session["create"] == True:
         body = request.json
         conexion = conexionMySQL()
         parameters = (body["user"], body["permissions"]["consultar"], body["permissions"]["crear"], body[
@@ -193,7 +190,7 @@ def crete():
 @ app.route('/edit_admin', methods=['POST'])
 def edit_admin():
     body = request.json
-    if "create_admins" in session:
+    if session["create_admins"] == True:
         if session["username"] != body["user"]:
             conexion = conexionMySQL()
             table = "users"
@@ -214,15 +211,15 @@ def edit_admin():
 
 @ app.route('/search_employees', methods=['POST'])
 def search_employees():
-    if "consult" in session:
+    if session["consult"] == True:
         conexion = conexionMySQL()
         table_info = {
             "personal_information": "cedula,nombre,celular,correo",
             "leave_information": "estado"
         }
         where = "personal_information.cedula = leave_information.cedula"
-        response = transaction(
-            conexion, table_info, search_table=True, where=where)
+        response = search_transaction(
+            conexion, table_info, where=where)
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
@@ -233,7 +230,7 @@ def search_employees():
 def get_join_info():
     conexion = conexionMySQL()
     body = request.json
-    if "consult" in session:
+    if session["consult"] == True:
         table_names = ["personal_information",
                        "educational_information", "employment_information", "performance_evaluation", "disciplinary_actions", "vacation_information", "leave_information"]
         join_columns = ["cedula", "cedula",
@@ -248,7 +245,7 @@ def get_join_info():
 
 @ app.route('/change_state', methods=['POST'])
 def change_state():
-    if "disable" in session:
+    if session["disable"] == True:
         body = request.json
         conexion = conexionMySQL()
         response = update("leave_information", ("estado",),
@@ -261,7 +258,7 @@ def change_state():
 
 @ app.route('/update_transaction', methods=['POST'])
 def update_transaction():
-    if "edit" in session:
+    if session["edit"] == True:
         body = request.json
         conexion = conexionMySQL()
         info_tables = {
@@ -328,8 +325,8 @@ def update_transaction():
 
 
 @ app.route('/insert_transaction', methods=['POST'])
-def insert_transaction():
-    if "create" in session:
+def insert_in_tables():
+    if session["create"] == True:
         body = request.json
         conexion = conexionMySQL()
         info_tables = {
@@ -387,7 +384,7 @@ def insert_transaction():
                 "estado": body["estado"]
             }
         }
-        response = transaction(conexion, info_tables, insert=True)
+        response = insert_transaction(conexion, info_tables)
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
@@ -395,4 +392,4 @@ def insert_transaction():
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=False)
+    app.run(port=5000, debug=True)

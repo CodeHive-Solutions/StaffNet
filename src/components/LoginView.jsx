@@ -62,7 +62,8 @@ const LoginView = () => {
     useEffect(() => {
         const newIndex = Math.floor(Math.random() * images.length);
         setCurrentIndex(newIndex);
-        fetch("http://localhost:5000/loged", {
+        // fetch("http://staffnet.cyc-bpo.com/loged", {
+        fetch("http://localhost/loged", {
             method: "POST",
             credentials: "include",
         })
@@ -311,7 +312,6 @@ const LoginView = () => {
                             <Link href="#" onClick={handleClick}>
                                 ¿Has olvidado tu contraseña?
                             </Link>
-                            <Button onClick={handleSingUp}>A</Button>
                             <Collapse in={open}>
                                 <Alert severity="info">
                                     En caso de olvido o perdida de la contraseña

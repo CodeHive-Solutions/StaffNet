@@ -9,9 +9,6 @@ import Snackbar from "@mui/material/Snackbar";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
-
-
-
 const Header = () => {
     const navigate = useNavigate();
     const [openSnackSession, setOpenSnackSession] = React.useState(false);
