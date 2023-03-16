@@ -154,7 +154,8 @@ def validate_create_admins():
 @ app.route('/validate_consult', methods=['POST'])
 def validate_consult():
     if "consult" in session:
-        response = {'status': 'success'}
+        response = {'status': 'success', "permissions": {
+            "create": session["create"], "edit": session["edit"], "disable": session["disable"]}}
     else:
         response = {'status': 'False', 'error': 'No tienes permisos'}
     return response

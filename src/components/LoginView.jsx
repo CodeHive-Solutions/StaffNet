@@ -129,7 +129,6 @@ const LoginView = () => {
             })
             .then((data) => {
                 setProgressBar(false);
-                console.log(data);
                 if (data.status === "success") {
                     if (data.create_admins) {
                         navigate("/permissions", { replace: true });

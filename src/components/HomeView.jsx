@@ -45,10 +45,10 @@ const HomeView = () => {
     const [progressBar, setProgressBar] = React.useState(false);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [permissions, setPermissions] = useState("");
     const [searchTerm, setSearchTerm] = useState("")
     const [severityAlert, setSeverityAlert] = React.useState("info");
     const navigate = useNavigate()
-
 
     useEffect(() => {
         fetch("http://localhost:5000/validate_consult", {
@@ -63,11 +63,14 @@ const HomeView = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
                 if (data.status !== "success") {
                     navigate("/", { replace: true })
                 }
+                setPermissions(data.permissions)
+                console.log(data)
+                console.log(permissions)
             })
+
             .catch((error) => {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             });
@@ -86,11 +89,9 @@ const HomeView = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data.data)
                 if (data.status === "success") {
                     setAccess(true);
                     setTableData(data.data)
-                    console.log(tableData)
                 }
                 else {
                     navigate("/")
@@ -102,8 +103,6 @@ const HomeView = () => {
         setTransition(!transition)
     }, []);
 
-    console.log(tableData)
-
     const handleOpenModalAdd = () => {
         setOpenModalAdd(true);
         setFormData({});
@@ -111,15 +110,22 @@ const HomeView = () => {
     const handleCloseModalAdd = () => setOpenModalAdd(false);
     const handleCloseSnack = () => setOpenSnackAlert(false);
     const handleChangePage = (event, newPage) => setPage(newPage);
-    const handleEdit = () => setEdit(!edit)
 
+    const handleEdit = () => {
+        if (permissions.includes("edit")) {
+            setEdit(!edit)
+        } else {
+            setShowSnackAlert("info", "No posees permisos para realizar ediciones")
+
+        }
+    }
     const setShowSnackAlert = (severity, message, errorDev) => {
         setSeverityAlert(severity)
         setMessageAlert(message);
         setOpenSnackAlert(true);
         if (errorDev === true) {
             setProgressBar(false)
-            console.error('error:', error);
+            console.error('error:', message);
         }
     }
 
@@ -152,7 +158,7 @@ const HomeView = () => {
                 }
             })
             .catch(error => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
+                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
             });
     };
 
@@ -673,9 +679,16 @@ const HomeView = () => {
                             <Fade in={openModal}>
                                 <Box sx={stylesModal} component="form" onSubmit={submitEdit}>
                                     <Box sx={{ display: "flex", justifyContent: "space-between", mx: "10px" }}>
-                                        <Button title="Editar" onClick={() => handleEdit()}>
-                                            <EditIcon></EditIcon>
-                                        </Button>
+                                        {permissions.edit == 1 ?
+                                            <Button title="Editar" onClick={() => handleEdit()}>
+                                                <EditIcon></EditIcon>
+                                            </Button>
+                                            :
+                                            <Button disabled title="Editar" onClick={() => handleEdit()}>
+                                                <EditIcon></EditIcon>
+                                            </Button>
+
+                                        }
                                         <Box>
                                             <Button disabled={edit} type="submit">
                                                 <Box sx={{ display: "flex", paddingRight: ".5em" }}>
@@ -860,12 +873,21 @@ const HomeView = () => {
                             </Box>
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                            <Button onClick={() => { handleOpenModalAdd() }}>
-                                <Box sx={{ display: "flex", paddingRight: ".5em" }}>
-                                    <PersonAddIcon />
-                                </Box>
-                                Añadir
-                            </Button>
+                            {permissions.create == 1 ?
+                                <Button onClick={() => { handleOpenModalAdd() }}>
+                                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                        <PersonAddIcon />
+                                    </Box>
+                                    Añadir
+                                </Button>
+                                :
+                                <Button disabled onClick={() => { handleOpenModalAdd() }}>
+                                    <Box sx={{ display: "flex", paddingRight: ".5em" }}>
+                                        <PersonAddIcon />
+                                    </Box>
+                                    Añadir
+                                </Button>
+                            }
                         </Box>
 
                         <Box
@@ -906,10 +928,16 @@ const HomeView = () => {
                                                                         </Button>
                                                                     </TableCell>
                                                                 );
-                                                            } else if (column.id === 'estado') {
+                                                            } else if (column.id === 'estado' && permissions.disable == 1) {
                                                                 return (
                                                                     <TableCell key={column.id} align={column.align}>
                                                                         <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
+                                                                    </TableCell>
+                                                                );
+                                                            } else if (column.id === 'estado' && permissions.disable == 0) {
+                                                                return (
+                                                                    <TableCell key={column.id} align={column.align}>
+                                                                        <Switch disabled checked={row.estado} onChange={() => handleSwitch(row)} />
                                                                     </TableCell>
                                                                 );
                                                             } else {
