@@ -51,54 +51,66 @@ const HomeView = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        fetch("http://localhost:5000/validate_consult", {
-            method: "POST",
-            credentials: "include"
-        })
-            .then((response) => {
-                // Check if the response was successful
+        const fetchEmployees = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/search_employees", {
+                    method: "POST",
+                    credentials: "include"
+                });
+
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-                return response.json();
-            })
-            .then((data) => {
-                if (data.status !== "success") {
-                    navigate("/", { replace: true })
-                }
-                setPermissions(data.permissions)
-            })
 
-            .catch((error) => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
-            });
-    }, [])
-
-    useEffect(() => {
-        fetch("http://localhost:5000/search_employees", {
-            method: "POST",
-            credentials: "include"
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 if (data.status === "success") {
-                    setAccess(true);
                     setTableData(data.data)
                 }
                 else {
                     navigate("/")
                 }
-            })
-            .catch((error) => {
+            } catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
-            });
-        setTransition(!transition)
+                if (error === "Usuario no ha iniciado sesion") {
+                    navigate("/")
+                }
+            }
+        };
+
+        const intervalId = setInterval(() => {
+            fetchEmployees();
+        }, 30 * 60 * 1000);
+
+        return () => clearTimeout(intervalId);
+    }, []);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/search_employees", {
+                    method: "POST",
+                    credentials: "include"
+                });
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                const data = await response.json();
+                console.log(data)
+                if (data.info.status === "success") {
+                    setAccess(true);
+                    setTableData(data.info.data)
+                    setPermissions(data.permissions)
+                }
+                else {
+                    navigate("/")
+                }
+            }
+            catch (error) {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
+            }
+            setTransition(!transition)
+        }
+        fetchEmployees()
     }, []);
 
     const handleOpenModalAdd = () => {
@@ -126,21 +138,18 @@ const HomeView = () => {
         const request_get = {
             "cedula": cedula,
         }
-        fetch('http://localhost:5000/get_join_info', {
-            method: 'POST',
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(request_get),
-        })
-            .then(response => {
+        const getJoinInfo = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/get_join_info', {
+                    method: 'POST',
+                    credentials: "include",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(request_get),
+                });
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 if (data.status === "success") {
                     setProgressBar(false)
                     setDetalles(data.data[0])
@@ -148,10 +157,12 @@ const HomeView = () => {
                 } else {
                     setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true)
                 }
-            })
-            .catch(error => {
+            }
+            catch (error) {
                 setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
-            });
+            }
+        }
+        getJoinInfo()
     };
 
     const handleCloseModal = () => {
@@ -445,7 +456,6 @@ const HomeView = () => {
         });
     });
 
-    // useEffect assing inputs' values
     useEffect(() => {
         const initialInputValues = {};
         pageInputs.forEach((section) => {
@@ -503,55 +513,52 @@ const HomeView = () => {
             cedula: row.cedula,
             change_to: !row.estado
         };
-        fetch("http://localhost:5000/change_state", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataP)
-        })
-            .then((response) => {
-                // Check if the response was successful
+        const changeState = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/change_state", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataP)
+                });
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 if (data.status === "success") {
                     setTableResults(updatedTableResults);
                     setRows(updatedRows);
                 }
-
-            })
-            .catch((error) => {
+            }
+            catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
-            });
+            }
+        }
+        changeState()
     }
 
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true)
         event.preventDefault()
-        fetch("http://localhost:5000/update_transaction", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(inputValues),
-        })
-            .then((response) => {
-                // Check if the response was successful
+
+        const updateTransaction = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/update_transaction", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(inputValues),
+                });
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 setProgressBar(false)
-                console.log(data.status)
                 if (data.status === "success") {
                     setTableResults([])
                     setSearchTerm('')
@@ -559,34 +566,32 @@ const HomeView = () => {
                     handleCloseModal()
                     setShowSnackAlert("success", "Edición realizada correctamente")
                 }
-                console.log(data.error)
                 if (data.error === "No hubo ningun cambio") {
                     setShowSnackAlert("info", "No se ha realizo ningun cambio")
                 }
-            })
-            .catch((error) => {
+            }
+            catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
-            });
+            }
+        }
+        updateTransaction()
     }
 
-    const searchEmployeesEdit = () => {
-        fetch("http://localhost:5000/search_employees", {
-            method: "POST",
-            credentials: "include"
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                setTableData(data.data)
-            })
-            .catch((error) => {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
+    const searchEmployeesEdit = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/search_employees", {
+                method: "POST",
+                credentials: "include"
             });
+            if (!response.ok) {
+                throw Error(response.statusText);
+            }
+            const data = await response.json();
+            setTableData(data.data)
+        }
+        catch (error) {
+            setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
+        }
     }
 
     const handleFormChange = (event) => {
@@ -599,31 +604,30 @@ const HomeView = () => {
         event.preventDefault();
         setProgressBar(true)
 
-        fetch('http://localhost:5000/insert_transaction', {
-            method: 'POST',
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-        })
-            .then(response => {
+        const insertTransaction = async (formData) => {
+            try {
+                const response = await fetch('http://localhost:5000/insert_transaction', {
+                    method: 'POST',
+                    credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData),
+                });
                 setProgressBar(false)
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data.status)
+                const data = await response.json();
                 if (data.status === "success") {
                     setShowSnackAlert("success", "Edición realizada correctamente")
                 }
-            })
-            .catch(error => {
-                // Handle error here
+            }
+            catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
-            });
+            }
+        }
+        insertTransaction(formData)
     };
 
     const stylesModal = {

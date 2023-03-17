@@ -17,7 +17,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Fade from '@mui/material/Fade';
 import LinearProgress from '@mui/material/LinearProgress';
-import Cookies from "js-cookie";
 import Header from "./Header";
 import Container from '@mui/material/Container';
 import SnackAlert from "./SnackAlert";
@@ -26,40 +25,6 @@ import { useNavigate } from "react-router-dom";
 const PermissionsView = () => {
     const navigate = useNavigate()
     const [access, setAccess] = useState(false);
-
-    useEffect(() => {
-        setTransition(!transition)
-        // Make fetch request to validate session
-        fetch("http://localhost:5000/validate_create_admins", {
-            method: "POST",
-            credentials: "include"
-        })
-            .then((response) => {
-                // Check if the response was successful
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                if (data.status === "success") {
-                    setAccess(true);
-                } else {
-                    navigate("/")
-                }
-            })
-            .catch((error) => {
-                if (!access) {
-                    navigate("/", { replace: true })
-                }
-                handleClickSnack(
-                    "Por favor envia este error a desarrollo: " + error.message
-                );
-                console.error("Error:", error);
-            });
-    }, []);
-
     const [transition, setTransition] = React.useState(false);
     const [openDialog, setOpenDialog] = React.useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -74,6 +39,36 @@ const PermissionsView = () => {
     const [create, setCreate] = React.useState(false);
     const userRef = useRef(null);
     const permissions = ["Consultar", "Crear", "Editar", "Inhabilitar"];
+
+    useEffect(() => {
+        setTransition(!transition)
+
+        const validateCreateAdmins = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/validate_create_admins", {
+                    method: "POST",
+                    credentials: "include"
+                });
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                const data = await response.json();
+                if (data.status === "success") {
+                    setAccess(true);
+                } else {
+                    navigate("/")
+                }
+            }
+            catch (error) {
+                if (!access) {
+                    navigate("/", { replace: true })
+                }
+                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                console.error("Error:", error);
+            }
+        }
+        validateCreateAdmins()
+    }, []);
 
     const handleClickSnack = (error) => {
         setOpenSnack(true);
@@ -113,24 +108,20 @@ const PermissionsView = () => {
         };
 
         // Fetch search the windows user
-        fetch("http://localhost:5000/search_ad", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataSearch),
-        })
-            .then((response) => {
-                // Check if the response was successful
+        const searchAd = async (dataSearch) => {
+            try {
+                const response = await fetch("http://localhost:5000/search_ad", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataSearch),
+                });
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 setProgressBar(false)
-                console.log(data);
+
                 if (data.status === "success" && data.info === undefined) {
                     setOpenDialog(true);
                     setCreate(true);
@@ -161,14 +152,14 @@ const PermissionsView = () => {
                     setError(data.error);
                 }
 
-            })
-            .catch((error) => {
+            }
+            catch (error) {
                 setProgressBar(false)
-                handleClickSnack(
-                    "Por favor envia este error a desarrollo: " + error.message
-                );
-                console.error("Error:", error);
-            });
+                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                console.error("Error:", error.message);
+            }
+        }
+        searchAd(dataSearch)
     }
 
     const handleClose = (event, reason) => {
@@ -181,7 +172,6 @@ const PermissionsView = () => {
         setOpenSearch(!openSearch)
         setSelectedPermissions([]);
         setCreate(false);
-        console.log(create)
     };
 
     const handleSubmit = (event) => {
@@ -195,76 +185,66 @@ const PermissionsView = () => {
             inhabilitar: selectedPermissions.includes('Inhabilitar'),
         };
 
-        console.log(create)
         if (create === true) {
             const dataCreate = {
                 user: userValueSubmit,
                 permissions: permissionsObject,
             };
-            fetch("http://localhost:5000/create", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: "include",
-                body: JSON.stringify(dataCreate),
-            })
-                .then((response) => {
-                    // Check if the response was successful
+            const createData = async () => {
+                try {
+                    const response = await fetch("http://localhost:5000/create", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify(dataCreate),
+                    });
                     if (!response.ok) {
                         throw Error(response.statusText);
                     }
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log(data);
-                    setOpenSnackAlert2(true);
-                    handleClear()
-                })
-                .catch((error) => {
-                    handleClickSnack(
-                        "Por favor envia este error a desarrollo: " + error.message
-                    );
+                    const data = await response.json();
+                    if (data === "success") {
+                        setOpenSnackAlert2(true);
+                        handleClear();
+                    } else {
+                        handleClickSnack("Hubo un error: " + data.error);
+                    }
+                } catch (error) {
+                    handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
                     console.error("Error:", error);
-                });
-        } else {
+                }
+            };
+            createData()
 
+        } else {
             // Send a POST request to the server
             const dataEdit = {
                 user: userValueSubmit,
                 permissions: permissionsObject,
             };
-            fetch("http://localhost:5000/edit_admin", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: "include",
-                body: JSON.stringify(dataEdit),
-            })
-                .then((response) => {
-                    // Check if the response was successful
+            const editAdmin = async () => {
+                try {
+                    const response = await fetch("http://localhost:5000/edit_admin", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify(dataEdit),
+                    });
                     if (!response.ok) {
                         throw Error(response.statusText);
                     }
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log(data);
+                    const data = await response.json();
                     if (data.status === "success") {
                         setOpenSnackAlert(true);
+                    } else {
+                        handleClickSnack("Hubo un error: " + data.error);
                     }
-                    else {
-                        handleClickSnack("Hubo un error: " + data.error)
-                    }
-                    handleClear()
-                })
-                .catch((error) => {
-                    handleClickSnack(
-                        "Por favor envia este error a desarrollo: " + error.message
-                    );
+                    handleClear();
+                } catch (error) {
+                    handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
                     console.error("Error:", error);
-                });
+                }
+            };
+            editAdmin()
         }
     };
 
@@ -322,7 +302,6 @@ const PermissionsView = () => {
                         </Snackbar>
 
                         <Header></Header>
-
 
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", height: "75vh" }}>
                             <Box component="form"

@@ -18,16 +18,8 @@ import CustomLogoST from "./LogoST";
 import LoginIcon from "@mui/icons-material/Login";
 import Fade from '@mui/material/Fade';
 import LinearProgress from '@mui/material/LinearProgress';
-import LogotipoServicesV from "../Images/LogotipoServicesV.avif"
-import Image1 from "../Images/LogotipoServicesV.avif"
-
 
 const LoginView = () => {
-
-    const handleSingUp = () => {
-        navigate("/singUp")
-    }
-
     // State variables for keeping track of the checkbox state, username, date, and collapse state
     const [rememberUsername, setRememberUsername] = useState(true);
     const [username, setUsername] = useState("");
@@ -63,19 +55,18 @@ const LoginView = () => {
         const newIndex = Math.floor(Math.random() * images.length);
         setCurrentIndex(newIndex);
         // fetch("http://staffnet.cyc-bpo.com/loged", {
-        fetch("http://localhost/loged", {
-            method: "POST",
-            credentials: "include",
-        })
-            .then((response) => {
+        const checkLogin = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/loged", {
+                    method: "POST",
+                    credentials: "include",
+                });
                 // Check if the response was successful
                 if (!response.ok) {
                     handleClickSnack(response.statusText);
                     throw Error(response.statusText);
                 }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 if (data.status === "success") {
                     if (data.access === "permissions") {
                         navigate("/permissions", { replace: true });
@@ -83,14 +74,16 @@ const LoginView = () => {
                         navigate("/home", { replace: true })
                     }
                 }
-            })
-            .catch((error) => {
+            }
+            catch (error) {
                 setProgressBar(false);
                 handleClickSnack(
                     "Por favor envia este error a desarrollo: " + error.message
                 );
                 console.error("Error:", error.message);
-            });
+            }
+        }
+        checkLogin()
     }, []);
 
 
@@ -112,23 +105,20 @@ const LoginView = () => {
             user: `${document.getElementById("usuario").value}`
         };
 
-        fetch("http://localhost:5000/login", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataP),
-        })
-            .then((response) => {
+        const login = async (dataP) => {
+            try {
+                const response = await fetch("http://localhost:5000/login", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dataP),
+                });
                 // Check if the response was successful
                 if (!response.ok) {
                     handleClickSnack(response.statusText);
                     throw Error(response.statusText);
                 }
-                return response.json();
-            })
-            .then((data) => {
+                const data = await response.json();
                 setProgressBar(false);
                 if (data.status === "success") {
                     if (data.create_admins) {
@@ -139,14 +129,16 @@ const LoginView = () => {
                 } else {
                     handleClickSnack(data.error);
                 }
-            })
-            .catch((error) => {
+            }
+            catch (error) {
                 setProgressBar(false);
                 handleClickSnack(
                     "Por favor envia este error a desarrollo: " + error.message
                 );
                 console.error("Error:", error.message);
-            });
+            }
+        }
+        login(dataP)
     };
     useEffect(() => {
         setTransition(!transition)

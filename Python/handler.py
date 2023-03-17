@@ -1,4 +1,6 @@
 import logging
+import pickle
+import json
 import datetime
 import mysql.connector
 import os
@@ -15,8 +17,8 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 app = Flask(__name__)
 # app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_REDIS'] = redis.Redis(
-    host='172.16.0.128', port=6379, password="654321")
+redis_client = redis.Redis(host='172.16.0.128', port=6379, password="654321")
+app.config['SESSION_REDIS'] = redis_client
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -50,28 +52,45 @@ def conexionMySQL():
 
 @app.before_request
 def logs():
-    print("llega")
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
         petition = request.url.split("0/")[1]
-        print("Peticion: ", petition, "información: ", request.json)
-        if petition != "login":
+        if petition == "login":
+            print("Peticion: ", petition, "user: ", request.json["user"])
+            logging.info({"User": request.json["user"], "Peticion": petition})
+        else:
+            print("Peticion: ", petition)
             logging.info({"User": session["username"], "Peticion": petition,
                          "Valores": request.json})
-        else:
-            logging.info({"User": request.json["user"], "Peticion": petition})
     else:
         petition = request.url.split("0/")[1]
-        print("Peticion: ", petition)
-        if petition != "login":
-            logging.info({"User": session["username"], "Peticion": petition})
+        if petition == "loged":
+            pass
+        else:
+            petition = request.url.split("0/")[1]
+            print("Peticion: ", petition)
+            if petition != "login":
+                logging.info(
+                    {"User": session["username"], "Peticion": petition})
 
 
 @ app.after_request
 def after_request(response):
+    # Logs de respuesta
     if response.json != None:
         print("Respuesta: ", response.json)
+        if request.url.split("0/")[1] == "search_employees":
+            logging.info(
+                {"Respuesta: ": {"status": response.json["info"]["status"]}})
+        elif response.json["status"] == "False" and request.url.split("0/")[1] != "loged":
+            logging.info({"Respuesta: ": {
+                         "status": response.json["status"], "error": response.json["error"]}})
+        elif request.url.split("0/")[1] == "loged":
+            pass
+        else:
+            logging.info({"Respuesta: ": {"status": response.json["status"]}})
+    # CORS
     url_permitidas = ["http://localhost:5173",
                       "http://localhost:8080", "http://172.16.5.10:8080"]
     if request.origin in url_permitidas:
@@ -96,9 +115,9 @@ def close_db(useless_var):
 
 @ app.errorhandler(Exception)
 def handle_error(error):
-    response = {"status": "false", "error": str(error)}
+    response = {"status": "False", "error": str(error)}
     if str(error) == "'username'":
-        response = {"status": "false",
+        response = {"status": "False",
                     "error": "Usuario no ha iniciado sesion."}
     logging.warning(f"Peticion: {request.url.split('0/')[1]}", exc_info=True)
     return response, 200
@@ -110,12 +129,22 @@ def login():
     response = consulta_login(request.json, conexion)
     print(response)
     if response["status"] == 'success':
-        session["username"] = request.json["user"]
+        username = request.json["user"]
+        session["username"] = username
         session["create_admins"] = response["create_admins"]
         session["consult"] = response["consult"]
         session["create"] = response["create"]
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
+        # session_key = 'session:' + session.sid
+        # update("users", "session_id", session_key,
+        #        f"user = {username}", conexion)
+        # print(session_key)
+        # session_data = redis_client.get(session_key)
+        # if session_data is not None:
+        #     session_dict = pickle.loads(session_data)
+        #     print("dict", session_dict)
+        # redis_client.delete(session_key)
         response = {"status": 'success',
                     'create_admins': response["create_admins"]}
     return response
@@ -123,8 +152,15 @@ def login():
 
 @ app.route('/loged', methods=['POST'])
 def loged():
-    response = {"status": 'false'}
-    if "consult" in session:
+    response = {"status": 'False'}
+    if "username" in session:
+        session_key = 'session:' + session.sid
+        print(session_key)
+        session_data = redis_client.get(session_key)
+        if session_data is not None:
+            session_dict = pickle.loads(session_data)
+            print("dict", session_dict)
+            # redis_client.delete(session_key)
         if session["consult"] == True:
             response = {"status": 'success', "access": "home"}
         elif session["create_admins"] == True:
@@ -220,6 +256,8 @@ def search_employees():
         where = "personal_information.cedula = leave_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
+        response = {"info": response, "permissions": {
+            "create": session["create"], "edit": session["edit"], "disable": session["disable"]}}
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
