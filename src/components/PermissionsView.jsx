@@ -120,14 +120,13 @@ const PermissionsView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                setProgressBar(false)
 
+                setProgressBar(false)
                 if (data.status === "success" && data.info === undefined) {
                     setOpenDialog(true);
                     setCreate(true);
                 }
-                if (
-                    data.status === "success" && data.info !== undefined) {
+                if (data.status === "success" && data.info !== undefined) {
                     const newPermissions = []
                     if (data.info[0] == 1) {
                         newPermissions.push("Consultar");
@@ -202,7 +201,8 @@ const PermissionsView = () => {
                         throw Error(response.statusText);
                     }
                     const data = await response.json();
-                    if (data === "success") {
+                    
+                    if (data.status === "success") {
                         setOpenSnackAlert2(true);
                         handleClear();
                     } else {
@@ -233,6 +233,7 @@ const PermissionsView = () => {
                         throw Error(response.statusText);
                     }
                     const data = await response.json();
+                    console.log(data)
                     if (data.status === "success") {
                         setOpenSnackAlert(true);
                     } else {

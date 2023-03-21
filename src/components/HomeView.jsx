@@ -95,7 +95,6 @@ const HomeView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                console.log(data)
                 if (data.info.status === "success") {
                     setAccess(true);
                     setTableData(data.info.data)
@@ -587,7 +586,9 @@ const HomeView = () => {
                 throw Error(response.statusText);
             }
             const data = await response.json();
-            setTableData(data.data)
+            if (data.info.status === "success") {
+                setTableData(data.info.data)
+            }
         }
         catch (error) {
             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
@@ -620,7 +621,11 @@ const HomeView = () => {
                 }
                 const data = await response.json();
                 if (data.status === "success") {
-                    setShowSnackAlert("success", "Edición realizada correctamente")
+                    handleCloseModalAdd()
+                    setShowSnackAlert("success", "Empleado añadido correctamente")
+                } else {
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true)
+
                 }
             }
             catch (error) {
@@ -719,46 +724,60 @@ const HomeView = () => {
                                                                     shrink: true,
                                                                 }}>
                                                             </TextField>
-                                                            :
-                                                            input.type == "select" ?
+                                                            : input.id == 61 && permissions.disable == 0 ?
                                                                 <TextField
-                                                                    select
-                                                                    disabled={edit}
-                                                                    key={input.id}
-                                                                    sx={{ width: "144px" }}
+                                                                    disabled
                                                                     required
+                                                                    key={input.id}
                                                                     name={input.name}
-                                                                    autoComplete="off"
-                                                                    variant="outlined"
                                                                     label={input.label}
-                                                                    onChange={(event) => handleChange(event, input)}
+                                                                    type={input.type}
+                                                                    sx={{ width: "144px" }}
                                                                     value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                     InputLabelProps={{
                                                                         shrink: true,
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        input.options.map((option) => (
-                                                                            <MenuItem key={option.value} value={option.value}>
-                                                                                {option.label}
-                                                                            </MenuItem>
-                                                                        ))
-                                                                    }
+                                                                    }}>
                                                                 </TextField>
                                                                 :
-                                                                <TextField
-                                                                    disabled={edit}
-                                                                    required
-                                                                    key={input.id}
-                                                                    sx={{ width: "144px" }}
-                                                                    type={input.type}
-                                                                    name={input.name}
-                                                                    autoComplete="off"
-                                                                    label={input.label}
-                                                                    value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
-                                                                    InputLabelProps={{ shrink: true }}
-                                                                    onChange={(event) => handleChange(event, input)}
-                                                                />
+                                                                input.type == "select" ?
+                                                                    <TextField
+                                                                        select
+                                                                        disabled={edit}
+                                                                        key={input.id}
+                                                                        sx={{ width: "144px" }}
+                                                                        required
+                                                                        name={input.name}
+                                                                        autoComplete="off"
+                                                                        variant="outlined"
+                                                                        label={input.label}
+                                                                        onChange={(event) => handleChange(event, input)}
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            input.options.map((option) => (
+                                                                                <MenuItem key={option.value} value={option.value}>
+                                                                                    {option.label}
+                                                                                </MenuItem>
+                                                                            ))
+                                                                        }
+                                                                    </TextField>
+                                                                    :
+                                                                    <TextField
+                                                                        disabled={edit}
+                                                                        required
+                                                                        key={input.id}
+                                                                        sx={{ width: "144px" }}
+                                                                        type={input.type}
+                                                                        name={input.name}
+                                                                        autoComplete="off"
+                                                                        label={input.label}
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        InputLabelProps={{ shrink: true }}
+                                                                        onChange={(event) => handleChange(event, input)}
+                                                                    />
                                                     ))}
                                                 </Box>
                                             ))}
