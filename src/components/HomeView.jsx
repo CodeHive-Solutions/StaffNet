@@ -158,7 +158,7 @@ const HomeView = () => {
                 }
             }
             catch (error) {
-                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
             }
         }
         getJoinInfo()

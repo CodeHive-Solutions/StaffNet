@@ -15,7 +15,6 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 
 
 app = Flask(__name__)
-# app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_TYPE'] = 'redis'
 redis_client = redis.Redis(host='172.16.0.128', port=6379, password="654321")
 app.config['SESSION_REDIS'] = redis_client

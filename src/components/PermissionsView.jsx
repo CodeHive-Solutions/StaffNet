@@ -30,7 +30,6 @@ const PermissionsView = () => {
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [openSnack, setOpenSnack] = React.useState(false);
     const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
-    const [openSnackAlert2, setOpenSnackAlert2] = React.useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [open, setOpen] = useState(false);
     const [openSearch, setOpenSearch] = useState(true);
@@ -38,6 +37,8 @@ const PermissionsView = () => {
     const [progressBar, setProgressBar] = React.useState(false);
     const [create, setCreate] = React.useState(false);
     const userRef = useRef(null);
+    const [messageAlert, setMessageAlert] = React.useState(false);
+    const [severityAlert, setSeverityAlert] = React.useState("info");
     const permissions = ["Consultar", "Crear", "Editar", "Inhabilitar"];
 
     useEffect(() => {
@@ -63,26 +64,29 @@ const PermissionsView = () => {
                 if (!access) {
                     navigate("/", { replace: true })
                 }
-                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
                 console.error("Error:", error);
             }
         }
         validateCreateAdmins()
     }, []);
 
+    const setShowSnackAlert = (severity, message, errorDev) => {
+        setSeverityAlert(severity)
+        setMessageAlert(message);
+        setOpenSnackAlert(true);
+        if (errorDev === true) {
+            setProgressBar(false)
+            console.error('error:', message);
+        }
+    }
+
     const handleClickSnack = (error) => {
         setOpenSnack(true);
         setError(error);
     };
 
-    const handleCloseSnack = () => {
-        setOpenSnackAlert(false);
-    };
-
-    const handleCloseSnack2 = () => {
-        setOpenSnackAlert2(false);
-    };
-
+    const handleCloseSnack = () => setOpenSnackAlert(false);
 
     const handleClickModal = () => {
         setOpenDialog(false);
@@ -154,7 +158,7 @@ const PermissionsView = () => {
             }
             catch (error) {
                 setProgressBar(false)
-                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
                 console.error("Error:", error.message);
             }
         }
@@ -201,15 +205,15 @@ const PermissionsView = () => {
                         throw Error(response.statusText);
                     }
                     const data = await response.json();
-                    
+
                     if (data.status === "success") {
-                        setOpenSnackAlert2(true);
+                        setShowSnackAlert("success", "Creacion realizada correctamente")
                         handleClear();
                     } else {
                         handleClickSnack("Hubo un error: " + data.error);
                     }
                 } catch (error) {
-                    handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                    setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
                     console.error("Error:", error);
                 }
             };
@@ -235,13 +239,13 @@ const PermissionsView = () => {
                     const data = await response.json();
                     console.log(data)
                     if (data.status === "success") {
-                        setOpenSnackAlert(true);
-                    } else {
-                        handleClickSnack("Hubo un error: " + data.error);
+                        setShowSnackAlert("success", "Edición realizada correctamente")
+                    } else if (data.status === "false" && data.error === "No hubo ningun cambio.") {
+                        setShowSnackAlert("info", "No hubo ningun cambio")
                     }
                     handleClear();
                 } catch (error) {
-                    handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
+                    setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
                     console.error("Error:", error);
                 }
             };
@@ -261,9 +265,7 @@ const PermissionsView = () => {
                 <Fade in={transition}>
                     <Container>
 
-                        <SnackAlert severity={"success"} message={"Edicion realizada correctamente"} open={openSnackAlert} close={handleCloseSnack}></SnackAlert>
-
-                        <SnackAlert severity={"success"} message={"Creacion realizada correctamente"} open={openSnackAlert2} close={handleCloseSnack2}></SnackAlert>
+                        <SnackAlert severity={severityAlert} message={messageAlert} open={openSnackAlert} close={handleCloseSnack}></SnackAlert>
 
                         <Dialog
                             open={openDialog}
