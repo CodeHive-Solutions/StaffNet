@@ -1,6 +1,5 @@
 import logging
 import pickle
-import json
 import datetime
 import mysql.connector
 import os
@@ -30,6 +29,7 @@ sess.init_app(app)
 
 # Evitar logs innecesarios
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
 logging.basicConfig(filename=f"../logs/Registros_{datetime.datetime.now().year}.log",
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
@@ -135,15 +135,9 @@ def login():
         session["create"] = response["create"]
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
-        # session_key = 'session:' + session.sid
-        # update("users", "session_id", session_key,
-        #        f"user = {username}", conexion)
-        # print(session_key)
-        # session_data = redis_client.get(session_key)
-        # if session_data is not None:
-        #     session_dict = pickle.loads(session_data)
-        #     print("dict", session_dict)
-        # redis_client.delete(session_key)
+        session_key = 'session:' + session.sid
+        update("users", "session_id", (session_key,"hola"),
+               f"WHERE user = {username}", conexion)
         response = {"status": 'success',
                     'create_admins': response["create_admins"]}
     return response
@@ -235,6 +229,7 @@ def edit_admin():
                 "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
             response = update(
                 table, fields, parameters, condition, conexion)
+
         else:
             response = {'status': 'False',
                         'error': 'No puedes cambiar tus permisos.'}
