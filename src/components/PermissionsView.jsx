@@ -237,11 +237,12 @@ const PermissionsView = () => {
                         throw Error(response.statusText);
                     }
                     const data = await response.json();
-                    console.log(data)
                     if (data.status === "success") {
                         setShowSnackAlert("success", "Edición realizada correctamente")
                     } else if (data.status === "false" && data.error === "No hubo ningun cambio.") {
                         setShowSnackAlert("info", "No hubo ningun cambio")
+                    } else if (data.status === "False" && data.error === "No puedes cambiar tus permisos.") {
+                        setShowSnackAlert("info", "No puedes cambiar tus permisos.")
                     }
                     handleClear();
                 } catch (error) {

@@ -80,8 +80,12 @@ def after_request(response):
     if response.json != None:
         print("Respuesta: ", response.json)
         if request.url.split("0/")[1] == "search_employees":
-            logging.info(
-                {"Respuesta: ": {"status": response.json["info"]["status"]}})
+            if "info" in response.json:
+                logging.info(
+                    {"Respuesta: ": {"status": response.json["info"]["status"]}})
+            else:
+                logging.info(
+                    {"Respuesta: ": {"status": response.json["status"]}})
         elif response.json["status"] == "False" and request.url.split("0/")[1] != "loged":
             logging.info({"Respuesta: ": {
                          "status": response.json["status"], "error": response.json["error"]}})
@@ -136,8 +140,8 @@ def login():
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
         session_key = 'session:' + session.sid
-        update("users", "session_id", (session_key,"hola"),
-               f"WHERE user = {username}", conexion)
+        update("users", "session_id", (session_key,),
+               f"WHERE user = '{username}'", conexion)
         response = {"status": 'success',
                     'create_admins': response["create_admins"]}
     return response
@@ -147,13 +151,6 @@ def login():
 def loged():
     response = {"status": 'False'}
     if "username" in session:
-        session_key = 'session:' + session.sid
-        print(session_key)
-        session_data = redis_client.get(session_key)
-        if session_data is not None:
-            session_dict = pickle.loads(session_data)
-            print("dict", session_dict)
-            # redis_client.delete(session_key)
         if session["consult"] == True:
             response = {"status": 'success', "access": "home"}
         elif session["create_admins"] == True:
@@ -226,10 +223,15 @@ def edit_admin():
             fields = "permission_consult", "permission_create", "permission_edit", "permission_disable"
             condition = "WHERE user = %s"
             parameters = (body["permissions"]["consultar"], body["permissions"]["crear"], body[
-                "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"],)
+                "permissions"]["editar"], body["permissions"]["inhabilitar"], body["user"])
             response = update(
                 table, fields, parameters, condition, conexion)
-
+            if response["status"] == "success":
+                print("searching")
+                response_search = search(
+                    "session_id", "users", "WHERE user = %s", (body["user"],), conexion)
+                session_key = response_search["info"][0]
+                redis_client.delete(session_key)
         else:
             response = {'status': 'False',
                         'error': 'No puedes cambiar tus permisos.'}

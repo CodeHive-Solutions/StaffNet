@@ -95,14 +95,14 @@ const HomeView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                if (data.info.status === "success") {
+                if (data.status === "False") {
+                    navigate("/")
+                } else if (data.info.status === "success") {
                     setAccess(true);
                     setTableData(data.info.data)
                     setPermissions(data.permissions)
                 }
-                else {
-                    navigate("/")
-                }
+
             }
             catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
