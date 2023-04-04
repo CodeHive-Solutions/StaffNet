@@ -10,11 +10,11 @@ COPY package*.json ./
 # Install Python
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
-    pip3 install --upgrade pip && \
-    pip3 install -r requirements.txt
+    pip3 install --upgrade pip
 # Install dependencies
 RUN npm install
 
+RUN apt-get update && apt-get install -y net-tools
 # Copy the rest of the application code to /app
 COPY . .
 
@@ -22,4 +22,4 @@ COPY . .
 EXPOSE 5173
 
 # Start the React application
-CMD ["npm", "run","dev"]
+CMD ["npm", "run", "dev", "--", "--host"]
