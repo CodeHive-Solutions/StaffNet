@@ -47,7 +47,7 @@ const HomeView = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [permissions, setPermissions] = useState("");
     const [dataCalculateAge, setDataCalculateAge] = useState();
-    const [seniority, setSeniority] = useState(0);
+    const [seniority, setSeniority] = useState(1);
     const [searchTerm, setSearchTerm] = useState("")
     const [severityAlert, setSeverityAlert] = React.useState("info");
     const navigate = useNavigate()
@@ -59,29 +59,32 @@ const HomeView = () => {
                     method: "POST",
                     credentials: "include"
                 });
-
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-
                 const data = await response.json();
-                if (data.status === "success") {
-                    setTableData(data.data)
-                }
-                else {
+                if (data.info.status === "success") {
+                    setAccess(true);
+                    setTableData(data.info.data)
+                    setPermissions(data.permissions)
+                } else {
                     navigate("/")
                 }
-            } catch (error) {
+
+            }
+            catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
                 if (error === "Usuario no ha iniciado sesion") {
                     navigate("/")
                 }
             }
-        };
+            setTransition(!transition)
+        }
+        fetchEmployees()
 
         const intervalId = setInterval(() => {
             fetchEmployees();
-        }, 30 * 60 * 1000);
+        }, 10 * 30 * 1000);
 
         return () => clearTimeout(intervalId);
     }, []);
@@ -104,40 +107,14 @@ const HomeView = () => {
     }
 
     const calculateSeniority = (seniority) => {
-        const fechaIngreso = new Date(seniority);
-        const fechaActual = new Date();
-        const antiguedadEnAños = fechaActual.getFullYear() - fechaIngreso.getFullYear();
-        console.log(antiguedadEnAños)
-        return antiguedadEnAños
+        if (!isNaN(seniority) && seniority !== undefined) {
+            const fechaIngreso = new Date(seniority);
+            const fechaActual = new Date();
+            const antiguedadEnAños = fechaActual.getFullYear() - fechaIngreso.getFullYear();
+            setSeniority(antiguedadEnAños);
+        }
     }
 
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                const response = await fetch("http://localhost:5000/search_employees", {
-                    method: "POST",
-                    credentials: "include"
-                });
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                const data = await response.json();
-                if (data.status === "False") {
-                    navigate("/")
-                } else if (data.info.status === "success") {
-                    setAccess(true);
-                    setTableData(data.info.data)
-                    setPermissions(data.permissions)
-                }
-
-            }
-            catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true)
-            }
-            setTransition(!transition)
-        }
-        fetchEmployees()
-    }, []);
 
     const handleOpenModalAdd = () => {
         setOpenModalAdd(true);
@@ -505,14 +482,15 @@ const HomeView = () => {
         });
         setInputValues(initialInputValues);
 
-        const inputValue = pageInputs.flatMap(inputGroup => inputGroup.inputs)
-            .find(input => input.id == 3)?.value;
+        // Calculate the age and the seniority
+        const birthDate = pageInputs.flatMap(inputGroup => inputGroup.inputs)
+            .find(input => input.id === "3")?.value;
+        setDataCalculateAge(calculateAge(birthDate))
 
-        const inputValue2 = pageInputs.flatMap(inputGroup => inputGroup.inputs)
-            .find(input => input.id == "fecha_afiliacion")?.value;
+        const affiliationDate = pageInputs.flatMap(inputGroup => inputGroup.inputs)
+            .find(input => input.id === "fecha_afiliacion")?.value;
+        setSeniority(calculateSeniority(affiliationDate))
 
-        setDataCalculateAge(calculateAge(inputValue))
-        setSeniority(calculateSeniority(inputValue2))
     }, [openModal]);
 
     // Search and table functionality
@@ -757,39 +735,44 @@ const HomeView = () => {
                                                 <Box key={section.title} sx={{ mb: 2, display: "flex", flexWrap: "wrap", width: "100%", gap: "30px" }}>
                                                     <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}
                                                     </Typography>
-                                                    {section.inputs.map((input) => (
-                                                        input.id == "antiguedad" ?
-                                                            <TextField
-                                                                disabled
-                                                                required
-                                                                key={input.id}
-                                                                name={input.name}
-                                                                label={input.label}
-                                                                type={input.type}
-                                                                sx={{ width: "144px" }}
-                                                                value={seniority}
-                                                                InputLabelProps={{
-                                                                    shrink: true,
-                                                                }}>
-                                                            </TextField>
-                                                            :
-                                                            input.id == 5 ?
-                                                                <TextField
-                                                                    disabled
-                                                                    required
-                                                                    key={input.id}
-                                                                    name={input.name}
-                                                                    label={input.label}
-                                                                    type={input.type}
-                                                                    sx={{ width: "144px" }}
-                                                                    value={dataCalculateAge}
-                                                                    InputLabelProps={{
-                                                                        shrink: true,
-                                                                    }}>
-                                                                </TextField>
-                                                                :
-                                                                input.id == 1
-                                                                    ?
+                                                    {section.inputs.map((input) => {
+                                                        const getInputComponent = () => {
+                                                            if (input.id === "antiguedad") {
+                                                                return (
+                                                                    <TextField
+                                                                        disabled
+                                                                        required
+                                                                        key={input.id}
+                                                                        name={input.name}
+                                                                        label={input.label}
+                                                                        type={input.type}
+                                                                        sx={{ width: "144px" }}
+                                                                        value={seniority}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            }
+                                                            if (input.id === "5") {
+                                                                return (
+                                                                    <TextField
+                                                                        disabled
+                                                                        required
+                                                                        key={input.id}
+                                                                        name={input.name}
+                                                                        label={input.label}
+                                                                        type={input.type}
+                                                                        sx={{ width: "144px" }}
+                                                                        value={dataCalculateAge}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            }
+                                                            if (input.id === 1) {
+                                                                return (
                                                                     <TextField
                                                                         disabled
                                                                         required
@@ -801,63 +784,71 @@ const HomeView = () => {
                                                                         value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                         InputLabelProps={{
                                                                             shrink: true,
-                                                                        }}>
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            }
+                                                            if (input.id === 61 && permissions.disable === 0) {
+                                                                return (
+                                                                    <TextField
+                                                                        disabled
+                                                                        required
+                                                                        key={input.id}
+                                                                        name={input.name}
+                                                                        label={input.label}
+                                                                        type={input.type}
+                                                                        sx={{ width: "144px" }}
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            }
+                                                            if (input.type === "select") {
+                                                                return (
+                                                                    <TextField
+                                                                        select
+                                                                        disabled={edit}
+                                                                        key={input.id}
+                                                                        sx={{ width: "144px" }}
+                                                                        required
+                                                                        name={input.name}
+                                                                        autoComplete="off"
+                                                                        variant="outlined"
+                                                                        label={input.label}
+                                                                        onChange={(event) => handleChange(event, input)}
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    >
+                                                                        {input.options.map((option) => (
+                                                                            <MenuItem key={option.value} value={option.value}>
+                                                                                {option.label}
+                                                                            </MenuItem>
+                                                                        ))}
                                                                     </TextField>
-                                                                    : input.id == 61 && permissions.disable == 0 ?
-                                                                        <TextField
-                                                                            disabled
-                                                                            required
-                                                                            key={input.id}
-                                                                            name={input.name}
-                                                                            label={input.label}
-                                                                            type={input.type}
-                                                                            sx={{ width: "144px" }}
-                                                                            value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
-                                                                            InputLabelProps={{
-                                                                                shrink: true,
-                                                                            }}>
-                                                                        </TextField>
-                                                                        :
-                                                                        input.type == "select" ?
-                                                                            <TextField
-                                                                                select
-                                                                                disabled={edit}
-                                                                                key={input.id}
-                                                                                sx={{ width: "144px" }}
-                                                                                required
-                                                                                name={input.name}
-                                                                                autoComplete="off"
-                                                                                variant="outlined"
-                                                                                label={input.label}
-                                                                                onChange={(event) => handleChange(event, input)}
-                                                                                value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
-                                                                                InputLabelProps={{
-                                                                                    shrink: true,
-                                                                                }}
-                                                                            >
-                                                                                {
-                                                                                    input.options.map((option) => (
-                                                                                        <MenuItem key={option.value} value={option.value}>
-                                                                                            {option.label}
-                                                                                        </MenuItem>
-                                                                                    ))
-                                                                                }
-                                                                            </TextField>
-                                                                            :
-                                                                            <TextField
-                                                                                disabled={edit}
-                                                                                required
-                                                                                key={input.id}
-                                                                                sx={{ width: "144px" }}
-                                                                                type={input.type}
-                                                                                name={input.name}
-                                                                                autoComplete="off"
-                                                                                label={input.label}
-                                                                                value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
-                                                                                InputLabelProps={{ shrink: true }}
-                                                                                onChange={(event) => handleChange(event, input)}
-                                                                            />
-                                                    ))}
+                                                                );
+                                                            }
+                                                            return (
+                                                                <TextField
+                                                                    disabled={edit}
+                                                                    required
+                                                                    key={input.id}
+                                                                    sx={{ width: "144px" }}
+                                                                    type={input.type}
+                                                                    name={input.name}
+                                                                    autoComplete="off"
+                                                                    label={input.label}
+                                                                    value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                    InputLabelProps={{ shrink: true }}
+                                                                    onChange={(event) => handleChange(event, input)}
+                                                                />
+                                                            )
+                                                        }
+                                                        return getInputComponent();
+                                                    })}
                                                 </Box>
                                             ))}
                                         </Box>
@@ -889,50 +880,70 @@ const HomeView = () => {
                                             Añadir empleado
                                         </Typography>
                                         <Box sx={{ p: 2 }}>
-                                            {pageInputs.map((section) => (
-                                                <Box key={section.title} sx={{ m: 2, display: "flex", flexWrap: "wrap", width: "100%", gap: "30px" }}>
-                                                    <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}</Typography>
-                                                    {section.inputs.map((input) => (
-                                                        input.type == "select" ?
-                                                            <TextField
-                                                                select
-                                                                required
-                                                                sx={{ width: "144px" }}
-                                                                key={input.id}
-                                                                name={input.name}
-                                                                onChange={handleFormChange}
-                                                                value={formData[input.name] || ''}
-                                                                variant="outlined"
-                                                                autoComplete="off"
-                                                                label={input.label}
-                                                            >
-                                                                {
-                                                                    input.options.map((option) => (
-                                                                        <MenuItem key={option.value} value={option.value}>
-                                                                            {option.label}
-                                                                        </MenuItem>
-                                                                    ))
-                                                                }
-                                                            </TextField>
-                                                            : input.id != 5 && input.id != "antiguedad" ?
-                                                                <TextField
-                                                                    required
-                                                                    sx={{ width: "144px" }}
-                                                                    key={input.id}
-                                                                    name={input.name}
-                                                                    value={formData[input.name] || ''}
-                                                                    InputLabelProps={{
-                                                                        shrink: input.shrink,
-                                                                    }}
-                                                                    onChange={handleFormChange}
-                                                                    autoComplete="off"
-                                                                    type={input.type}
-                                                                    label={input.label}
-                                                                />
-                                                                : <React.Fragment key={input.id} />
-                                                    ))}
-                                                </Box>
-                                            ))}
+                                            {pageInputs.map((section) => {
+                                                function renderSelectInput(input, formData, handleFormChange) {
+                                                    return (
+                                                        <TextField
+                                                            select
+                                                            required
+                                                            sx={{ width: "144px" }}
+                                                            key={input.id}
+                                                            name={input.name}
+                                                            onChange={handleFormChange}
+                                                            value={formData[input.name] || ''}
+                                                            variant="outlined"
+                                                            autoComplete="off"
+                                                            label={input.label}
+                                                        >
+                                                            {input.options.map((option) => (
+                                                                <MenuItem key={option.value} value={option.value}>
+                                                                    {option.label}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </TextField>
+                                                    );
+                                                }
+
+                                                function renderTextInput(input, formData, handleFormChange) {
+                                                    return (
+                                                        <TextField
+                                                            required
+                                                            sx={{ width: "144px" }}
+                                                            key={input.id}
+                                                            name={input.name}
+                                                            value={formData[input.name] || ''}
+                                                            InputLabelProps={{
+                                                                shrink: input.shrink,
+                                                            }}
+                                                            onChange={handleFormChange}
+                                                            autoComplete="off"
+                                                            type={input.type}
+                                                            label={input.label}
+                                                        />
+                                                    );
+                                                }
+
+                                                function renderInput(input, formData, handleFormChange) {
+                                                    if (input.type === "select") {
+                                                        return renderSelectInput(input, formData, handleFormChange);
+                                                    } else if (["5", "antiguedad"].includes(input.id)) {
+                                                        return null;
+                                                    } else {
+                                                        return renderTextInput(input, formData, handleFormChange);
+                                                    }
+                                                }
+
+                                                function renderInputs(section, formData, handleFormChange) {
+                                                    return section.inputs.map((input) => renderInput(input, formData, handleFormChange));
+                                                }
+
+                                                return (
+                                                    <Box key={section.title} sx={{ m: 2, display: "flex", flexWrap: "wrap", width: "100%", gap: "30px" }}>
+                                                        <Typography sx={{ display: "flex", justifyContent: "center", width: "100%" }} variant="h6" component="h3">{section.title}</Typography>
+                                                        {renderInputs(section, formData, handleFormChange)}
+                                                    </Box>
+                                                )
+                                            })}
                                         </Box>
                                     </List>
                                 </Box>
