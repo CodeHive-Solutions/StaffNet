@@ -43,7 +43,6 @@ def consulta_login(body, conexion):
     cursor.close()
     return response
 
-
 def consulta_usuario_ad(user, attributes):
     conn, server = start_ldap()
     # Busqueda del usuario

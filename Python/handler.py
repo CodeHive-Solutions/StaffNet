@@ -1,9 +1,5 @@
-import logging
 import pickle
-import datetime
-import mysql.connector
-import os
-import redis
+import logging
 from flask import Flask, request, session, g
 from flask_session import Session
 from insert import insert
@@ -11,28 +7,40 @@ from login import consulta_login
 from update import update
 from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
+import datetime
+import mysql.connector
+import redis
+import json
+import sys
+import os
+sys.path.insert(0, '/path/to/insert/module')
 
-
+logging.basicConfig(filename=f"../logs/Registros_{datetime.datetime.now().year}.log",
+                    level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 app = Flask(__name__)
 app.config['SESSION_TYPE'] = 'redis'
-redis_client = redis.Redis(host='172.16.0.128', port=6379, password="654321")
+try:
+    redis_client = redis.Redis(
+        host='172.16.0.128', port=6379, password="654321")
+    redis_client.ping()
+except:
+    print("Connection to redis failed")
+    logging.critical(f"Connection to redis failed", exc_info=True)
 app.config['SESSION_REDIS'] = redis_client
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_REFRESH_EACH_REQUEST'] = False
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 # app.secret_key = os.urandom(24)
 app.secret_key = "Hack_me_if_u_can"
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
 
 sess = Session()
 sess.init_app(app)
 
 # Evitar logs innecesarios
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
-
-logging.basicConfig(filename=f"../logs/Registros_{datetime.datetime.now().year}.log",
-                    level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 def conexionMySQL():
@@ -51,23 +59,25 @@ def conexionMySQL():
 
 @app.before_request
 def logs():
+    print("Actual session sid", session.sid)
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
-        petition = request.url.split("0/")[1]
+        petition = request.url.split("/")[3]
         if petition == "login":
             print("Peticion: ", petition, "user: ", request.json["user"])
-            logging.info({"User": request.json["user"], "Peticion": petition})
+            logging.info(
+                {"User": request.json["user"], "Peticion": petition})
         else:
             print("Peticion: ", petition)
             logging.info({"User": session["username"], "Peticion": petition,
-                         "Valores": request.json})
+                          "Valores": request.json})
     else:
-        petition = request.url.split("0/")[1]
+        petition = request.url.split("/")[3]
         if petition == "loged":
             pass
         else:
-            petition = request.url.split("0/")[1]
+            petition = request.url.split("/")[3]
             print("Peticion: ", petition)
             if petition != "login":
                 logging.info(
@@ -79,20 +89,21 @@ def after_request(response):
     # Logs de respuesta
     if response.json != None:
         print("Respuesta: ", response.json)
-        if request.url.split("0/")[1] == "search_employees":
+        if request.url.split("/")[3] == "search_employees":
             if "info" in response.json:
                 logging.info(
                     {"Respuesta: ": {"status": response.json["info"]["status"]}})
             else:
                 logging.info(
                     {"Respuesta: ": {"status": response.json["status"]}})
-        elif response.json["status"] == "False" and request.url.split("0/")[1] != "loged":
+        elif response.json["status"] == "False" and request.url.split("/")[3] != "loged":
             logging.info({"Respuesta: ": {
-                         "status": response.json["status"], "error": response.json["error"]}})
-        elif request.url.split("0/")[1] == "loged":
+                "status": response.json["status"], "error": response.json["error"]}})
+        elif request.url.split("/")[3] == "loged":
             pass
         else:
-            logging.info({"Respuesta: ": {"status": response.json["status"]}})
+            logging.info(
+                {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["http://localhost:5173",
                       "http://localhost:8080", "http://172.16.5.10:8080"]
@@ -103,7 +114,7 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers',
                          'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods',
-                         'POST')
+                         'POST, GET')
     return response
 
 
@@ -113,7 +124,8 @@ def close_db(useless_var):
     if conexion != None:
         print("Conexion cerrada")
         conexion.close()
-    print("____________________________________________________________________________")
+    print(
+        "____________________________________________________________________________")
 
 
 @ app.errorhandler(Exception)
@@ -122,7 +134,9 @@ def handle_error(error):
     if str(error) == "'username'":
         response = {"status": "False",
                     "error": "Usuario no ha iniciado sesion."}
-    logging.warning(f"Peticion: {request.url.split('0/')[1]}", exc_info=True)
+    print(request.url.split('/')[3])
+    logging.warning(
+        f"Peticion: {request.url.split('/')[3]}", exc_info=True)
     return response, 200
 
 
@@ -131,6 +145,8 @@ def login():
     conexion = conexionMySQL()
     response = consulta_login(request.json, conexion)
     print(response)
+    session_key = 'session:' + session.sid
+    print(session_key)
     if response["status"] == 'success':
         username = request.json["user"]
         session["username"] = username
@@ -139,7 +155,8 @@ def login():
         session["create"] = response["create"]
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
-        session_key = 'session:' + session.sid
+        session_data = redis_client.get(session_key)
+        print(pickle.loads(session_data))
         update("users", "session_id", (session_key,),
                f"WHERE user = '{username}'", conexion)
         response = {"status": 'success',
@@ -426,4 +443,4 @@ def insert_in_tables():
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5000)
