@@ -367,6 +367,8 @@ def update_transaction():
                 "estado": body["estado"]
             }
         }
+        if body["historical"]:
+            insert("")
         response = update_data(
             conexion, info_tables, "cedula = "+str(body["cedula"]))
     else:
