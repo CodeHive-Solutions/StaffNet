@@ -29,6 +29,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
+import { DataGrid } from '@mui/x-data-grid';
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -69,7 +70,6 @@ const HomeView = () => {
                     setAccess(true);
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
-                    console.log(tableData)
                 } else {
                     navigate("/");
                 }
@@ -164,15 +164,58 @@ const HomeView = () => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+
     const columns = [
-        { id: "cedula", label: "Cedula", minWidth: 170, align: "center" },
-        { id: "nombre", label: "Nombre", minWidth: 100, align: "center" },
-        { id: "celular", label: "Celular", minWidth: 100, align: "center" },
-        { id: "correo", label: "Correo", minWidth: 100, align: "center" },
-        { id: "campana_general", label: "campana_general", minWidth: 100, align: "center" },
-        { id: "detalles", label: "Detalles", minWidth: 100, align: "center" },
-        { id: "estado", label: "Estado", minWidth: 100, align: "center" },
+        { field: "cedula", headerName: "Cedula", width: 120 },
+        { field: "nombre", headerName: "Nombre", width: 230 },
+        { field: "correo", headerName: "Correo", width: 230 },
+        { field: "campana_general", headerName: "Campaña", width: 100 },
+        { field: "gerencia", headerName: "Gerencia", width: 100 },
+        { field: "cargo", headerName: "Cargo", width: 100 },
+        {
+            field: 'detalles',
+            headerName: 'Detalles',
+            width: 120,
+            renderCell: (params) => {
+              const { row } = params;
+              return (
+                <Tooltip title="Detalles">
+                  <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
+                    <MoreIcon />
+                  </IconButton>
+                </Tooltip>
+              );
+            },
+          },
+        
+          {
+            field: 'estado',
+            headerName: 'Estado',
+            width: 120,
+            renderCell: (params) => {
+                const { row } = params;
+                console.log(row)
+              if (permissions.disable == 1) {
+                return (
+                  <Tooltip title={row.estado ? 'Inhabilitar' : 'Habilitar'}>
+                    <Switch
+                      checked={row.estado}
+                      onChange={() => handleSwitch(row)}
+                    />
+                  </Tooltip>
+                );
+              } else {
+                return (
+                  <Switch
+                    disabled
+                    checked={row.estado}
+                  />
+                );
+              }
+            },
+          },
     ];
+
     const pageInputs = [
         // Inputs Pagina Información Personal
         {
@@ -870,15 +913,16 @@ const HomeView = () => {
             });
         });
         setInputValues(initialInputValues);
+
         // Calculate the age and the seniority
         const birthDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "3")?.value;
         setDataCalculateAge(calculateAge(birthDate));
         const affiliationDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "fecha_afiliacion")?.value;
         setSeniority(calculateSeniority(affiliationDate));
     }, [openModal]);
+
     // Search and table functionality
     useEffect(() => {
-        console.log(tableData)
         const newRows = tableData.map(([cedula, nombre, celular, correo, campana_general, estado]) => ({
             cedula,
             nombre,
@@ -888,7 +932,6 @@ const HomeView = () => {
             estado: estado === 1 ? true : false,
         }));
         setRows(newRows);
-        console.log(newRows)
     }, [tableData]);
     
     useEffect(() => {
@@ -903,6 +946,7 @@ const HomeView = () => {
             })
         );
     }, [searchTerm, rows]);
+
     // Disable functionality
     const handleSwitch = (row) => {
         const updatedTableResults = tableResults.map((item) => {
@@ -947,6 +991,7 @@ const HomeView = () => {
         };
         changeState();
     };
+
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true);
@@ -1003,6 +1048,7 @@ const HomeView = () => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
     };
+
     // Add functionality
     const submitAdd = (event) => {
         event.preventDefault();
@@ -1047,6 +1093,7 @@ const HomeView = () => {
         borderRadius: "20px",
         overflow: "auto",
     };
+
     const handleChange = useCallback(
         (event, input) => {
             setInputValues({
@@ -1056,6 +1103,9 @@ const HomeView = () => {
         },
         [inputValues]
     );
+
+    console.log(tableResults)
+
     if (access) {
         return (
             <>
@@ -1497,7 +1547,7 @@ const HomeView = () => {
                             )}
                         </Box>
 
-                        <Box
+                        {/* <Box
                             sx={{
                                 display: "flex",
                                 width: "100%",
@@ -1525,7 +1575,6 @@ const HomeView = () => {
                                                 return (
                                                     <TableRow hover role="checkbox" key={row.cedula}>
                                                         {columns.map((column) => {
-                                                            console.log(tableResults)
                                                             const value = row[column.id];
                                                             if (column.id === "detalles") {
                                                                 return (
@@ -1587,6 +1636,10 @@ const HomeView = () => {
                                     onRowsPerPageChange={handleChangeRowsPerPage}
                                 />
                             </Paper>
+                        </Box> */}
+                        
+                        <Box>
+                        <DataGrid columns={columns} getRowId={(row) => row.cedula} rows={tableResults} paginationModel={{ page :0 , pageSize :5 }} />
                         </Box>
                     </Container>
                 </Fade>
