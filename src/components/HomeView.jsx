@@ -5,21 +5,13 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import MoreIcon from "@mui/icons-material/More";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from "@mui/material/Fade";
 import Header from "./Header";
-import Paper from "@mui/material/Paper";
 import Switch from "@mui/material/Switch";
 import Modal from "@mui/material/Modal";
-import TablePagination from "@mui/material/TablePagination";
 import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
 import SnackAlert from "./SnackAlert";
@@ -27,9 +19,9 @@ import MenuItem from "@mui/material/MenuItem";
 import { useNavigate } from "react-router-dom";
 import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
-import CloseIcon from '@mui/icons-material/Close';
-import IconButton from '@mui/material/IconButton';
-import { DataGrid } from '@mui/x-data-grid';
+import CloseIcon from "@mui/icons-material/Close";
+import IconButton from "@mui/material/IconButton";
+import { DataGrid } from "@mui/x-data-grid";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -173,47 +165,39 @@ const HomeView = () => {
         { field: "gerencia", headerName: "Gerencia", width: 100 },
         { field: "cargo", headerName: "Cargo", width: 100 },
         {
-            field: 'detalles',
-            headerName: 'Detalles',
-            width: 120,
-            renderCell: (params) => {
-              const { row } = params;
-              return (
-                <Tooltip title="Detalles">
-                  <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
-                    <MoreIcon />
-                  </IconButton>
-                </Tooltip>
-              );
-            },
-          },
-        
-          {
-            field: 'estado',
-            headerName: 'Estado',
+            field: "detalles",
+            headerName: "Detalles",
             width: 120,
             renderCell: (params) => {
                 const { row } = params;
-                console.log(row)
-              if (permissions.disable == 1) {
                 return (
-                  <Tooltip title={row.estado ? 'Inhabilitar' : 'Habilitar'}>
-                    <Switch
-                      checked={row.estado}
-                      onChange={() => handleSwitch(row)}
-                    />
-                  </Tooltip>
+                    <Tooltip title="Detalles">
+                        <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
+                            <MoreIcon />
+                        </IconButton>
+                    </Tooltip>
                 );
-              } else {
-                return (
-                  <Switch
-                    disabled
-                    checked={row.estado}
-                  />
-                );
-              }
             },
-          },
+        },
+
+        {
+            field: "estado",
+            headerName: "Estado",
+            width: 120,
+            renderCell: (params) => {
+                const { row } = params;
+                console.log(row);
+                if (permissions.disable == 1) {
+                    return (
+                        <Tooltip title={row.estado ? "Inhabilitar" : "Habilitar"}>
+                            <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
+                        </Tooltip>
+                    );
+                } else {
+                    return <Switch disabled checked={row.estado} />;
+                }
+            },
+        },
     ];
 
     const pageInputs = [
@@ -310,7 +294,12 @@ const HomeView = () => {
                 },
                 { id: "12", label: "Celular", name: "celular", type: "text" },
                 { id: "13", label: "Correo", name: "correo", type: "email" },
-                { id: "correo_corporativo", label: "Correo Corporativo", name: "correo_corporativo", type: "email" },
+                {
+                    id: "correo_corporativo",
+                    label: "Correo Corporativo",
+                    name: "correo_corporativo",
+                    type: "email",
+                },
                 {
                     id: "14",
                     label: "Direccion",
@@ -923,17 +912,18 @@ const HomeView = () => {
 
     // Search and table functionality
     useEffect(() => {
-        const newRows = tableData.map(([cedula, nombre, celular, correo, campana_general, estado]) => ({
+        console.log(tableData);
+        const newRows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
             cedula,
             nombre,
             celular,
             correo,
-            campana_general,
             estado: estado === 1 ? true : false,
         }));
         setRows(newRows);
+        console.log(newRows);
     }, [tableData]);
-    
+
     useEffect(() => {
         setTableResults(
             rows.filter((person) => {
@@ -1104,8 +1094,6 @@ const HomeView = () => {
         [inputValues]
     );
 
-    console.log(tableResults)
-
     if (access) {
         return (
             <>
@@ -1123,7 +1111,8 @@ const HomeView = () => {
                             onClose={handleCloseModal}
                             aria-labelledby="modal-modal-title"
                             aria-describedby="modal-modal-description"
-                            sx={{ display: "flex", borderRadius: "30px" }}>
+                            sx={{ display: "flex", borderRadius: "30px" }}
+                        >
                             <Fade in={openModal}>
                                 <Box sx={stylesModal} component="form" onSubmit={submitEdit}>
                                     <Box
@@ -1131,7 +1120,8 @@ const HomeView = () => {
                                             display: "flex",
                                             justifyContent: "space-between",
                                             mx: "10px",
-                                        }}>
+                                        }}
+                                    >
                                         {permissions.edit == 1 ? (
                                             <Tooltip title="Editar">
                                                 <IconButton color="primary" onClick={() => handleEdit()}>
@@ -1139,35 +1129,36 @@ const HomeView = () => {
                                                 </IconButton>
                                             </Tooltip>
                                         ) : (
-                                                <IconButton disabled>
-                                                    <EditIcon></EditIcon>
-                                                </IconButton>
+                                            <IconButton disabled>
+                                                <EditIcon></EditIcon>
+                                            </IconButton>
                                         )}
-                                        <Box sx={{display: "flex", gap: "15px"}}>
-                                            <Button disabled={edit} type="submit" >
+                                        <Box sx={{ display: "flex", gap: "15px" }}>
+                                            <Button disabled={edit} type="submit">
                                                 <Box
                                                     sx={{
                                                         display: "flex",
                                                         paddingRight: ".5em",
-                                                    }}>
+                                                    }}
+                                                >
                                                     <SaveIcon />
                                                 </Box>
                                                 Guardar
                                             </Button>
 
-                                        <Tooltip title="Cancelar">
-                                        <IconButton onClick={handleCloseModal}>
-                                            <CloseIcon/> 
-                                        </IconButton>
-                                        </Tooltip>
-
+                                            <Tooltip title="Cancelar">
+                                                <IconButton onClick={handleCloseModal}>
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </Tooltip>
                                         </Box>
                                     </Box>
                                     <List
                                         sx={{
                                             overflow: "auto",
                                             maxHeight: "515px",
-                                        }}>
+                                        }}
+                                    >
                                         <Typography
                                             sx={{
                                                 display: "flex",
@@ -1175,7 +1166,8 @@ const HomeView = () => {
                                             }}
                                             id="modal-modal-title"
                                             variant="h5"
-                                            component="h3">
+                                            component="h3"
+                                        >
                                             Detalles del empleado
                                         </Typography>
                                         <Box sx={{ p: 2 }}>
@@ -1188,7 +1180,8 @@ const HomeView = () => {
                                                         flexWrap: "wrap",
                                                         width: "100%",
                                                         gap: "30px",
-                                                    }}>
+                                                    }}
+                                                >
                                                     <Typography
                                                         sx={{
                                                             display: "flex",
@@ -1196,7 +1189,8 @@ const HomeView = () => {
                                                             width: "100%",
                                                         }}
                                                         variant="h6"
-                                                        component="h3">
+                                                        component="h3"
+                                                    >
                                                         {section.title}
                                                     </Typography>
                                                     {section.inputs.map((input) => {
@@ -1251,11 +1245,7 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "144px",
                                                                         }}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1274,11 +1264,7 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "144px",
                                                                         }}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1300,14 +1286,11 @@ const HomeView = () => {
                                                                         variant="outlined"
                                                                         label={input.label}
                                                                         onChange={(event) => handleChange(event, input)}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
+                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                         InputLabelProps={{
                                                                             shrink: true,
-                                                                        }}>
+                                                                        }}
+                                                                    >
                                                                         {input.options.map((option) => (
                                                                             <MenuItem key={option.value} value={option.value}>
                                                                                 {option.label}
@@ -1328,11 +1311,7 @@ const HomeView = () => {
                                                                     name={input.name}
                                                                     autoComplete="off"
                                                                     label={input.label}
-                                                                    value={
-                                                                        inputValues[input.name] !== undefined && inputValues[input.name] !== ""
-                                                                            ? inputValues[input.name]
-                                                                            : ""
-                                                                    }
+                                                                    value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
                                                                     InputLabelProps={{
                                                                         shrink: true,
                                                                     }}
@@ -1356,7 +1335,8 @@ const HomeView = () => {
                             onClose={handleCloseModalAdd}
                             aria-labelledby="modal-modal-title"
                             aria-describedby="modal-modal-description"
-                            sx={{ display: "flex", borderRadius: "30px" }}>
+                            sx={{ display: "flex", borderRadius: "30px" }}
+                        >
                             <Fade in={openModalAdd}>
                                 <Box sx={stylesModal} component="form" onSubmit={submitAdd}>
                                     <Box
@@ -1364,29 +1344,32 @@ const HomeView = () => {
                                             display: "flex",
                                             justifyContent: "space-between",
                                             mx: "10px",
-                                        }}>
+                                        }}
+                                    >
                                         <Button type="submit">
                                             <Box
                                                 sx={{
                                                     display: "flex",
                                                     paddingRight: ".5em",
-                                                }}>
+                                                }}
+                                            >
                                                 <SaveIcon />
                                             </Box>
                                             Guardar
                                         </Button>
 
                                         <Tooltip title="Cancelar">
-                                        <IconButton onClick={handleCloseModalAdd}>
-                                            <CloseIcon/> 
-                                        </IconButton>
+                                            <IconButton onClick={handleCloseModalAdd}>
+                                                <CloseIcon />
+                                            </IconButton>
                                         </Tooltip>
                                     </Box>
                                     <List
                                         sx={{
                                             overflow: "auto",
                                             maxHeight: "505px",
-                                        }}>
+                                        }}
+                                    >
                                         <Typography
                                             sx={{
                                                 display: "flex",
@@ -1394,7 +1377,8 @@ const HomeView = () => {
                                             }}
                                             id="modal-modal-title"
                                             variant="h5"
-                                            component="h3">
+                                            component="h3"
+                                        >
                                             Añadir empleado
                                         </Typography>
                                         <Box sx={{ p: 2 }}>
@@ -1413,7 +1397,8 @@ const HomeView = () => {
                                                             value={formData[input.name] || ""}
                                                             variant="outlined"
                                                             autoComplete="off"
-                                                            label={input.label}>
+                                                            label={input.label}
+                                                        >
                                                             {input.options.map((option) => (
                                                                 <MenuItem key={option.value} value={option.value}>
                                                                     {option.label}
@@ -1467,7 +1452,8 @@ const HomeView = () => {
                                                             flexWrap: "wrap",
                                                             width: "100%",
                                                             gap: "30px",
-                                                        }}>
+                                                        }}
+                                                    >
                                                         <Typography
                                                             sx={{
                                                                 display: "flex",
@@ -1475,7 +1461,8 @@ const HomeView = () => {
                                                                 width: "100%",
                                                             }}
                                                             variant="h6"
-                                                            component="h3">
+                                                            component="h3"
+                                                        >
                                                             {section.title}
                                                         </Typography>
                                                         {renderInputs(section, formData, handleFormChange)}
@@ -1493,12 +1480,14 @@ const HomeView = () => {
                             sx={{
                                 display: "flex",
                                 justifyContent: "center",
-                            }}>
+                            }}
+                        >
                             <Box
                                 sx={{
                                     display: "flex",
                                     width: "500px",
-                                }}>
+                                }}
+                            >
                                 <TextField
                                     style={{ textAlign: "center" }}
                                     InputLabelProps={{
@@ -1511,24 +1500,28 @@ const HomeView = () => {
                                     autoComplete="off"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    variant="standard"></TextField>
+                                    variant="standard"
+                                ></TextField>
                             </Box>
                         </Box>
                         <Box
                             sx={{
                                 display: "flex",
                                 justifyContent: "flex-end",
-                            }}>
+                            }}
+                        >
                             {permissions.create == 1 ? (
                                 <Button
                                     onClick={() => {
                                         handleOpenModalAdd();
-                                    }}>
+                                    }}
+                                >
                                     <Box
                                         sx={{
                                             display: "flex",
                                             paddingRight: ".5em",
-                                        }}>
+                                        }}
+                                    >
                                         <PersonAddIcon />
                                     </Box>
                                     Añadir
@@ -1539,108 +1532,15 @@ const HomeView = () => {
                                         sx={{
                                             display: "flex",
                                             paddingRight: ".5em",
-                                        }}>
+                                        }}
+                                    >
                                         <PersonAddIcon />
                                     </Box>
                                     Añadir
                                 </Button>
                             )}
                         </Box>
-
-                        {/* <Box
-                            sx={{
-                                display: "flex",
-                                width: "100%",
-                                height: 600,
-                            }}>
-                            <Paper elevation={0} sx={{ width: "100%" }}>
-                                <TableContainer sx={{ maxHeight: 550, width: "100%" }}>
-                                    <Table stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                {columns.map((column) => (
-                                                    <TableCell
-                                                        key={column.id}
-                                                        align={column.align}
-                                                        style={{
-                                                            minWidth: column.minWidth,
-                                                        }}>
-                                                        {column.label}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {tableResults.map((row) => {
-                                                return (
-                                                    <TableRow hover role="checkbox" key={row.cedula}>
-                                                        {columns.map((column) => {
-                                                            const value = row[column.id];
-                                                            if (column.id === "detalles") {
-                                                                return (
-                                                                    <TableCell key={column.id} align={column.align}>
-                                                                        <Tooltip title="Detalles">
-                                                                            <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
-                                                                                <MoreIcon></MoreIcon>
-                                                                            </IconButton>
-                                                                        </Tooltip>
-                                                                    </TableCell>
-                                                                );
-                                                            } else if (column.id === "estado" && permissions.disable == 1 && row.estado == 0) {
-                                                                return (
-                                                                    <TableCell key={column.id} align={column.align}>
-                                                                        <Tooltip title="Habilitar">
-                                                                            <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
-                                                                        </Tooltip>
-                                                                    </TableCell>
-                                                                );
-                                                            } else if (column.id === "estado" && permissions.disable == 1 && row.estado == 1) {
-                                                                return (
-                                                                    <TableCell key={column.id} align={column.align}>
-                                                                        <Tooltip title="Inhabilitar">
-                                                                            <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
-                                                                        </Tooltip>
-                                                                    </TableCell>
-                                                                );
-                                                            } else if (column.id === "estado" && permissions.disable == 0) {
-                                                                return (
-                                                                    <TableCell key={column.id} align={column.align}>
-                                                                        <Switch disabled checked={row.estado} />
-                                                                    </TableCell>
-                                                                );
-                                                            } else {
-                                                                return (
-                                                                    <TableCell key={column.id} align={column.align}>
-                                                                        {value}
-                                                                    </TableCell>
-                                                                );
-                                                            }
-                                                        })}
-                                                    </TableRow>
-                                                );
-                                            })}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                                <TablePagination
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                    }}
-                                    rowsPerPageOptions={[10, 25, 100]}
-                                    component="div"
-                                    count={tableResults.length}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                />
-                            </Paper>
-                        </Box> */}
-                        
-                        <Box>
-                        <DataGrid columns={columns} getRowId={(row) => row.cedula} rows={tableResults} paginationModel={{ page :0 , pageSize :5 }} />
-                        </Box>
+                        <DataGrid columns={columns} getRowId={(row) => row.cedula} rows={tableResults} paginationModel={{ page: 0, pageSize: 5 }} />
                     </Container>
                 </Fade>
             </>
