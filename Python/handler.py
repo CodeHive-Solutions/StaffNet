@@ -10,7 +10,7 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 import datetime
 import mysql.connector
 import redis
-import json
+import time
 import sys
 import os
 sys.path.insert(0, '/path/to/insert/module')
@@ -32,13 +32,12 @@ app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
-# app.secret_key = os.urandom(24)
-app.secret_key = "Hack_me_if_u_can"
+# app.config['SESSION_REFRESH_THRESHOLD'] = 600
+app.secret_key = os.urandom(24)
+# app.secret_key = "Hack_me_if_u_can"
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-
-sess = Session()
-sess.init_app(app)
+Session(app)
 
 # Evitar logs innecesarios
 
@@ -155,8 +154,8 @@ def login():
         session["create"] = response["create"]
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
-        session_data = redis_client.get(session_key)
-        print(pickle.loads(session_data))
+        # session_data = redis_client.get(session_key)
+        # print(pickle.loads(session_data))
         update("users", "session_id", (session_key,),
                f"WHERE user = '{username}'", conexion)
         response = {"status": 'success',
@@ -264,6 +263,7 @@ def search_employees():
         conexion = conexionMySQL()
         table_info = {
             "personal_information": "cedula,nombre,celular,correo",
+            "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }
         where = "personal_information.cedula = leave_information.cedula"
@@ -274,6 +274,7 @@ def search_employees():
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
+        print(response)
     return response
 
 
@@ -368,7 +369,7 @@ def update_transaction():
             }
         }
         if body["historical"]:
-            insert("")
+            insert("historical", "", "", conexion)
         response = update_data(
             conexion, info_tables, "cedula = "+str(body["cedula"]))
     else:
@@ -388,7 +389,7 @@ def insert_in_tables():
                 "genero": body["genero"], "edad": body["edad"], "rh": body["rh"],
                 "estado_civil": body["estado_civil"], "hijos": body["hijos"], "personas_a_cargo": body["personas_a_cargo"],
                 "estrato": body["estrato"], "tel_fijo": body["tel_fijo"], "celular": body["celular"],
-                "correo": body["correo"], "direccion": body["direccion"], "barrio": body["barrio"],
+                "correo": body["correo"], "correo_corporativo": body["correo_corporativo"], "direccion": body["direccion"], "barrio": body["barrio"],
                 "contacto_emergencia": body["contacto_emergencia"], "parentesco": body["parentesco"], "tel_contacto": body["tel_contacto"]},
             "educational_information": {
                 "cedula": body["cedula"],
