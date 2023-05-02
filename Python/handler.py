@@ -262,7 +262,7 @@ def search_employees():
     if session["consult"] == True:
         conexion = conexionMySQL()
         table_info = {
-            "personal_information": "cedula,nombre,celular,correo",
+            "personal_information": "cedula,nombre,correo",
             "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }

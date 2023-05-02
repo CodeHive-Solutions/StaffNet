@@ -21,7 +21,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -161,13 +161,13 @@ const HomeView = () => {
         { field: "cedula", headerName: "Cedula", width: 120 },
         { field: "nombre", headerName: "Nombre", width: 230 },
         { field: "correo", headerName: "Correo", width: 230 },
-        { field: "campana_general", headerName: "Campaña", width: 100 },
+        { field: "campana", headerName: "Campaña", width: 100 },
         { field: "gerencia", headerName: "Gerencia", width: 100 },
-        { field: "cargo", headerName: "Cargo", width: 100 },
+        { field: "cargo", headerName: "Cargo", width: 170 },
         {
             field: "detalles",
             headerName: "Detalles",
-            width: 120,
+            width: 65,
             renderCell: (params) => {
                 const { row } = params;
                 return (
@@ -183,10 +183,9 @@ const HomeView = () => {
         {
             field: "estado",
             headerName: "Estado",
-            width: 120,
+            width: 80,
             renderCell: (params) => {
                 const { row } = params;
-                console.log(row);
                 if (permissions.disable == 1) {
                     return (
                         <Tooltip title={row.estado ? "Inhabilitar" : "Habilitar"}>
@@ -210,6 +209,13 @@ const HomeView = () => {
                     label: "Cedula",
                     name: "cedula",
                     type: "text",
+                    tab: 1,
+                },
+                {
+                    id: "fecha_expedicion",
+                    label: "Fecha de expedition",
+                    name: "fecha_expedicion",
+                    type: "date",
                     tab: 1,
                 },
                 {
@@ -355,6 +361,17 @@ const HomeView = () => {
         {
             title: "Información Empleado",
             inputs: [
+                {
+                    id: "sede",
+                    label: "Sede",
+                    name: "sede",
+                    type: "select",
+                    options: [
+                        { value: "bogota", label: "Bogotá D.C" },
+                        { value: "bucaramanga", label: "Bucaramanga" },
+                        { value: "medellin", label: "Medellin" },
+                    ],
+                },
                 {
                     id: "fecha_afiliacion",
                     label: "Fecha de Afiliacion",
@@ -619,24 +636,24 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         {
-                            value: "Gerencia de Planeación",
-                            label: "Gerencia de Planeación",
+                            value: "Planeación",
+                            label: "Planeación",
                         },
                         {
-                            value: "Gerencia Administrativa",
-                            label: "Gerencia Administrativa",
+                            value: "Administrativa",
+                            label: "Administrativa",
                         },
                         {
-                            value: "Gerencia de Legal y Riesgo",
-                            label: "Gerencia de Legal y Riesgo",
+                            value: "Legal y Riesgo",
+                            label: "Legal y Riesgo",
                         },
                         {
-                            value: "Gerencia de Tecnología",
-                            label: "Gerencia de Tecnología",
+                            value: "Tecnología",
+                            label: "Tecnología",
                         },
                         {
-                            value: "Gerencia Gestión Humana",
-                            label: "Gerencia Gestión Humana",
+                            value: "Gestión Humana",
+                            label: "Gestión Humana",
                         },
                     ],
                 },
@@ -912,16 +929,16 @@ const HomeView = () => {
 
     // Search and table functionality
     useEffect(() => {
-        console.log(tableData);
-        const newRows = tableData.map(([cedula, nombre, celular, correo, estado]) => ({
+        const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana, estado]) => ({
             cedula,
             nombre,
-            celular,
             correo,
+            cargo,
+            gerencia,
+            campana,
             estado: estado === 1 ? true : false,
         }));
         setRows(newRows);
-        console.log(newRows);
     }, [tableData]);
 
     useEffect(() => {
@@ -1245,7 +1262,11 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "144px",
                                                                         }}
-                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        value={
+                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                                ? inputValues[input.name]
+                                                                                : ""
+                                                                        }
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1264,7 +1285,11 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "144px",
                                                                         }}
-                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        value={
+                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                                ? inputValues[input.name]
+                                                                                : ""
+                                                                        }
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1286,7 +1311,11 @@ const HomeView = () => {
                                                                         variant="outlined"
                                                                         label={input.label}
                                                                         onChange={(event) => handleChange(event, input)}
-                                                                        value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                        value={
+                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                                ? inputValues[input.name]
+                                                                                : ""
+                                                                        }
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1311,7 +1340,11 @@ const HomeView = () => {
                                                                     name={input.name}
                                                                     autoComplete="off"
                                                                     label={input.label}
-                                                                    value={inputValues[input.name] !== undefined && inputValues[input.name] !== "" ? inputValues[input.name] : ""}
+                                                                    value={
+                                                                        inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                            ? inputValues[input.name]
+                                                                            : ""
+                                                                    }
                                                                     InputLabelProps={{
                                                                         shrink: true,
                                                                     }}
@@ -1328,7 +1361,6 @@ const HomeView = () => {
                                 </Box>
                             </Fade>
                         </Modal>
-
                         {/* Add modal */}
                         <Modal
                             open={openModalAdd}
@@ -1474,7 +1506,6 @@ const HomeView = () => {
                                 </Box>
                             </Fade>
                         </Modal>
-
                         <Header></Header>
                         <Box
                             sx={{
@@ -1540,7 +1571,23 @@ const HomeView = () => {
                                 </Button>
                             )}
                         </Box>
-                        <DataGrid columns={columns} getRowId={(row) => row.cedula} rows={tableResults} paginationModel={{ page: 0, pageSize: 5 }} />
+                        <Box sx={{ padding: "15px 0px" }}>
+                            <DataGrid
+                                slots={{ toolbar: GridToolbar }}
+                                columns={columns}
+                                getRowId={(row) => row.cedula}
+                                rows={tableResults}
+                                checkboxSelection
+                                initialState={{
+                                    pagination: {
+                                        paginationModel: {
+                                            pageSize: 4,
+                                        },
+                                    },
+                                }}
+                                pageSizeOptions={[4]}
+                            />
+                        </Box>
                     </Container>
                 </Fade>
             </>
