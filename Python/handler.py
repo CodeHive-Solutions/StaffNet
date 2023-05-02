@@ -266,7 +266,7 @@ def search_employees():
             "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }
-        where = "personal_information.cedula = leave_information.cedula"
+        where = "personal_information.cedula = leave_information.cedula AND personal_information.cedula = employment_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
