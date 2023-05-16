@@ -31,7 +31,7 @@ def consulta_login(body, conexion):
                 response = {"disable": result_query[3], "edit": result_query[2], 'status': 'success', "consult": result_query[0], "create": result_query[1],
                             'create_admins': result_query[4]}
                 login.unbind()
-            except:
+            except Exception as e:
                 response = {'status': 'failure',
                             'error': 'Contraseña Incorrecta'}
         else:
@@ -43,9 +43,11 @@ def consulta_login(body, conexion):
     cursor.close()
     return response
 
+
 def consulta_usuario_ad(user, attributes):
     conn, server = start_ldap()
     # Busqueda del usuario
     status, result, response, _ = conn.search(
         'dc=CYC-SERVICES,dc=COM,dc=CO', '(sAMAccountName=%s)' % (user), search_scope=SUBTREE,  attributes=attributes)
     return status, result, response, _
+

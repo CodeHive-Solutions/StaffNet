@@ -171,3 +171,4 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
     except Exception as error:
         print("Error ", error)
         return {"status": "false", "error": str(error)}
+

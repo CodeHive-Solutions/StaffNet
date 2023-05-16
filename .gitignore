@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+v-wsgi
 node_modules
 dist
 dist-ssr
@@ -29,3 +29,6 @@ dist-ssr
 /Python/__pycache__/
 /Python/flask_session/
 .vscode
+
+#Vite temporals
+vite.config.js.timestamp

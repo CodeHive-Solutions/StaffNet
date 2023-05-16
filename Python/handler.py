@@ -1,5 +1,5 @@
-import pickle
 import logging
+import pickle
 from flask import Flask, request, session, g
 from flask_session import Session
 from insert import insert
@@ -10,36 +10,67 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 import datetime
 import mysql.connector
 import redis
-import time
-import sys
+# import sys
 import os
-sys.path.insert(0, '/path/to/insert/module')
+import json
 
-logging.basicConfig(filename=f"../logs/Registros_{datetime.datetime.now().year}.log",
+# Evitar logs innecesarios
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
-app = Flask(__name__)
-app.config['SESSION_TYPE'] = 'redis'
+
 try:
     redis_client = redis.Redis(
         host='172.16.0.128', port=6379, password="654321")
-    redis_client.ping()
 except:
     print("Connection to redis failed")
     logging.critical(f"Connection to redis failed", exc_info=True)
+
+app = Flask(__name__)
+app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = redis_client
+app.config['SESSION_COOKIE_NAME'] = 'StaffNet'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_REFRESH_EACH_REQUEST'] = True
-# app.config['SESSION_REFRESH_THRESHOLD'] = 600
-app.secret_key = os.urandom(24)
+app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+app.config['SESSION_COOKIE_DOMAIN'] = '.cyc-bpo.com'
+app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24)
 # app.secret_key = "Hack_me_if_u_can"
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-Session(app)
+sess = Session()
+sess.init_app(app)
 
-# Evitar logs innecesarios
+
+@ app.route('/login', methods=['POST'])
+def login():
+    conexion = conexionMySQL()
+    response = consulta_login(request.json, conexion)
+    print(response)
+    if response["status"] == 'success':
+        session_key = 'session:' + session.sid
+        print("EXAMPLE", session_key)
+        username = request.json["user"]
+        session['session_id'] = session_key
+        session["username"] = username
+        session["create_admins"] = response["create_admins"]
+        session["consult"] = response["consult"]
+        session["create"] = response["create"]
+        session["edit"] = response["edit"]
+        session["disable"] = response["disable"]
+        redis_client.save()
+        print("The data that is being searched is: ",
+              session['session_id'])
+        print("And the response is:", redis_client.get(session["session_id"]))
+        redis_client.set('test_key', 'test_value')
+        value = redis_client.get('test_key')
+        print(value)
+        update("users", "session_id", (session_key,),
+               f"WHERE user = '{username}'", conexion)
+        response = {"status": 'success',
+                    'create_admins': response["create_admins"]}
+    return response
 
 
 def conexionMySQL():
@@ -58,7 +89,7 @@ def conexionMySQL():
 
 @app.before_request
 def logs():
-    print("Actual session sid", session.sid)
+    logging.info("all the info of the request", str(request))
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
@@ -104,8 +135,8 @@ def after_request(response):
             logging.info(
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
-    url_permitidas = ["http://localhost:5173",
-                      "http://localhost:8080", "http://172.16.5.10:8080"]
+    url_permitidas = ["https://staffnet.cyc-bpo.com",
+                      "staffnet.cyc-bpo.com", "http://localhost:5173"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)
@@ -113,7 +144,7 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers',
                          'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods',
-                         'POST, GET')
+                         'POST')
     return response
 
 
@@ -123,8 +154,7 @@ def close_db(useless_var):
     if conexion != None:
         print("Conexion cerrada")
         conexion.close()
-    print(
-        "____________________________________________________________________________")
+    print("____________________________________________________________________________")
 
 
 @ app.errorhandler(Exception)
@@ -137,30 +167,6 @@ def handle_error(error):
     logging.warning(
         f"Peticion: {request.url.split('/')[3]}", exc_info=True)
     return response, 200
-
-
-@ app.route('/login', methods=['POST'])
-def login():
-    conexion = conexionMySQL()
-    response = consulta_login(request.json, conexion)
-    print(response)
-    session_key = 'session:' + session.sid
-    print(session_key)
-    if response["status"] == 'success':
-        username = request.json["user"]
-        session["username"] = username
-        session["create_admins"] = response["create_admins"]
-        session["consult"] = response["consult"]
-        session["create"] = response["create"]
-        session["edit"] = response["edit"]
-        session["disable"] = response["disable"]
-        # session_data = redis_client.get(session_key)
-        # print(pickle.loads(session_data))
-        update("users", "session_id", (session_key,),
-               f"WHERE user = '{username}'", conexion)
-        response = {"status": 'success',
-                    'create_admins': response["create_admins"]}
-    return response
 
 
 @ app.route('/loged', methods=['POST'])
@@ -266,7 +272,7 @@ def search_employees():
             "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }
-        where = "personal_information.cedula = leave_information.cedula AND personal_information.cedula = employment_information.cedula"
+        where = "personal_information.cedula = leave_information.cedula AND employment_information.cedula = leave_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
@@ -274,7 +280,6 @@ def search_employees():
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
-        print(response)
     return response
 
 
@@ -368,8 +373,6 @@ def update_transaction():
                 "estado": body["estado"]
             }
         }
-        if body["historical"]:
-            insert("historical", "", "", conexion)
         response = update_data(
             conexion, info_tables, "cedula = "+str(body["cedula"]))
     else:
@@ -389,7 +392,7 @@ def insert_in_tables():
                 "genero": body["genero"], "edad": body["edad"], "rh": body["rh"],
                 "estado_civil": body["estado_civil"], "hijos": body["hijos"], "personas_a_cargo": body["personas_a_cargo"],
                 "estrato": body["estrato"], "tel_fijo": body["tel_fijo"], "celular": body["celular"],
-                "correo": body["correo"], "correo_corporativo": body["correo_corporativo"], "direccion": body["direccion"], "barrio": body["barrio"],
+                "correo": body["correo"], "direccion": body["direccion"], "barrio": body["barrio"],
                 "contacto_emergencia": body["contacto_emergencia"], "parentesco": body["parentesco"], "tel_contacto": body["tel_contacto"]},
             "educational_information": {
                 "cedula": body["cedula"],
@@ -443,7 +446,3 @@ def insert_in_tables():
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
     return response
-
-
-if __name__ == '__main__':
-    app.run(port=5000)
