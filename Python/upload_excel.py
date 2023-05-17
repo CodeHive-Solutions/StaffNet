@@ -99,15 +99,13 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter=";")
     for row in csv_reader:
         print(row)
-        # Process the CSV data
-        cedula = row['CEDULA']
         # Iterate over each table in the JSON object
         for table, column_mapping in info_tables.items():
             column_values = {}
             for column, mapping in column_mapping.items():
+                row[mapping] = row[mapping].upper()
                 if column in ['fecha_nacimiento', 'fecha_afiliacion', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
                     date_string = row[mapping]
-                    print("date",len(date_string))
                     if date_string in ['',' ','NO','0/01/1900','N/A'] or len(date_string) > 10:
                         formatted_date = None
                     else:
@@ -116,26 +114,27 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                     column_values[column] = formatted_date
                 elif column in ['salario_2023', 'subsidio_transporte_2023', 'desempeno_1_sem_2016', 'desempeno_2_sem_2016', 'desempeno_2017', 'desempeno_2018', 'desempeno_2019', 'desempeno_2020', 'desempeno_2021', 'periodo_tomado_vacaciones', 'periodos_faltantes_vacaciones','personas_a_cargo','hijos','estrato','edad','cedula']:
                     integer = row[mapping]
-                    print("integerB", integer)
                     integer = re.sub(r'\D', '', integer)
-                    print("integerA", integer)
                     if integer in ['','SIN INFORMACIÓN','933420000000000']:
                         integer = None
                     column_values[column] = integer
                 elif column in ['estado']:
                     estado = row[mapping]
+                    print(estado)
                     if estado == 'ACTIVO':
                         estado = 1
                     elif estado == 'RETIRADO':
                         estado = 0
+                    column_values[column] = estado
                 else:
                     column_values[column] = row[mapping]
-
-            print("column_values", column_values)
             column_names = ', '.join(column_values.keys())
             placeholders = ', '.join(['%s'] * len(column_values))
             query = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
-            cursor.execute(query, tuple(column_values.values()))
+            try:
+                cursor.execute(query, tuple(column_values.values()))
+            except Exception as e:
+                raise Exception(f"Error inserting row into {table} table, error: ",e)
 
 
 # Commit the changes and close the cursor and connection
