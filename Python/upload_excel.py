@@ -1,45 +1,147 @@
 import csv
+import re
+from decimal import Decimal
+import datetime
 import mysql.connector
 
-# Establish a connection to the MySQL database
+info_tables = {
+    "personal_information": {
+        "cedula": "CEDULA",
+        "nombre": "NOMBRE",
+        "fecha_nacimiento": "FECHA DE NACIMIENTO",
+        "genero": "GENERO",
+        "edad": "EDAD",
+        "rh": "RH",
+        "estado_civil": "ESTADO CIVIL",
+        "hijos": "# HIJOS",
+        "personas_a_cargo": "# PERSONAS A CARGO",
+        "estrato": "ESTRATO ",
+        "tel_fijo": "TEL FIJO",
+        "celular": "CELULAR",
+        "correo": "CORREO",
+        "direccion": "DIRECCION",
+        "barrio": "BARRIO",
+        "contacto_emergencia": "CONTACTO CASO EMERGENCIA",
+        "parentesco": "PARENTESCO",
+        "tel_contacto": "TEL CONTACTO"
+    },
+    "educational_information": {
+        "cedula": "CEDULA",
+        "nivel_escolaridad": "NIVEL ESCOLARIDAD",
+        "profesion": "PROFESION ",
+        "estudios_en_curso": "ESTUDIOS EN CURSO"
+    },
+    "employment_information": {
+        "cedula": "CEDULA",
+        "fecha_afiliacion": "FECHA AFILIACION",
+        "eps": "EPS",
+        "pension": "PENSION",
+        "cesantias": "CESANTIAS",
+        "cambio_eps_pension_fecha": "CAMBIO EPS - PENSION FECHA",
+        "cuenta_nomina": "CUENTA NOMINA",
+        "fecha_ingreso": "FECHA INGRESO",
+        "cargo": "CARGO",
+        "gerencia": "GERENCIA",
+        "campana_general": "CAMPAÑA GENERAL",
+        "area_negocio": "ÁREA DE NEGOCIO",
+        "tipo_contrato": "TIPO DE CONTRATO",
+        "salario_2023": " SALARIO 2023 ",
+        "subsidio_transporte_2023": " SUBSIDIO TRANSPORTE 2023 ",
+        "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
+    },
+    "performance_evaluation": {
+        "cedula": "CEDULA",
+        "desempeno_1_sem_2016": "E. DESEMPEÑO I SEM 2016",
+        "desempeno_2_sem_2016": "E. DESEMPEÑO II SEM 2016",
+        "desempeno_2017": "E. DESEMPEÑO 2017",
+        "desempeno_2018": "E. DESEMPEÑO 2018",
+        "desempeno_2019": "E. DESEMPEÑO 2019",
+        "desempeno_2020": "E. DESEMPEÑO 2020",
+        "desempeno_2021": "E. DESEMPEÑO 2021"
+    },
+    "disciplinary_actions": {
+        "cedula": "CEDULA",
+        "llamado_atencion": "LLAMADO DE ATENCIÓN",
+        "memorando_1": "MEMORANDO 1",
+        "memorando_2": "MEMORANDO 2",
+        "memorando_3": "MEMORANDO 3"
+    },
+    "vacation_information": {
+        "cedula": "CEDULA",
+        "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
+        "periodo_tomado_vacaciones": "# PERIODO TOMADOS VACACIONES",
+        "periodos_faltantes_vacaciones": "PERIODOS FALTANTES VACACIONES",
+        "fecha_salida_vacaciones": "FECHA SALIDA VACACIONES",
+        "fecha_ingreso_vacaciones": "FECHA INGRESO VACACIONES"
+    },
+    "leave_information": {
+        "cedula": "CEDULA",
+        "fecha_retiro": "FECHA RETIRO",
+        "tipo_de_retiro": "Tipo de Retiro",
+        "motivo_de_retiro": "MOTIVO DE RETIRO",
+        "estado": "ESTADO"
+    }
+}
+
+
 connection = mysql.connector.connect(
-    host='your_host',
-    user='your_user',
-    password='your_password',
-    database='your_database'
+    host='172.16.0.115',
+    user='root',
+    password='T3cn0l0g142023*',
+    database='StaffNet'
 )
 
-# Create a cursor object
-cursor = connection.cursor(prepared=True)
+cursor = connection.cursor()
 
-# Function to insert data into a specific table
-def insert_data_into_table(table_name, data):
-    # Prepare the SQL query with placeholders
-    placeholders = ', '.join(['%s'] * len(data))
-    columns = ', '.join(data.keys())
-    sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+file_path = r"C:\Users\heibert.mogollon\Downloads\ENCUESTA SOCIODEMOGRÁFICA_PROYECTO_StaffNet.csv"
 
-    # Execute the query with the data values
-    cursor.execute(sql, list(data.values()))
+with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter=";")
+    for row in csv_reader:
+        print(row)
+        # Process the CSV data
+        cedula = row['CEDULA']
+        # Iterate over each table in the JSON object
+        for table, column_mapping in info_tables.items():
+            column_values = {}
+            for column, mapping in column_mapping.items():
+                if column in ['fecha_nacimiento', 'fecha_afiliacion', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
+                    date_string = row[mapping]
+                    print("date",len(date_string))
+                    if date_string in ['',' ','NO','0/01/1900','N/A'] or len(date_string) > 10:
+                        formatted_date = None
+                    else:
+                        date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
+                        formatted_date = date_object.strftime('%Y-%m-%d')
+                    column_values[column] = formatted_date
+                elif column in ['salario_2023', 'subsidio_transporte_2023', 'desempeno_1_sem_2016', 'desempeno_2_sem_2016', 'desempeno_2017', 'desempeno_2018', 'desempeno_2019', 'desempeno_2020', 'desempeno_2021', 'periodo_tomado_vacaciones', 'periodos_faltantes_vacaciones','personas_a_cargo','hijos','estrato','edad','cedula']:
+                    integer = row[mapping]
+                    print("integerB", integer)
+                    integer = re.sub(r'\D', '', integer)
+                    print("integerA", integer)
+                    if integer in ['','SIN INFORMACIÓN','933420000000000']:
+                        integer = None
+                    column_values[column] = integer
+                elif column in ['estado']:
+                    estado = row[mapping]
+                    if estado == 'ACTIVO':
+                        estado = 1
+                    elif estado == 'RETIRADO':
+                        estado = 0
+                else:
+                    column_values[column] = row[mapping]
 
-# Read data from CSV file
-with open('data.csv', 'r') as file:
-    csv_reader = csv.reader(file)
-    header = next(csv_reader)  # Read the header row
+            print("column_values", column_values)
+            column_names = ', '.join(column_values.keys())
+            placeholders = ', '.join(['%s'] * len(column_values))
+            query = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
+            cursor.execute(query, tuple(column_values.values()))
 
-    # Iterate over each table
-    for table_name in header:
-        columns = next(csv_reader)  # Read the columns for the table
-        create_table_structure(table_name, columns)  # Create table structure
 
-        # Iterate over the remaining rows and insert the data
-        for row in csv_reader:
-            data = {column: value for column, value in zip(columns, row)}
-            insert_data_into_table(table_name, data)
-
-# Commit the changes
-connection.commit()
-
-# Close the cursor and the database connection
-cursor.close()
-connection.close()
+# Commit the changes and close the cursor and connection
+try:
+    connection.commit()
+    cursor.close()
+    connection.close()
+except Exception as e:
+    print(e)
