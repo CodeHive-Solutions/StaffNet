@@ -196,7 +196,6 @@
 //         ],
 //     },
 
-
 //     // Inputs Pagina Evaluacion de Desempeño
 //     {
 //         title: "Evaluacion de Desempeño",
@@ -284,7 +283,6 @@
 //     const [data, setData] = useState("");
 //     const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
 
-
 //     useEffect(() => {
 //         setOpen(!open)
 //         const request = {
@@ -292,7 +290,7 @@
 //             "cedula": "1000065648",
 //             token: Cookies.get('token')
 //         }
-//         fetch('http://localhost:5000/App', {
+//         fetch('https://staffnetback.cyc-bpo.com//App', {
 //             method: 'POST',
 //             body: JSON.stringify(request),
 //         })
@@ -319,8 +317,6 @@
 //     const currentPage = pageInputs[page - 1];
 //     const isLastPage = page === pageInputs.length;
 
-
-
 //     const handleSubmit = (event) => {
 //         setOpenSnackAlert(true);
 //         handleViewChange("HomeView")
@@ -328,7 +324,7 @@
 //         setPage(1);
 //         event.preventDefault();
 
-//         fetch('http://localhost:5000/App', {
+//         fetch('https://staffnetback.cyc-bpo.com//App', {
 //             method: 'POST',
 //             body: JSON.stringify(),
 //         })

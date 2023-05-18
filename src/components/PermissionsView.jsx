@@ -7,23 +7,23 @@ import Autocomplete from "@mui/material/Autocomplete";
 import SaveIcon from "@mui/icons-material/Save";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import Collapse from '@mui/material/Collapse';
-import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-import CancelIcon from '@mui/icons-material/Cancel';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Fade from '@mui/material/Fade';
-import LinearProgress from '@mui/material/LinearProgress';
+import Collapse from "@mui/material/Collapse";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+import CancelIcon from "@mui/icons-material/Cancel";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Fade from "@mui/material/Fade";
+import LinearProgress from "@mui/material/LinearProgress";
 import Header from "./Header";
-import Container from '@mui/material/Container';
+import Container from "@mui/material/Container";
 import SnackAlert from "./SnackAlert";
 import { useNavigate } from "react-router-dom";
 
 const PermissionsView = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [access, setAccess] = useState(false);
     const [transition, setTransition] = React.useState(false);
     const [openDialog, setOpenDialog] = React.useState(false);
@@ -42,13 +42,13 @@ const PermissionsView = () => {
     const permissions = ["Consultar", "Crear", "Editar", "Inhabilitar"];
 
     useEffect(() => {
-        setTransition(!transition)
+        setTransition(!transition);
 
         const validateCreateAdmins = async () => {
             try {
-                const response = await fetch("http://localhost:5000/validate_create_admins", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//validate_create_admins", {
                     method: "POST",
-                    credentials: "include"
+                    credentials: "include",
                 });
                 if (!response.ok) {
                     throw Error(response.statusText);
@@ -57,29 +57,28 @@ const PermissionsView = () => {
                 if (data.status === "success") {
                     setAccess(true);
                 } else {
-                    navigate("/")
+                    navigate("/");
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 if (!access) {
-                    navigate("/", { replace: true })
+                    navigate("/", { replace: true });
                 }
-                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
+                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true);
                 console.error("Error:", error);
             }
-        }
-        validateCreateAdmins()
+        };
+        validateCreateAdmins();
     }, []);
 
     const setShowSnackAlert = (severity, message, errorDev) => {
-        setSeverityAlert(severity)
+        setSeverityAlert(severity);
         setMessageAlert(message);
         setOpenSnackAlert(true);
         if (errorDev === true) {
-            setProgressBar(false)
-            console.error('error:', message);
+            setProgressBar(false);
+            console.error("error:", message);
         }
-    }
+    };
 
     const handleClickSnack = (error) => {
         setOpenSnack(true);
@@ -93,8 +92,8 @@ const PermissionsView = () => {
 
         setTimeout(() => {
             setOpen(!open);
-            setIsDisabled(!isDisabled)
-            setOpenSearch(!openSearch)
+            setIsDisabled(!isDisabled);
+            setOpenSearch(!openSearch);
         }, 250);
     };
 
@@ -104,7 +103,7 @@ const PermissionsView = () => {
 
     const handleSubmitSearch = (event) => {
         event.preventDefault();
-        setProgressBar(true)
+        setProgressBar(true);
 
         const userValueSearch = userRef.current.value;
         const dataSearch = {
@@ -114,10 +113,10 @@ const PermissionsView = () => {
         // Fetch search the windows user
         const searchAd = async (dataSearch) => {
             try {
-                const response = await fetch("http://localhost:5000/search_ad", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//search_ad", {
                     method: "POST",
                     credentials: "include",
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dataSearch),
                 });
                 if (!response.ok) {
@@ -125,13 +124,13 @@ const PermissionsView = () => {
                 }
                 const data = await response.json();
 
-                setProgressBar(false)
+                setProgressBar(false);
                 if (data.status === "success" && data.info === undefined) {
                     setOpenDialog(true);
                     setCreate(true);
                 }
                 if (data.status === "success" && data.info !== undefined) {
-                    const newPermissions = []
+                    const newPermissions = [];
                     if (data.info[0] == 1) {
                         newPermissions.push("Consultar");
                     }
@@ -146,24 +145,22 @@ const PermissionsView = () => {
                     }
                     setSelectedPermissions([...selectedPermissions, ...newPermissions]);
                     setOpen(!open);
-                    setIsDisabled(!isDisabled)
-                    setOpenSearch(!openSearch)
+                    setIsDisabled(!isDisabled);
+                    setOpenSearch(!openSearch);
                 }
 
                 if (data.status === "false") {
                     setOpenSnack(true);
                     setError(data.error);
                 }
-
-            }
-            catch (error) {
-                setProgressBar(false)
-                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
+            } catch (error) {
+                setProgressBar(false);
+                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true);
                 console.error("Error:", error.message);
             }
-        }
-        searchAd(dataSearch)
-    }
+        };
+        searchAd(dataSearch);
+    };
 
     const handleClose = (event, reason) => {
         setOpenSnack(false);
@@ -171,8 +168,8 @@ const PermissionsView = () => {
 
     const handleClear = () => {
         setOpen(!open);
-        setIsDisabled(!isDisabled)
-        setOpenSearch(!openSearch)
+        setIsDisabled(!isDisabled);
+        setOpenSearch(!openSearch);
         setSelectedPermissions([]);
         setCreate(false);
     };
@@ -182,10 +179,10 @@ const PermissionsView = () => {
         const userValueSubmit = userRef.current.value;
 
         const permissionsObject = {
-            consultar: selectedPermissions.includes('Consultar'),
-            crear: selectedPermissions.includes('Crear'),
-            editar: selectedPermissions.includes('Editar'),
-            inhabilitar: selectedPermissions.includes('Inhabilitar'),
+            consultar: selectedPermissions.includes("Consultar"),
+            crear: selectedPermissions.includes("Crear"),
+            editar: selectedPermissions.includes("Editar"),
+            inhabilitar: selectedPermissions.includes("Inhabilitar"),
         };
 
         if (create === true) {
@@ -195,7 +192,7 @@ const PermissionsView = () => {
             };
             const createData = async () => {
                 try {
-                    const response = await fetch("http://localhost:5000/create", {
+                    const response = await fetch("https://staffnetback.cyc-bpo.com//create", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -207,18 +204,17 @@ const PermissionsView = () => {
                     const data = await response.json();
 
                     if (data.status === "success") {
-                        setShowSnackAlert("success", "Creacion realizada correctamente")
+                        setShowSnackAlert("success", "Creacion realizada correctamente");
                         handleClear();
                     } else {
                         handleClickSnack("Hubo un error: " + data.error);
                     }
                 } catch (error) {
-                    setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
+                    setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true);
                     console.error("Error:", error);
                 }
             };
-            createData()
-
+            createData();
         } else {
             // Send a POST request to the server
             const dataEdit = {
@@ -227,7 +223,7 @@ const PermissionsView = () => {
             };
             const editAdmin = async () => {
                 try {
-                    const response = await fetch("http://localhost:5000/edit_admin", {
+                    const response = await fetch("https://staffnetback.cyc-bpo.com//edit_admin", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -238,19 +234,19 @@ const PermissionsView = () => {
                     }
                     const data = await response.json();
                     if (data.status === "success") {
-                        setShowSnackAlert("success", "Edición realizada correctamente")
+                        setShowSnackAlert("success", "Edición realizada correctamente");
                     } else if (data.status === "false" && data.error === "No hubo ningun cambio.") {
-                        setShowSnackAlert("info", "No hubo ningun cambio")
+                        setShowSnackAlert("info", "No hubo ningun cambio");
                     } else if (data.status === "False" && data.error === "No puedes cambiar tus permisos.") {
-                        setShowSnackAlert("info", "No puedes cambiar tus permisos.")
+                        setShowSnackAlert("info", "No puedes cambiar tus permisos.");
                     }
                     handleClear();
                 } catch (error) {
-                    setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true)
+                    setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true);
                     console.error("Error:", error);
                 }
             };
-            editAdmin()
+            editAdmin();
         }
     };
 
@@ -258,22 +254,16 @@ const PermissionsView = () => {
         return (
             <>
                 <Fade in={progressBar}>
-                    <Box sx={{ width: '100%', position: "absolute" }}>
+                    <Box sx={{ width: "100%", position: "absolute" }}>
                         <LinearProgress open={true} />
                     </Box>
                 </Fade>
 
                 <Fade in={transition}>
                     <Container>
-
                         <SnackAlert severity={severityAlert} message={messageAlert} open={openSnackAlert} close={handleCloseSnack}></SnackAlert>
 
-                        <Dialog
-                            open={openDialog}
-                            onClose={handleCloseDialog}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
+                        <Dialog open={openDialog} onClose={handleCloseDialog} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                             <DialogTitle sx={{ textAlign: "center" }} id="alert-dialog-title">
                                 {"¿Desea crear este usuario en el sistema?"}
                             </DialogTitle>
@@ -283,24 +273,17 @@ const PermissionsView = () => {
                                 </DialogContentText>
                             </DialogContent>
                             <DialogActions>
-                                <Button color={"error"} onClick={handleCloseDialog}>Descartar</Button>
+                                <Button color={"error"} onClick={handleCloseDialog}>
+                                    Descartar
+                                </Button>
                                 <Button onClick={handleClickModal} autoFocus={true}>
                                     Continuar
                                 </Button>
                             </DialogActions>
                         </Dialog>
 
-                        <Snackbar
-                            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                            open={openSnack}
-                            autoHideDuration={6000}
-                            onClose={handleClose}
-                        >
-                            <Alert
-                                onClose={handleClose}
-                                severity="error"
-                                sx={{ width: "100%" }}
-                            >
+                        <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }} open={openSnack} autoHideDuration={6000} onClose={handleClose}>
+                            <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
                                 {error}
                             </Alert>
                         </Snackbar>
@@ -308,11 +291,7 @@ const PermissionsView = () => {
                         <Header></Header>
 
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", height: "75vh" }}>
-                            <Box component="form"
-                                onSubmit={handleSubmitSearch}
-                                sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}
-                            >
-
+                            <Box component="form" onSubmit={handleSubmitSearch} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
                                 <TextField
                                     autoFocus
                                     sx={{
@@ -338,7 +317,6 @@ const PermissionsView = () => {
                                 </Box>
                             </Box>
 
-
                             <Collapse in={open}>
                                 <Box
                                     component="form"
@@ -349,28 +327,20 @@ const PermissionsView = () => {
                                         justifyContent: "center",
                                         alignItems: "center",
                                         gap: "15px",
-                                        heigh: "100%"
+                                        heigh: "100%",
                                     }}
                                 >
-
                                     <Box>
                                         <Autocomplete
                                             multiple
                                             onChange={(event, value) => {
-                                                setSelectedPermissions(value)
-                                            }
-                                            }
+                                                setSelectedPermissions(value);
+                                            }}
                                             value={selectedPermissions}
                                             id="multiple-limit-tags"
                                             options={permissions}
                                             getOptionLabel={(permissions) => permissions}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Permisos"
-                                                    placeholder="Permisos"
-                                                />
-                                            )}
+                                            renderInput={(params) => <TextField {...params} label="Permisos" placeholder="Permisos" />}
                                             sx={{ width: "570px" }}
                                         />
                                     </Box>
@@ -393,16 +363,11 @@ const PermissionsView = () => {
                                                 Guardar
                                             </Button>
                                         </Box>
-
                                     </Box>
-
                                 </Box>
-
                             </Collapse>
                         </Box>
-
                     </Container>
-
                 </Fade>
             </>
         );

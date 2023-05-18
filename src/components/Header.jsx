@@ -1,7 +1,7 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button"
-import LogoST from "./LogoST"
+import Button from "@mui/material/Button";
+import LogoST from "./LogoST";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Alert from "@mui/material/Alert";
 import Link from "@mui/material/Link";
@@ -18,9 +18,9 @@ const Header = () => {
     };
 
     const closeSesion = () => {
-        fetch("http://localhost:5000/logout", {
+        fetch("https://staffnetback.cyc-bpo.com//logout", {
             method: "POST",
-            credentials: "include"
+            credentials: "include",
         })
             .then((response) => {
                 // Check if the response was successful
@@ -31,20 +31,16 @@ const Header = () => {
             })
             .then((data) => {
                 if (data.status === "success") {
-                    navigate("/", { replace: true })
+                    navigate("/", { replace: true });
                 } else {
-                    handleClickSnack(
-                        "Por favor envia este error a desarrollo: " + data.error
-                    );
+                    handleClickSnack("Por favor envia este error a desarrollo: " + data.error);
                 }
             })
             .catch((error) => {
-                handleClickSnack(
-                    "Por favor envia este error a desarrollo: " + error.message
-                );
+                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
                 console.error("Error:", error);
             });
-    }
+    };
 
     const handleClickSnackSession = () => {
         setOpenSnackSession(true);
@@ -52,16 +48,8 @@ const Header = () => {
 
     return (
         <>
-            <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                open={openSnackSession}
-                onClose={handleCloseSession}
-            >
-                <Alert
-                    severity="warning"
-                    onClose={handleCloseSession}
-                    sx={{ width: "100%" }}
-                >
+            <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }} open={openSnackSession} onClose={handleCloseSession}>
+                <Alert severity="warning" onClose={handleCloseSession} sx={{ width: "100%" }}>
                     ¿Esta seguro que desea cerrar sesion?
                     <Box sx={{ display: "flex", justifyContent: "center", mt: "5px" }}>
                         <Button color="inherit" onClick={() => closeSesion()}>
@@ -85,19 +73,12 @@ const Header = () => {
                         userSelect: "none",
                     }}
                 >
-                    <Link
-                        color="inherit"
-                        underline="none"
-                    >
+                    <Link color="inherit" underline="none">
                         <LogoST></LogoST>
                     </Link>
                 </Box>
                 <Box>
-                    <Button
-                        size="Large"
-                        color="error"
-                        onClick={() => handleClickSnackSession()}
-                    >
+                    <Button size="Large" color="error" onClick={() => handleClickSnackSession()}>
                         <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                             <LogoutIcon></LogoutIcon>
                         </Box>
@@ -106,7 +87,7 @@ const Header = () => {
                 </Box>
             </Box>
         </>
-    )
-}
+    );
+};
 
-export default Header
+export default Header;

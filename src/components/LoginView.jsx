@@ -16,8 +16,8 @@ import Collapse from "@mui/material/Collapse";
 import Snackbar from "@mui/material/Snackbar";
 import CustomLogoST from "./LogoST";
 import LoginIcon from "@mui/icons-material/Login";
-import Fade from '@mui/material/Fade';
-import LinearProgress from '@mui/material/LinearProgress';
+import Fade from "@mui/material/Fade";
+import LinearProgress from "@mui/material/LinearProgress";
 
 const LoginView = () => {
     // State variables for keeping track of the checkbox state, username, date, and collapse state
@@ -32,7 +32,7 @@ const LoginView = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const inputRef = useRef();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     // Custom styles to the logo
     const customStyles = {
         letterSpacing: "9px",
@@ -57,7 +57,7 @@ const LoginView = () => {
         // fetch("http://staffnet.cyc-bpo.com/loged", {
         const checkLogin = async () => {
             try {
-                const response = await fetch("http://localhost:5000/loged", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//loged", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -71,21 +71,17 @@ const LoginView = () => {
                     if (data.access === "permissions") {
                         navigate("/permissions", { replace: true });
                     } else {
-                        navigate("/home", { replace: true })
+                        navigate("/home", { replace: true });
                     }
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 setProgressBar(false);
-                handleClickSnack(
-                    "Por favor envia este error a desarrollo: " + error.message
-                );
+                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
                 console.error("Error:", error.message);
             }
-        }
-        checkLogin()
+        };
+        checkLogin();
     }, []);
-
 
     // Submit function that submits the form data to the server
     const handleSubmit = (event) => {
@@ -102,15 +98,15 @@ const LoginView = () => {
         // Send a POST request to the server
         const dataP = {
             password: `${document.getElementById("clave").value}`,
-            user: `${document.getElementById("usuario").value}`
+            user: `${document.getElementById("usuario").value}`,
         };
 
         const login = async (dataP) => {
             try {
-                const response = await fetch("http://localhost:5000/login", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//login", {
                     method: "POST",
                     credentials: "include",
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dataP),
                 });
                 // Check if the response was successful
@@ -124,36 +120,32 @@ const LoginView = () => {
                     if (data.create_admins) {
                         navigate("/permissions", { replace: true });
                     } else {
-                        navigate("/home", { replace: true })
+                        navigate("/home", { replace: true });
                     }
                 } else {
                     handleClickSnack(data.error);
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 setProgressBar(false);
-                handleClickSnack(
-                    "Por favor envia este error a desarrollo: " + error.message
-                );
+                handleClickSnack("Por favor envia este error a desarrollo: " + error.message);
                 console.error("Error:", error.message);
             }
-        }
-        login(dataP)
+        };
+        login(dataP);
     };
     useEffect(() => {
-        setTransition(!transition)
+        setTransition(!transition);
         // Use effect hook to update the username from local storage if it exists
         if (localStorage.getItem("username") != null) {
             setUsername(localStorage.getItem("username"));
         }
 
-        if (Cookies.get('token')) {
-            let cookie = JSON.parse(Cookies.get('token'))
+        if (Cookies.get("token")) {
+            let cookie = JSON.parse(Cookies.get("token"));
             if (cookie.accessTo === "permissions") {
-                navigate("/permissions")
-            }
-            else {
-                navigate("/home")
+                navigate("/permissions");
+            } else {
+                navigate("/home");
             }
         }
     }, []);
@@ -189,7 +181,7 @@ const LoginView = () => {
         <Fade in={transition}>
             <Grid container component="main" sx={{ height: "100vh" }}>
                 <Fade in={progressBar}>
-                    <Box sx={{ width: '100%', position: "absolute" }}>
+                    <Box sx={{ width: "100%", position: "absolute" }}>
                         <LinearProgress open={true} />
                     </Box>
                 </Fade>
@@ -200,11 +192,7 @@ const LoginView = () => {
                     onClose={handleClose}
                     key={{ vertical: "top", horizontal: "center" }}
                 >
-                    <Alert
-                        onClose={handleClose}
-                        severity="error"
-                        sx={{ width: "100%" }}
-                    >
+                    <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
                         {error}
                     </Alert>
                 </Snackbar>
@@ -216,23 +204,12 @@ const LoginView = () => {
                     sx={{
                         backgroundImage: `url(${images[currentIndex]})`,
                         backgroundRepeat: "no-repeat",
-                        backgroundColor: (t) =>
-                            t.palette.mode === "light"
-                                ? t.palette.grey[50]
-                                : t.palette.grey[900],
+                        backgroundColor: (t) => (t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900]),
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                     }}
                 />
-                <Grid
-                    item
-                    xs={12}
-                    sm={8}
-                    md={5}
-                    component={Paper}
-                    elevation={6}
-                    square
-                >
+                <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                     <Box
                         sx={{
                             my: 8,
@@ -243,11 +220,7 @@ const LoginView = () => {
                         }}
                     >
                         <CustomLogoST styles={customStyles}></CustomLogoST>
-                        <Box
-                            component="form"
-                            onSubmit={handleSubmit}
-                            sx={{ mt: 1 }}
-                        >
+                        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                             <TextField
                                 margin="normal"
                                 required
@@ -281,21 +254,12 @@ const LoginView = () => {
                                         value="remember"
                                         color="primary"
                                         checked={rememberUsername}
-                                        onChange={(event) =>
-                                            setRememberUsername(
-                                                event.target.checked
-                                            )
-                                        }
+                                        onChange={(event) => setRememberUsername(event.target.checked)}
                                     />
                                 }
                                 label="Recuérdame"
                             />
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2 }}
-                            >
+                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                                 <Box sx={{ display: "flex", paddingRight: ".5em" }}>
                                     <LoginIcon></LoginIcon>
                                 </Box>
@@ -306,14 +270,8 @@ const LoginView = () => {
                             </Link>
                             <Collapse in={open}>
                                 <Alert severity="info">
-                                    En caso de olvido o perdida de la contraseña
-                                    contacte con tecnologia para el restablecimiento
-                                    de la misma en:{" "}
-                                    <a
-                                        href="https://helpdesk.cyc-bpo.com/"
-                                        target="_blank"
-                                        rel="noreferrer noopener"
-                                    >
+                                    En caso de olvido o perdida de la contraseña contacte con tecnologia para el restablecimiento de la misma en:{" "}
+                                    <a href="https://helpdesk.cyc-bpo.com/" target="_blank" rel="noreferrer noopener">
                                         GLPI
                                     </a>
                                 </Alert>

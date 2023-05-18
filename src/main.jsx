@@ -34,7 +34,7 @@ const router = createBrowserRouter([
     {
         path: "singUp",
         element: <SingUpView />,
-    }
+    },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

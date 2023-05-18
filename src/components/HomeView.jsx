@@ -1,4 +1,5 @@
 import React from "react";
+import UploadIcon from "@mui/icons-material/Upload";
 import SaveIcon from "@mui/icons-material/Save";
 import { useEffect, useState, useCallback } from "react";
 import Button from "@mui/material/Button";
@@ -45,12 +46,13 @@ const HomeView = () => {
     const [seniority, setSeniority] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [severityAlert, setSeverityAlert] = React.useState("info");
+    const [file, setFile] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("http://localhost:5000/search_employees", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -62,8 +64,8 @@ const HomeView = () => {
                     setAccess(true);
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
-                } else {
-                    navigate("/");
+                } else if (data.error === "conexion") {
+                    console.error("error:" + data + data.error);
                 }
             } catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
@@ -74,11 +76,13 @@ const HomeView = () => {
             setTransition(!transition);
         };
         fetchEmployees();
+
         const intervalId = setInterval(() => {
             fetchEmployees();
         }, 10 * 30 * 1000);
         return () => clearTimeout(intervalId);
     }, []);
+
     const calculateAge = (birthdate) => {
         // Split birthdate string into array of year, month, and day
         const [year, month, day] = birthdate.split("-");
@@ -124,7 +128,7 @@ const HomeView = () => {
         };
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("http://localhost:5000/get_join_info", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -205,25 +209,34 @@ const HomeView = () => {
             title: "Información Personal",
             inputs: [
                 {
+                    id: "tipo_documento",
+                    label: "Tipo de documento",
+                    name: "tipo_documento",
+                    type: "select",
+                    options: [
+                        { value: "CC", label: "CC" },
+                        { value: "CE", label: "CE" },
+                        { value: "TI", label: "TI" },
+                    ],
+                },
+                {
                     id: "1",
                     label: "Cedula",
                     name: "cedula",
                     type: "text",
-                    tab: 1,
                 },
                 {
                     id: "fecha_expedicion",
                     label: "Fecha de expedition",
                     name: "fecha_expedicion",
                     type: "date",
-                    tab: 1,
+                    shrink: true,
                 },
                 {
                     id: "2",
                     label: "Nombre",
                     name: "nombre",
                     type: "text",
-                    tab: 3,
                 },
                 {
                     id: "3",
@@ -251,6 +264,7 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         { value: "O+", label: "O+" },
+                        { value: "O-", label: "O-" },
                         { value: "A+", label: "A-" },
                         { value: "B+", label: "B+" },
                         { value: "B-", label: "B-" },
@@ -264,19 +278,39 @@ const HomeView = () => {
                     name: "estado_civil",
                     type: "select",
                     options: [
-                        { value: "Soltero", label: "Soltero" },
-                        { value: "Casado", label: "Casado" },
-                        { value: "Divorciado", label: "Divorciado" },
-                        { value: "Viudo", label: "Viudo" },
-                        { value: "Concubinato", label: "Concubinato" },
+                        { value: "Casado(a)", label: "Casado(a)" },
+                        { value: "Divorciado(a)", label: "Divorciado(a)" },
+                        { value: "Separado(a)", label: "Separado(a)" },
+                        { value: "Soltero(a)", label: "Soltero(a)" },
+                        { value: "Union Libre(a)", label: "Union Libre" },
+                        { value: "Viudo(a)", label: "Viudo(a)" },
                     ],
                 },
-                { id: "9", label: "Hijos", name: "hijos", type: "number" },
+                {
+                    id: "9",
+                    label: "Hijos",
+                    name: "hijos",
+                    type: "select",
+                    options: [
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                    ],
+                },
                 {
                     id: "510",
                     label: "Personas a cargo",
                     name: "personas_a_cargo",
-                    type: "number",
+                    type: "select",
+                    options: [
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                    ],
                 },
                 {
                     id: "10",
@@ -323,7 +357,20 @@ const HomeView = () => {
                     id: "17",
                     label: "Parentesco",
                     name: "parentesco",
-                    type: "text",
+                    type: "select",
+                    options: [
+                        { value: "Abuelo(a)", label: "Abuelo(a)" },
+                        { value: "Amigo(a)", label: "Amigo(a)" },
+                        { value: "Esposo(a)", label: "Esposo(a)" },
+                        { value: "Familiar(a)", label: "Familiar" },
+                        { value: "Hermano(a)", label: "Hermano(a)" },
+                        { value: "Hijo(a)", label: "Hijo(a)" },
+                        { value: "Madre(a)", label: "Madre(a)" },
+                        { value: "Padre(a)", label: "Padre(a)" },
+                        { value: "Pareja(a)", label: "Pareja(a)" },
+                        { value: "Primo(a)", label: "Primo(a)" },
+                        { value: "Tio(a)", label: "Tio(a)" },
+                    ],
                 },
                 {
                     id: "18",
@@ -341,7 +388,17 @@ const HomeView = () => {
                     id: "19",
                     label: "Nivel de escolaridad",
                     name: "nivel_escolaridad",
-                    type: "text",
+                    type: "select",
+                    options: [
+                        { value: "Primaria", label: "Primaria" },
+                        { value: "Bachiller", label: "Bachiller" },
+                        { value: "Técnico", label: "Técnico" },
+                        { value: "Tecnólogo", label: "Tecnólogo" },
+                        { value: "Auxiliar", label: "Auxiliar" },
+                        { value: "Universitario(a)", label: "Universitario" },
+                        { value: "Profesional", label: "Profesional" },
+                        { value: "Especialización", label: "Especialización" },
+                    ],
                 },
                 {
                     id: "20",
@@ -392,9 +449,17 @@ const HomeView = () => {
                     name: "eps",
                     type: "select",
                     options: [
-                        { value: "EPS_1", label: "EPS_1" },
-                        { value: "EPS_2", label: "EPS_2" },
-                        { value: "EPS_3", label: "EPS_3" },
+                        { value: "ASMET_SALUD", label: "ASMET SALUD" },
+                        { value: "CAPITAL_SALUD", label: "CAPITAL SALUD" },
+                        { value: "COMPENSAR", label: "COMPENSAR" },
+                        { value: "COOSALUD", label: "COOSALUD" },
+                        { value: "COMPENSAR", label: "COMPENSAR" },
+                        { value: "FAMISANAR", label: "FAMISANAR" },
+                        { value: "N/A", label: "N/A" },
+                        { value: "NUEVA_EPS", label: "NUEVA EPS" },
+                        { value: "SALUD_TOTAL", label: "SALUD TOTAL" },
+                        { value: "SANITAS", label: "SANITAS" },
+                        { value: "SURA_EPS", label: "SURA EPS" },
                     ],
                 },
                 {
@@ -403,9 +468,12 @@ const HomeView = () => {
                     name: "pension",
                     type: "select",
                     options: [
-                        { value: "EPS_1", label: "EPS_1" },
-                        { value: "EPS_2", label: "EPS_2" },
-                        { value: "EPS_3", label: "EPS_3" },
+                        { value: "COLFONDOS", label: "COLFONDOS" },
+                        { value: "N/A", label: "N/A" },
+                        { value: "OLD MUTUAL", label: "OLD MUTUAL" },
+                        { value: "PORVENIR", label: "PORVENIR" },
+                        { value: "PROTECCIÓN", label: "PROTECCIÓN" },
+                        { value: "SKANDIA", label: "SKANDIA" },
                     ],
                 },
                 {
@@ -418,7 +486,14 @@ const HomeView = () => {
                     id: "cesantias",
                     label: "Cesantias",
                     name: "cesantias",
-                    type: "number",
+                    type: "select",
+                    options: [
+                        { value: "COLFONDOS", label: "COLFONDOS" },
+                        { value: "FNA", label: "FNA" },
+                        { value: "PORVENIR", label: "PORVENIR" },
+                        { value: "N/A", label: "N/A" },
+                        { value: "PROTECCIÓN", label: "PROTECCIÓN" },
+                    ],
                 },
                 {
                     id: "cambio_eps_pension_fecha",
@@ -644,7 +719,7 @@ const HomeView = () => {
                             label: "Administrativa",
                         },
                         {
-                            value: "Legal y Riesgo",
+                            value: "Legal_Riesgo",
                             label: "Legal y Riesgo",
                         },
                         {
@@ -652,8 +727,156 @@ const HomeView = () => {
                             label: "Tecnología",
                         },
                         {
-                            value: "Gestión Humana",
+                            value: "Gestión_Humana",
                             label: "Gestión Humana",
+                        },
+                        {
+                            value: "Azteca",
+                            label: "Azteca",
+                        },
+                        {
+                            value: "Banco_Agrario",
+                            label: "Banco Agrario",
+                        },
+                        {
+                            value: "BBVA",
+                            label: "BBVA",
+                        },
+                        {
+                            value: "Claro",
+                            label: "Claro",
+                        },
+                        {
+                            value: "Claro_Digital",
+                            label: "Claro Digital",
+                        },
+                        {
+                            value: "Codensa",
+                            label: "Codensa",
+                        },
+                        {
+                            value: "Coomeva_Cartera",
+                            label: "Coomeva Cartera",
+                        },
+                        {
+                            value: "Coomeva_CEM",
+                            label: "Coomeva CEM",
+                        },
+                        {
+                            value: "Coomeva_MP",
+                            label: "Coomeva MP",
+                        },
+                        {
+                            value: "Credibanco",
+                            label: "Credibanco",
+                        },
+                        {
+                            value: "Dinerum",
+                            label: "Dinerum",
+                        },
+                        {
+                            value: "Falabella",
+                            label: "Falabella",
+                        },
+                        {
+                            value: "Falabella_Medellín",
+                            label: "Falabella Medellín",
+                        },
+                        {
+                            value: "Dinerum",
+                            label: "Dinerum",
+                        },
+                        {
+                            value: "Finandina",
+                            label: "Finandina",
+                        },
+                        {
+                            value: "Gerencia_Administrativa",
+                            label: "Gerencia Administrativa",
+                        },
+                        {
+                            value: "Gerencia_Legal_Riesgo",
+                            label: "Gerencia de Legal y Riesgo",
+                        },
+                        {
+                            value: "Gerencia_Mercadeo",
+                            label: "Gerencia de Mercadeo",
+                        },
+                        {
+                            value: "Gerencia_Operaciones",
+                            label: "Gerencia de peraciones",
+                        },
+                        {
+                            value: "Gerencia_Planeación",
+                            label: "Gerencia de Planeación",
+                        },
+                        {
+                            value: "Gerencia_Riesgo_Control_Interno",
+                            label: "Gerencia de Riesgo y Control Interno",
+                        },
+                        {
+                            value: "Gerencia_Tecnología",
+                            label: "Gerencia de Tecnología",
+                        },
+                        {
+                            value: "Gerencia_General",
+                            label: "Gerencia General",
+                        },
+                        {
+                            value: "Gerencia_Gestión_Humana",
+                            label: "Gerencia Gestión Humana",
+                        },
+                        {
+                            value: "Liberty",
+                            label: "Liberty",
+                        },
+                        {
+                            value: "MetLife",
+                            label: "MetLife",
+                        },
+                        {
+                            value: "Nueva_EPS",
+                            label: "Nueva EPS",
+                        },
+                        {
+                            value: "Pay_U",
+                            label: "Pay-U",
+                        },
+                        {
+                            value: "Presidencial",
+                            label: "Presidencial",
+                        },
+                        {
+                            value: "Recursos_Físicos ",
+                            label: "Recursos Físicos ",
+                        },
+                        {
+                            value: "Scotiabank_Colpatria",
+                            label: "Scotiabank Colpatria",
+                        },
+                        {
+                            value: "Sura",
+                            label: "Sura",
+                        },
+                        {
+                            value: "Yanbal_Bogotá",
+                            label: "Yanbal Bogotá",
+                        },
+                        {
+                            value: "Yanbal_Bucaramanga",
+                            label: "Yanbal Bucaramanga",
+                        },
+                        {
+                            value: "Yanbal_Ibague",
+                            label: "Yanbal Ibague",
+                        },
+                        {
+                            value: "Yanbal_Medellín",
+                            label: "Yanbal Medellín",
+                        },
+                        {
+                            value: "Yanbal_Villavicencio",
+                            label: "Yanbal Villavicencio",
                         },
                     ],
                 },
@@ -663,32 +886,185 @@ const HomeView = () => {
                     name: "campana_general",
                     type: "select",
                     options: [
-                        { value: "MetLife", label: "MetLife" },
-                        { value: "BBVA Digital", label: "BBVA Digital" },
-                        { value: "Pay-U", label: "Pay-U" },
-                        { value: "Liberty", label: "Liberty" },
-                        { value: "Congente", label: "Congente" },
-                        { value: "Yanbal", label: "Yanbal" },
-                        { value: "Falabella", label: "Falabella" },
-                        { value: "Falabella Peru", label: "Falabella Peru" },
-                        { value: "Credibanco", label: "Credibanco" },
-                        { value: "Nueva EPS", label: "Nueva EPS" },
-                        { value: "Claro", label: "Claro" },
-                        { value: "Avantel", label: "Avantel" },
-                        { value: "Coomeva", label: "Coomeva" },
-                        { value: "Azteca", label: "Azteca" },
                         {
-                            value: "Scotiabank Colpatria",
+                            value: "Planeación",
+                            label: "Planeación",
+                        },
+                        {
+                            value: "Administrativa",
+                            label: "Administrativa",
+                        },
+                        {
+                            value: "Legal_Riesgo",
+                            label: "Legal y Riesgo",
+                        },
+                        {
+                            value: "Tecnología",
+                            label: "Tecnología",
+                        },
+                        {
+                            value: "Gestión_Humana",
+                            label: "Gestión Humana",
+                        },
+                        {
+                            value: "Azteca",
+                            label: "Azteca",
+                        },
+                        {
+                            value: "Banco_Agrario",
+                            label: "Banco Agrario",
+                        },
+                        {
+                            value: "BBVA",
+                            label: "BBVA",
+                        },
+                        {
+                            value: "Claro",
+                            label: "Claro",
+                        },
+                        {
+                            value: "Claro_Digital",
+                            label: "Claro Digital",
+                        },
+                        {
+                            value: "Codensa",
+                            label: "Codensa",
+                        },
+                        {
+                            value: "Coomeva_Cartera",
+                            label: "Coomeva Cartera",
+                        },
+                        {
+                            value: "Coomeva_CEM",
+                            label: "Coomeva CEM",
+                        },
+                        {
+                            value: "Coomeva_MP",
+                            label: "Coomeva MP",
+                        },
+                        {
+                            value: "Credibanco",
+                            label: "Credibanco",
+                        },
+                        {
+                            value: "Dinerum",
+                            label: "Dinerum",
+                        },
+                        {
+                            value: "Falabella",
+                            label: "Falabella",
+                        },
+                        {
+                            value: "Falabella_Medellín",
+                            label: "Falabella Medellín",
+                        },
+                        {
+                            value: "Dinerum",
+                            label: "Dinerum",
+                        },
+                        {
+                            value: "Finandina",
+                            label: "Finandina",
+                        },
+                        {
+                            value: "Gerencia_Administrativa",
+                            label: "Gerencia Administrativa",
+                        },
+                        {
+                            value: "Gerencia_Legal_Riesgo",
+                            label: "Gerencia de Legal y Riesgo",
+                        },
+                        {
+                            value: "Gerencia_Mercadeo",
+                            label: "Gerencia de Mercadeo",
+                        },
+                        {
+                            value: "Gerencia_Operaciones",
+                            label: "Gerencia de peraciones",
+                        },
+                        {
+                            value: "Gerencia_Planeación",
+                            label: "Gerencia de Planeación",
+                        },
+                        {
+                            value: "Gerencia_Riesgo_Control_Interno",
+                            label: "Gerencia de Riesgo y Control Interno",
+                        },
+                        {
+                            value: "Gerencia_Tecnología",
+                            label: "Gerencia de Tecnología",
+                        },
+                        {
+                            value: "Gerencia_General",
+                            label: "Gerencia General",
+                        },
+                        {
+                            value: "Gerencia_Gestión_Humana",
+                            label: "Gerencia Gestión Humana",
+                        },
+                        {
+                            value: "Liberty",
+                            label: "Liberty",
+                        },
+                        {
+                            value: "MetLife",
+                            label: "MetLife",
+                        },
+                        {
+                            value: "Nueva_EPS",
+                            label: "Nueva EPS",
+                        },
+                        {
+                            value: "Pay_U",
+                            label: "Pay-U",
+                        },
+                        {
+                            value: "Presidencial",
+                            label: "Presidencial",
+                        },
+                        {
+                            value: "Recursos_Físicos ",
+                            label: "Recursos Físicos ",
+                        },
+                        {
+                            value: "Scotiabank_Colpatria",
                             label: "Scotiabank Colpatria",
                         },
-                        { value: "Banco Agrario", label: "Banco Agrario" },
+                        {
+                            value: "Sura",
+                            label: "Sura",
+                        },
+                        {
+                            value: "Yanbal_Bogotá",
+                            label: "Yanbal Bogotá",
+                        },
+                        {
+                            value: "Yanbal_Bucaramanga",
+                            label: "Yanbal Bucaramanga",
+                        },
+                        {
+                            value: "Yanbal_Ibague",
+                            label: "Yanbal Ibague",
+                        },
+                        {
+                            value: "Yanbal_Medellín",
+                            label: "Yanbal Medellín",
+                        },
+                        {
+                            value: "Yanbal_Villavicencio",
+                            label: "Yanbal Villavicencio",
+                        },
                     ],
                 },
                 {
                     id: "area_negocio",
                     label: "Area de negocio",
                     name: "area_negocio",
-                    type: "text",
+                    type: "select",
+                    options: [
+                        { value: "Dirección", label: "Dirección" },
+                        { value: "Negocio", label: "Negocio" },
+                    ],
                 },
                 {
                     id: "tipo_contrato",
@@ -705,28 +1081,16 @@ const HomeView = () => {
                             label: "Contrato a término fijo",
                         },
                         {
-                            value: "Contrato temporal",
-                            label: "Contrato temporal",
+                            value: "Obra o Labor",
+                            label: "Obra o Labor",
                         },
                         {
-                            value: "Contrato por obra o labor",
-                            label: "Contrato por obra o labor",
-                        },
-                        {
-                            value: "Contrato civil por prestación de servicios",
-                            label: "Contrato civil por prestación de servicios",
-                        },
-                        {
-                            value: "Contrato ocasional",
-                            label: "Contrato ocasional",
+                            value: "Prestación de Servicio",
+                            label: "Prestación de Servicio",
                         },
                         {
                             value: "Contrato de aprendizaje",
                             label: "Contrato de aprendizaje",
-                        },
-                        {
-                            value: "Contrato sindical",
-                            label: "Contrato sindical",
                         },
                     ],
                 },
@@ -882,13 +1246,45 @@ const HomeView = () => {
                     id: "59",
                     label: "Tipo de retiro",
                     name: "tipo_de_retiro",
-                    type: "text",
+                    type: "select",
+                    options: [
+                        { value: "Voluntario", label: "Voluntario" },
+                        { value: "Involuntario", label: "Involuntario" },
+                    ],
                 },
                 {
                     id: "60",
                     label: "Motivo del retiro",
                     name: "motivo_de_retiro",
-                    type: "text",
+                    type: "select",
+                    options: [
+                        { value: "Baja remuneración", label: "Baja remuneración" },
+                        { value: "Calamidad familiar", label: "Calamidad familiar" },
+                        { value: "Cambio de actividad", label: "Cambio de actividad" },
+                        { value: "Conflictos en relaciones laborales", label: "Conflictos en relaciones laborales" },
+                        { value: "Desplazamiento", label: "Desplazamiento" },
+                        { value: "Estrés laboral", label: "Estrés laboral" },
+                        { value: "Falta de herramientas para  desempeñar la labor", label: "Falta de herramientas para  desempeñar la labor" },
+                        { value: "Falta de inducción al ingresar", label: "Falta de inducción al ingresar" },
+                        { value: "Falta de reconocimiento", label: "Falta de reconocimiento" },
+                        { value: "Horario laboral", label: "Horario laboral" },
+                        { value: "Incompatibilidad con el jefe", label: "Incompatibilidad con el jefe" },
+                        { value: "Mal ambiente laboral", label: "Mal ambiente laboral" },
+                        { value: "Motivos de estudio", label: "Motivos de estudio" },
+                        { value: "Motivos de salud", label: "Motivos de salud" },
+                        { value: "Motivos de viaje", label: "Motivos de viaje" },
+                        { value: "Motivos personales", label: "Motivos personales" },
+                        { value: "No hay oportunidades de crecimiento laboral", label: "No hay oportunidades de crecimiento laboral" },
+                        { value: "No hay oportunidades de estudiar", label: "No hay oportunidades de estudiar" },
+                        { value: "Otro", label: "Otro" },
+                        { value: "Problemas personales", label: "Problemas personales" },
+                        { value: "Terminación de contrato aprendizaje", label: "Terminación de contrato aprendizaje" },
+                        { value: "Terminación de contrato con justa causa", label: "Terminación de contrato con justa causa" },
+                        { value: "Terminación de contrato por periodo de prueba", label: "Terminación de contrato por periodo de prueba" },
+                        { value: "Terminación de contrato sin justa causa", label: "Terminación de contrato sin justa causa" },
+                        { value: "Terminación por abandono de puesto", label: "Terminación por abandono de puesto" },
+                        { value: "Terminación por obra o labor contratada ", label: "Terminación por obra o labor contratada " },
+                    ],
                 },
                 {
                     id: "61",
@@ -976,7 +1372,7 @@ const HomeView = () => {
         };
         const changeState = async () => {
             try {
-                const response = await fetch("http://localhost:5000/change_state", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//change_state", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -990,6 +1386,7 @@ const HomeView = () => {
                 const data = await response.json();
                 if (data.status === "success") {
                     setTableResults(updatedTableResults);
+                    console.log(tableResults);
                     setRows(updatedRows);
                 }
             } catch (error) {
@@ -1005,7 +1402,7 @@ const HomeView = () => {
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("http://localhost:5000/update_transaction", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1036,7 +1433,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("http://localhost:5000/search_employees", {
+            const response = await fetch("https://staffnetback.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1062,7 +1459,7 @@ const HomeView = () => {
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("http://localhost:5000/insert_transaction", {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1110,6 +1507,34 @@ const HomeView = () => {
         },
         [inputValues]
     );
+
+    const handleChangeFile = (event) => {
+        setFile(event.target.files[0]);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const fetchEmployees = async () => {
+            try {
+                const response = await fetch("https://staffnetback.cyc-bpo.com//file", {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify(formData),
+                });
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                const data = await response.json();
+                console.log("enviado");
+            } catch (error) {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                if (error === "Usuario no ha iniciado sesion") {
+                    navigate("/");
+                }
+            }
+        };
+        fetchEmployees();
+    };
 
     if (access) {
         return (
@@ -1570,6 +1995,10 @@ const HomeView = () => {
                                     Añadir
                                 </Button>
                             )}
+                            <Button component="label" startIcon={<UploadIcon />}>
+                                Subir BD
+                                <input type="file" hidden accept=".csv" onChange={handleChangeFile} />
+                            </Button>
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid

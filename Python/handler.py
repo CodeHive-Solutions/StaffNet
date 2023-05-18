@@ -105,7 +105,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["http://localhost:5173",
-                      "http://localhost:8080", "http://172.16.5.10:8080"]
+                      "http://localhost:8080", "http://172.16.5.11:8080", "http://localhost:4173"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)
