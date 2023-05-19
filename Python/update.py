@@ -41,3 +41,4 @@ def process_query(rows_updated):
         response = {'status': 'false', 'error': 'No hubo ningun cambio.'}
         print("submit failed")
     return response
+

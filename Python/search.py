@@ -33,3 +33,4 @@ def process_query(results, active_directory, user_ad):
         else:
             response = {'status': 'false', 'error': 'Registro no encontrado'}
     return response
+

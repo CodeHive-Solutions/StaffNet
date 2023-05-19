@@ -41,3 +41,4 @@ def decrypt(token, dato):
         # Return None if the token is invalid or cannot be decoded
         print("Error decoding token", jwt.exceptions.InvalidTokenError)
         return False
+
