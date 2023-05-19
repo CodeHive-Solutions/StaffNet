@@ -1,8 +1,13 @@
 import csv
 import re
-from decimal import Decimal
 import datetime
 import mysql.connector
+import logging
+import datetime
+
+logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
+                    level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 info_tables = {
     "personal_information": {
@@ -134,6 +139,7 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
             try:
                 cursor.execute(query, tuple(column_values.values()))
             except Exception as e:
+                logging.error(f"Error inserting row into {table} table, error: ",e)
                 raise Exception(f"Error inserting row into {table} table, error: ",e)
 
 
@@ -143,4 +149,5 @@ try:
     cursor.close()
     connection.close()
 except Exception as e:
+    logging.error(f"Error committing changes and closing cursor and connection, error: ",e)
     print(e)

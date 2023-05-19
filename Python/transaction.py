@@ -1,7 +1,12 @@
 from datetime import date
 import mysql.connector
 import json
+import logging
+import datetime
 
+logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
+                    level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 def update_data(conexion, info_tables, where):
     try:
@@ -23,6 +28,7 @@ def update_data(conexion, info_tables, where):
 
     except mysql.connector.Error as error:
         print("Error: ", error)
+        logging.error(f"Error: {error}")
         response = {"status": "failed", "error": str(error)}
         return response
 
@@ -65,6 +71,8 @@ def search_transaction(conexion, table_info, where):
         # Execute the SQL statement with search_value as parameter
         mycursor.execute(sql)
         result = mycursor.fetchall()
+        logging.info(sql)
+        logging.info(f"Result: {len(result)}")
         response = {"status": "success", "data": result}
         return response
 
@@ -72,6 +80,7 @@ def search_transaction(conexion, table_info, where):
         # Roll back the transaction if there's an error
         print(f"Error: {error}")
         conexion.rollback()
+        logging.error(f"Error: {error}")
         error = str(error)
         response = {"status": "error", "error": error}
 
@@ -125,6 +134,7 @@ def insert_transaction(conexion, table_info):
     except mysql.connector.Error as error:
         # Roll back the transaction if there's an error
         print(f"Error: {error}")
+        logging.error(f"Error: {error}")
         conexion.rollback()
         error = str(error)
         response = {"status": "error", "error": error}
@@ -169,6 +179,7 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
         data = json.loads(json_str)
         return {"status": "success", "data": data}
     except Exception as error:
+        logging.error(f"Error: {error}")
         print("Error ", error)
         return {"status": "false", "error": str(error)}
 

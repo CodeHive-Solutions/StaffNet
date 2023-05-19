@@ -1,4 +1,10 @@
 import mysql.connector
+import logging
+import datetime
+
+logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
+                    level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 def update(tabla, columna, params, where_clause, conexion):
@@ -24,6 +30,7 @@ def run_update(tabla, columna, params, where_clause, conexion):
         rows_updated = cursor.rowcount
         print("Rows updated: ", rows_updated)
     except mysql.connector.Error as error:
+        logging.error(f"Error: {error}")
         print("Error: ", error)
         rows_updated = {"status": "false", "error": error}
     cursor.close()

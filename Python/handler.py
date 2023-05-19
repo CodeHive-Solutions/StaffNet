@@ -1,5 +1,4 @@
 import logging
-import pickle
 from flask import Flask, request, session, g
 from flask_session import Session
 from insert import insert
@@ -12,7 +11,6 @@ import mysql.connector
 import redis
 # import sys
 import os
-import json
 
 # Evitar logs innecesarios
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -24,6 +22,7 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
 try:
     redis_client = redis.Redis(
         host='172.16.0.128', port=6379, password="654321")
+    logging.info("Connection to redis success")
 except:
     print("Connection to redis failed")
     logging.critical(f"Connection to redis failed", exc_info=True)
@@ -76,14 +75,22 @@ def login():
 def conexionMySQL():
     if "conexion" not in g:
         try:
+            # g.conexion = mysql.connector.connect(
+            #     host="172.16.0.6",
+            #     user="root",
+            #     password="*4b0g4d0s4s*",
+            #     database='StaffNet'
+            # )
             g.conexion = mysql.connector.connect(
-                host="172.16.0.6",
+                host="172.16.0.115",
                 user="root",
-                password="*4b0g4d0s4s*",
+                password=os.environ.get('MYSQL_115'),
                 database='StaffNet'
             )
+            logging.info("Connection to MYSQL success")
         except Exception as err:
             print("Error conexion MYSQL: ", err)
+            logging.critical("Error conexion MYSQL: ", err, exc_info=True)
     return g.conexion
 
 
@@ -272,7 +279,7 @@ def search_employees():
             "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }
-        where = "personal_information.cedula = leave_information.cedula AND employment_information.cedula = leave_information.cedula"
+        where = "personal_information.id = leave_information.id AND employment_information.id = leave_information.id"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {

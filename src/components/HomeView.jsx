@@ -47,6 +47,7 @@ const HomeView = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [severityAlert, setSeverityAlert] = React.useState("info");
     const [file, setFile] = useState(null);
+    const [gender, setGender] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -1508,34 +1509,38 @@ const HomeView = () => {
         [inputValues]
     );
 
-    const handleChangeFile = (event) => {
-        setFile(event.target.files[0]);
+    // function to handle the database upload
+    // const handleChangeFile = (event) => {
+    //     setFile(event.target.files[0]);
 
-        const formData = new FormData();
-        formData.append("file", file);
+    //     const formData = new FormData();
+    //     formData.append("file", file);
 
-        const fetchEmployees = async () => {
-            try {
-                const response = await fetch("https://staffnetback.cyc-bpo.com//file", {
-                    method: "POST",
-                    credentials: "include",
-                    body: JSON.stringify(formData),
-                });
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                const data = await response.json();
-                console.log("enviado");
-            } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-                if (error === "Usuario no ha iniciado sesion") {
-                    navigate("/");
-                }
-            }
-        };
-        fetchEmployees();
+    //     const fetchEmployees = async () => {
+    //         try {
+    //             const response = await fetch("https://staffnetback.cyc-bpo.com//file", {
+    //                 method: "POST",
+    //                 credentials: "include",
+    //                 body: JSON.stringify(formData),
+    //             });
+    //             if (!response.ok) {
+    //                 throw Error(response.statusText);
+    //             }
+    //             const data = await response.json();
+    //             console.log("enviado");
+    //         } catch (error) {
+    //             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+    //             if (error === "Usuario no ha iniciado sesion") {
+    //                 navigate("/");
+    //             }
+    //         }
+    //     };
+    //     fetchEmployees();
+    // };
+
+    const handleGenderChange = (event) => {
+        setGender(event.target.value);
     };
-
 
     if (access) {
         return (
@@ -1889,7 +1894,16 @@ const HomeView = () => {
 
                                                 function renderInput(input, formData, handleFormChange) {
                                                     if (input.type === "select") {
-                                                        return renderSelectInput(input, formData, handleFormChange);
+                                                        if (input.name === "gender") {
+                                                            return (
+                                                                <TextField select label="Gender" value={gender} onChange={handleGenderChange}>
+                                                                    <MenuItem value="male">Male</MenuItem>
+                                                                    <MenuItem value="female">Female</MenuItem>
+                                                                </TextField>
+                                                            );
+                                                        } else {
+                                                            return renderSelectInput(input, formData, handleFormChange);
+                                                        }
                                                     } else if (["5", "antiguedad"].includes(input.id)) {
                                                         return null;
                                                     } else {
@@ -1996,10 +2010,10 @@ const HomeView = () => {
                                     Añadir
                                 </Button>
                             )}
-                            <Button component="label" startIcon={<UploadIcon />}>
+                            {/* <Button component="label" startIcon={<UploadIcon />}>
                                 Subir BD
                                 <input type="file" hidden accept=".csv" onChange={handleChangeFile} />
-                            </Button>
+                            </Button> */}
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
@@ -2011,11 +2025,11 @@ const HomeView = () => {
                                 initialState={{
                                     pagination: {
                                         paginationModel: {
-                                            pageSize: 4,
+                                            pageSize: 8,
                                         },
                                     },
                                 }}
-                                pageSizeOptions={[4]}
+                                pageSizeOptions={[8]}
                             />
                         </Box>
                     </Container>
