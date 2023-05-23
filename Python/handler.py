@@ -33,7 +33,8 @@ app.config['SESSION_REDIS'] = redis_client
 app.config['SESSION_COOKIE_NAME'] = 'StaffNet'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+# app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_DOMAIN'] = '.cyc-bpo.com'
 app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24)
 # app.secret_key = "Hack_me_if_u_can"
@@ -128,6 +129,7 @@ def after_request(response):
         print("Respuesta: ", response.json)
         if request.url.split("/")[3] == "search_employees":
             if "info" in response.json:
+                logging.info("Info",response.json)
                 logging.info(
                     {"Respuesta: ": {"status": response.json["info"]["status"]}})
             else:
@@ -279,7 +281,7 @@ def search_employees():
             "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }
-        where = "personal_information.id = leave_information.id AND employment_information.id = leave_information.id"
+        where = "personal_information.cedula = leave_information.cedula AND employment_information.cedula = leave_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
@@ -336,7 +338,7 @@ def update_transaction():
             "educational_information": {
                 "cedula": body["cedula"],
                 "nivel_escolaridad": body["nivel_escolaridad"],
-                "profesion": body["profesion"],
+                "profesion": body["Profesión"],
                 "estudios_en_curso": body["estudios_en_curso"]
             },
             "employment_information": {
@@ -396,7 +398,7 @@ def insert_in_tables():
         info_tables = {
             "personal_information": {
                 "cedula": body["cedula"], "nombre": body["nombre"], "fecha_nacimiento": body["fecha_nacimiento"],
-                "genero": body["genero"], "edad": body["edad"], "rh": body["rh"],
+                "genero": body["genero"], "rh": body["rh"],
                 "estado_civil": body["estado_civil"], "hijos": body["hijos"], "personas_a_cargo": body["personas_a_cargo"],
                 "estrato": body["estrato"], "tel_fijo": body["tel_fijo"], "celular": body["celular"],
                 "correo": body["correo"], "direccion": body["direccion"], "barrio": body["barrio"],
@@ -427,10 +429,10 @@ def insert_in_tables():
             },
             "disciplinary_actions": {
                 "cedula": body["cedula"],
-                "llamado_atencion": body["llamado_atencion"],
-                "memorando_1": body["memorando_1"],
-                "memorando_2": body["memorando_2"],
-                "memorando_3": body["memorando_3"]
+                "falta": body["llamado_atencion"],
+                "tipo_sancion": body["memorando_1"],
+                "sancion": body["memorando_2"],
+                "numero_faltas": body["memorando_3"]
             },
             "vacation_information": {
                 "cedula": body["cedula"],

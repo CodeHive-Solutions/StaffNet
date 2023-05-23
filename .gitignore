@@ -29,6 +29,6 @@ dist-ssr
 /Python/__pycache__/
 /Python/flask_session/
 .vscode
-
+*.csv
 #Vite temporals
 vite.config.js.timestamp

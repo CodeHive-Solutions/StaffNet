@@ -61,6 +61,7 @@ const HomeView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
+                console.log(data);
                 if ("info" in data) {
                     setAccess(true);
                     setTableData(data.info.data);

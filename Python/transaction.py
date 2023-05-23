@@ -152,6 +152,7 @@ class DateEncoder(json.JSONEncoder):
 
 
 def join_tables(conexion, table_names, select_columns, join_columns, id_column=None, id_value=None):
+    """Just a simple function to join tables and return a JSON string of the results"""
     # Set up the connection to the MySQL database
 
     # Create a cursor
