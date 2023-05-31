@@ -9,7 +9,7 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 import datetime
 import mysql.connector
 import redis
-# import sys
+from redis.exceptions import ConnectionError
 import os
 
 # Evitar logs innecesarios
@@ -22,10 +22,11 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
 try:
     redis_client = redis.Redis(
         host='172.16.0.128', port=6379, password="654321")
-    logging.info("Connection to redis success")
 except:
     print("Connection to redis failed")
+    redis_client = None
     logging.critical(f"Connection to redis failed", exc_info=True)
+    raise
 
 app = Flask(__name__)
 app.config['SESSION_TYPE'] = 'redis'
@@ -42,16 +43,77 @@ app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24)
 sess = Session()
 sess.init_app(app)
 
+def get_request_body():
+    if request.content_type == 'application/json':
+        return request.get_json()
+    else:
+        return {}
+
+def bd_info():
+    body = get_request_body()
+    logging.info(f"Request: {body}")
+    info_tables = {}
+    try:
+        info_tables = {
+                    "personal_information": {
+                        "cedula": body.get("cedula"), "nombre": body.get("nombre"),"tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
+                        "genero": body.get("genero"), "rh": body.get("rh"),
+                        "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
+                        "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
+                        "correo": body.get("correo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
+                        "contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
+                    "educational_information": {
+                        "cedula": body.get("cedula"),
+                        "nivel_escolaridad": body.get("nivel_escolaridad"),
+                        "profesion": body.get("Profesión"),
+                        "estudios_en_curso": body.get("estudios_en_curso")
+                    },
+                    "employment_information": {
+                        "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion"), "eps": body.get("eps"),
+                        "pension": body.get("pension"),"caja_compensacion":body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
+                        "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
+                        "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
+                        "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario_2023"), "subsidio_transporte": body.get("subsidio_transporte_2023"),
+                    },
+                    # "performance_evaluation": {
+                        # "cedula": body.get("cedula"),
+                        # "calificacion": body.get("desempeno"),
+                    # },
+                    "disciplinary_actions": {
+                        "cedula": body.get("cedula"),
+                        "falta": body.get("falta"),
+                        "tipo_sancion": body.get("tipo_sancion"),
+                        "sancion": body.get("sancion"),
+                    },
+                    "vacation_information": {
+                        "cedula": body.get("cedula"),
+                        "licencia_no_remunerada": body.get("licencia_no_remunerada"),
+                        "dias_utilizados": "0",
+                        "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
+                        "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
+                    },
+                    "leave_information": {
+                        "cedula": body.get("cedula"),
+                        "fecha_retiro": body.get("fecha_retiro"),
+                        "tipo_de_retiro": body.get("tipo_de_retiro"),
+                        "motivo_de_retiro": body.get("motivo_de_retiro"),
+                        "estado": body.get("estado")
+                    }
+                }
+    except Exception as error:
+        logging.error(f"Campo no encontrado: {error}")
+    return info_tables
 
 @ app.route('/login', methods=['POST'])
 def login():
+    body = get_request_body()
     conexion = conexionMySQL()
-    response = consulta_login(request.json, conexion)
+    response = consulta_login(body, conexion)
     print(response)
     if response["status"] == 'success':
-        session_key = 'session:' + session.sid
+        session_key = 'session:' + session.get("sid", "")
         print("EXAMPLE", session_key)
-        username = request.json["user"]
+        username = body["user"]
         session['session_id'] = session_key
         session["username"] = username
         session["create_admins"] = response["create_admins"]
@@ -59,13 +121,6 @@ def login():
         session["create"] = response["create"]
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
-        redis_client.save()
-        print("The data that is being searched is: ",
-              session['session_id'])
-        print("And the response is:", redis_client.get(session["session_id"]))
-        redis_client.set('test_key', 'test_value')
-        value = redis_client.get('test_key')
-        print(value)
         update("users", "session_id", (session_key,),
                f"WHERE user = '{username}'", conexion)
         response = {"status": 'success',
@@ -92,20 +147,21 @@ def conexionMySQL():
         except Exception as err:
             print("Error conexion MYSQL: ", err)
             logging.critical("Error conexion MYSQL: ", err, exc_info=True)
+            raise
     return g.conexion
 
 
 @app.before_request
 def logs():
-    logging.info("all the info of the request", str(request))
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
+        body = get_request_body()
         petition = request.url.split("/")[3]
         if petition == "login":
-            print("Peticion: ", petition, "user: ", request.json["user"])
+            print("Peticion: ", petition, "user: ", body["user"])
             logging.info(
-                {"User": request.json["user"], "Peticion": petition})
+                {"User": body["user"], "Peticion": petition})
         else:
             print("Peticion: ", petition)
             logging.info({"User": session["username"], "Peticion": petition,
@@ -129,7 +185,6 @@ def after_request(response):
         print("Respuesta: ", response.json)
         if request.url.split("/")[3] == "search_employees":
             if "info" in response.json:
-                logging.info("Info",response.json)
                 logging.info(
                     {"Respuesta: ": {"status": response.json["info"]["status"]}})
             else:
@@ -218,8 +273,9 @@ def validate_consult():
 @ app.route('/search_ad', methods=['POST'])
 def search_ad():
     if session["create_admins"] == True:
+        body = get_request_body()
         conexion = conexionMySQL()
-        username = (request.json['username'],)
+        username = (body['username'],)
         response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
                           'WHERE user = %s', username, conexion, True, username)
     else:
@@ -231,7 +287,7 @@ def search_ad():
 @ app.route('/create', methods=['POST'])
 def crete():
     if session["create"] == True:
-        body = request.json
+        body = get_request_body()
         conexion = conexionMySQL()
         parameters = (body["user"], body["permissions"]["consultar"], body["permissions"]["crear"], body[
             "permissions"]["editar"], body["permissions"]["inhabilitar"],)
@@ -246,7 +302,7 @@ def crete():
 
 @ app.route('/edit_admin', methods=['POST'])
 def edit_admin():
-    body = request.json
+    body = get_request_body()
     if session["create_admins"] == True:
         if session["username"] != body["user"]:
             conexion = conexionMySQL()
@@ -281,7 +337,7 @@ def search_employees():
             "employment_information": "cargo,gerencia,campana_general",
             "leave_information": "estado"
         }
-        where = "personal_information.cedula = leave_information.cedula AND employment_information.cedula = leave_information.cedula"
+        where = "employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
@@ -295,10 +351,10 @@ def search_employees():
 @ app.route('/get_join_info', methods=['POST'])
 def get_join_info():
     conexion = conexionMySQL()
-    body = request.json
+    body = get_request_body()
     if session["consult"] == True:
         table_names = ["personal_information",
-                       "educational_information", "employment_information", "performance_evaluation", "disciplinary_actions", "vacation_information", "leave_information"]
+                       "educational_information", "employment_information", "disciplinary_actions", "vacation_information", "leave_information"]
         join_columns = ["cedula", "cedula",
                         "cedula", "cedula", "cedula", "cedula"]
         response = join_tables(
@@ -308,11 +364,22 @@ def get_join_info():
                     'error': 'No tienes permisos'}
     return response
 
+@ app.route('/employee_history', methods=['POST'])
+def get_historico():
+    conexion = conexionMySQL()
+    body = get_request_body()
+    if session["consult"] == True:
+        response = search("*", "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+    else:
+        response = {'status': 'False',
+                    'error': 'No tienes permisos'}
+    logging.info(f"response4: {response}")
+    return response
 
 @ app.route('/change_state', methods=['POST'])
 def change_state():
     if session["disable"] == True:
-        body = request.json
+        body = get_request_body()
         conexion = conexionMySQL()
         response = update("leave_information", ("estado",),
                           (body["change_to"], body["cedula"]), "WHERE cedula = %s", conexion)
@@ -325,63 +392,10 @@ def change_state():
 @ app.route('/update_transaction', methods=['POST'])
 def update_transaction():
     if session["edit"] == True:
-        body = request.json
+        body = get_request_body()
+        info_tables = bd_info()
+        logging.info(info_tables["personal_information"])
         conexion = conexionMySQL()
-        info_tables = {
-            "personal_information": {
-                "cedula": body["cedula"], "nombre": body["nombre"], "fecha_nacimiento": body["fecha_nacimiento"],
-                "genero": body["genero"], "edad": body["edad"], "rh": body["rh"],
-                "estado_civil": body["estado_civil"], "hijos": body["hijos"], "personas_a_cargo": body["personas_a_cargo"],
-                "estrato": body["estrato"], "tel_fijo": body["tel_fijo"], "celular": body["celular"],
-                "correo": body["correo"], "direccion": body["direccion"], "barrio": body["barrio"],
-                "contacto_emergencia": body["contacto_emergencia"], "parentesco": body["parentesco"], "tel_contacto": body["tel_contacto"]},
-            "educational_information": {
-                "cedula": body["cedula"],
-                "nivel_escolaridad": body["nivel_escolaridad"],
-                "profesion": body["Profesión"],
-                "estudios_en_curso": body["estudios_en_curso"]
-            },
-            "employment_information": {
-                "cedula": body["cedula"], "fecha_afiliacion": body["fecha_afiliacion"], "eps": body["eps"],
-                "pension": body["pension"], "cesantias": body["cesantias"], "cambio_eps_pension_fecha": body["cambio_eps_pension_fecha"],
-                "cuenta_nomina": body["cuenta_nomina"], "fecha_ingreso": body["fecha_ingreso"], "cargo": body["cargo"],
-                "gerencia": body["gerencia"], "campana_general": body["campana_general"], "area_negocio": body["area_negocio"],
-                "tipo_contrato": body["tipo_contrato"], "salario_2023": body["salario_2023"], "subsidio_transporte_2023": body["subsidio_transporte_2023"],
-                "fecha_cambio_campana_periodo_prueba": body["fecha_cambio_campana_periodo_prueba"]
-            },
-            "performance_evaluation": {
-                "cedula": body["cedula"],
-                "desempeno_1_sem_2016": body["desempeno_1_sem_2016"],
-                "desempeno_2_sem_2016": body["desempeno_2_sem_2016"],
-                "desempeno_2017": body["desempeno_2017"],
-                "desempeno_2018": body["desempeno_2018"],
-                "desempeno_2019": body["desempeno_2019"],
-                "desempeno_2020": body["desempeno_2020"],
-                "desempeno_2021": body["desempeno_2021"]
-            },
-            "disciplinary_actions": {
-                "cedula": body["cedula"],
-                "llamado_atencion": body["llamado_atencion"],
-                "memorando_1": body["memorando_1"],
-                "memorando_2": body["memorando_2"],
-                "memorando_3": body["memorando_3"]
-            },
-            "vacation_information": {
-                "cedula": body["cedula"],
-                "licencia_no_remunerada": body["licencia_no_remunerada"],
-                "periodo_tomado_vacaciones": body["periodo_tomado_vacaciones"],
-                "periodos_faltantes_vacaciones": body["periodos_faltantes_vacaciones"],
-                "fecha_salida_vacaciones": body["fecha_salida_vacaciones"],
-                "fecha_ingreso_vacaciones": body["fecha_ingreso_vacaciones"]
-            },
-            "leave_information": {
-                "cedula": body["cedula"],
-                "fecha_retiro": body["fecha_retiro"],
-                "tipo_de_retiro": body["tipo_de_retiro"],
-                "motivo_de_retiro": body["motivo_de_retiro"],
-                "estado": body["estado"]
-            }
-        }
         response = update_data(
             conexion, info_tables, "cedula = "+str(body["cedula"]))
     else:
@@ -392,64 +406,9 @@ def update_transaction():
 
 @ app.route('/insert_transaction', methods=['POST'])
 def insert_in_tables():
+    info_tables = bd_info()
     if session["create"] == True:
-        body = request.json
         conexion = conexionMySQL()
-        info_tables = {
-            "personal_information": {
-                "cedula": body["cedula"], "nombre": body["nombre"], "fecha_nacimiento": body["fecha_nacimiento"],
-                "genero": body["genero"], "rh": body["rh"],
-                "estado_civil": body["estado_civil"], "hijos": body["hijos"], "personas_a_cargo": body["personas_a_cargo"],
-                "estrato": body["estrato"], "tel_fijo": body["tel_fijo"], "celular": body["celular"],
-                "correo": body["correo"], "direccion": body["direccion"], "barrio": body["barrio"],
-                "contacto_emergencia": body["contacto_emergencia"], "parentesco": body["parentesco"], "tel_contacto": body["tel_contacto"]},
-            "educational_information": {
-                "cedula": body["cedula"],
-                "nivel_escolaridad": body["nivel_escolaridad"],
-                "profesion": body["profesion"],
-                "estudios_en_curso": body["estudios_en_curso"]
-            },
-            "employment_information": {
-                "cedula": body["cedula"], "fecha_afiliacion": body["fecha_afiliacion"], "eps": body["eps"],
-                "pension": body["pension"], "cesantias": body["cesantias"], "cambio_eps_pension_fecha": body["cambio_eps_pension_fecha"],
-                "cuenta_nomina": body["cuenta_nomina"], "fecha_ingreso": body["fecha_ingreso"], "cargo": body["cargo"],
-                "gerencia": body["gerencia"], "campana_general": body["campana_general"], "area_negocio": body["area_negocio"],
-                "tipo_contrato": body["tipo_contrato"], "salario_2023": body["salario_2023"], "subsidio_transporte_2023": body["subsidio_transporte_2023"],
-                "fecha_cambio_campana_periodo_prueba": body["fecha_cambio_campana_periodo_prueba"]
-            },
-            "performance_evaluation": {
-                "cedula": body["cedula"],
-                "desempeno_1_sem_2016": body["desempeno_1_sem_2016"],
-                "desempeno_2_sem_2016": body["desempeno_2_sem_2016"],
-                "desempeno_2017": body["desempeno_2017"],
-                "desempeno_2018": body["desempeno_2018"],
-                "desempeno_2019": body["desempeno_2019"],
-                "desempeno_2020": body["desempeno_2020"],
-                "desempeno_2021": body["desempeno_2021"]
-            },
-            "disciplinary_actions": {
-                "cedula": body["cedula"],
-                "falta": body["llamado_atencion"],
-                "tipo_sancion": body["memorando_1"],
-                "sancion": body["memorando_2"],
-                "numero_faltas": body["memorando_3"]
-            },
-            "vacation_information": {
-                "cedula": body["cedula"],
-                "licencia_no_remunerada": body["licencia_no_remunerada"],
-                "periodo_tomado_vacaciones": body["periodo_tomado_vacaciones"],
-                "periodos_faltantes_vacaciones": body["periodos_faltantes_vacaciones"],
-                "fecha_salida_vacaciones": body["fecha_salida_vacaciones"],
-                "fecha_ingreso_vacaciones": body["fecha_ingreso_vacaciones"]
-            },
-            "leave_information": {
-                "cedula": body["cedula"],
-                "fecha_retiro": body["fecha_retiro"],
-                "tipo_de_retiro": body["tipo_de_retiro"],
-                "motivo_de_retiro": body["motivo_de_retiro"],
-                "estado": body["estado"]
-            }
-        }
         response = insert_transaction(conexion, info_tables)
     else:
         response = {'status': 'False',

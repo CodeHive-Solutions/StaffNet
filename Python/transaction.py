@@ -9,8 +9,8 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 def update_data(conexion, info_tables, where):
+    mycursor = conexion.cursor()
     try:
-        mycursor = conexion.cursor()
         response = {"status": "failed", "error": "No hubo ningun cambio"}
         for table_name, columns in info_tables.items():
             values = []
@@ -59,7 +59,6 @@ def search_transaction(conexion, table_info, where):
         response = {"status": "success"}
         # Start a transaction
         mycursor.execute("START TRANSACTION")
-
         # Loop through each table in the table_info dictionary
         table_names = ", ".join(table_info.keys())
         column_names = []
@@ -69,13 +68,12 @@ def search_transaction(conexion, table_info, where):
         column_names = ", ".join(column_names)
         sql = f"SELECT {column_names} FROM {table_names} WHERE {where}"
         # Execute the SQL statement with search_value as parameter
+        logging.info(f"SQL_search_employees: {sql}")
         mycursor.execute(sql)
         result = mycursor.fetchall()
-        logging.info(sql)
         logging.info(f"Result: {len(result)}")
         response = {"status": "success", "data": result}
         return response
-
     except mysql.connector.Error as error:
         # Roll back the transaction if there's an error
         print(f"Error: {error}")
@@ -83,6 +81,7 @@ def search_transaction(conexion, table_info, where):
         logging.error(f"Error: {error}")
         error = str(error)
         response = {"status": "error", "error": error}
+        return response
 
     finally:
         # Close the cursor and database connection
@@ -137,7 +136,9 @@ def insert_transaction(conexion, table_info):
         logging.error(f"Error: {error}")
         conexion.rollback()
         error = str(error)
+        logging.error(f"sending error mysql {error}")
         response = {"status": "error", "error": error}
+        return response
 
     finally:
         # Close the cursor and database connection
@@ -154,7 +155,6 @@ class DateEncoder(json.JSONEncoder):
 def join_tables(conexion, table_names, select_columns, join_columns, id_column=None, id_value=None):
     """Just a simple function to join tables and return a JSON string of the results"""
     # Set up the connection to the MySQL database
-
     # Create a cursor
     mycursor = conexion.cursor()
 
@@ -169,6 +169,7 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
         query += f" WHERE {table_names[0]}.{id_column} = {id_value}"
     try:
         # Execute the query
+        logging.info(f"Query: {query}")
         mycursor.execute(query)
         # Fetch the results
         results = mycursor.fetchall()
@@ -182,5 +183,5 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
     except Exception as error:
         logging.error(f"Error: {error}")
         print("Error ", error)
-        return {"status": "false", "error": str(error)}
+        return {"status": "False", "error": str(error)}
 

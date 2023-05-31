@@ -14,8 +14,8 @@ info_tables = {
         "cedula": "CEDULA",
         "nombre": "NOMBRE",
         "fecha_nacimiento": "FECHA DE NACIMIENTO",
+        "lugar_expedicion": "LUGAR EXPEDICION C.C.",
         "genero": "GENERO",
-        "edad": "EDAD",
         "rh": "RH",
         "estado_civil": "ESTADO CIVIL",
         "hijos": "# HIJOS",
@@ -38,7 +38,7 @@ info_tables = {
     },
     "employment_information": {
         "cedula": "CEDULA",
-        "fecha_afiliacion": "FECHA AFILIACION",
+        "fecha_afiliacion_eps": "FECHA AFILIACION",
         "eps": "EPS",
         "pension": "PENSION",
         "cesantias": "CESANTIAS",
@@ -55,16 +55,16 @@ info_tables = {
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
         "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
-    "performance_evaluation": {
-        "cedula": "CEDULA",
-        "desempeno_1_sem_2016": "E. DESEMPEÑO I SEM 2016",
-        "desempeno_2_sem_2016": "E. DESEMPEÑO II SEM 2016",
-        "desempeno_2017": "E. DESEMPEÑO 2017",
-        "desempeno_2018": "E. DESEMPEÑO 2018",
-        "desempeno_2019": "E. DESEMPEÑO 2019",
-        "desempeno_2020": "E. DESEMPEÑO 2020",
-        "desempeno_2021": "E. DESEMPEÑO 2021"
-    },
+    # "performance_evaluation": {
+    #     "cedula": "CEDULA",
+    #     "desempeno_1_sem_2016": "E. DESEMPEÑO I SEM 2016",
+    #     "desempeno_2_sem_2016": "E. DESEMPEÑO II SEM 2016",
+    #     "desempeno_2017": "E. DESEMPEÑO 2017",
+    #     "desempeno_2018": "E. DESEMPEÑO 2018",
+    #     "desempeno_2019": "E. DESEMPEÑO 2019",
+    #     "desempeno_2020": "E. DESEMPEÑO 2020",
+    #     "desempeno_2021": "E. DESEMPEÑO 2021"
+    # },
     "disciplinary_actions": {
         "cedula": "CEDULA",
         "falta": "LLAMADO DE ATENCIÓN",
@@ -75,8 +75,7 @@ info_tables = {
     "vacation_information": {
         "cedula": "CEDULA",
         "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
-        "periodo_tomado_vacaciones": "# PERIODO TOMADOS VACACIONES",
-        "periodos_faltantes_vacaciones": "PERIODOS FALTANTES VACACIONES",
+        "dias_utilizados": "# PERIODO TOMADOS VACACIONES",
         "fecha_salida_vacaciones": "FECHA SALIDA VACACIONES",
         "fecha_ingreso_vacaciones": "FECHA INGRESO VACACIONES"
     },
@@ -111,21 +110,35 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
             for column, mapping in column_mapping.items():
                 row[mapping] = row[mapping].upper()
                 print(column)
-                if column in ['fecha_nacimiento', 'fecha_afiliacion', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
+                if column in ['fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
                     date_string = row[mapping]
+                    print("fecha",date_string)
                     if date_string in ['',' ','NO','0/01/1900','N/A'] or len(date_string) > 10:
                         formatted_date = None
+                        if column in ['fecha_nacimiento']:
+                            formatted_date = '1000-01-01'
                     else:
                         date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
                         formatted_date = date_object.strftime('%Y-%m-%d')
+                    print(formatted_date)
                     column_values[column] = formatted_date
-                elif column in ['salario', 'subsidio_transporte', 'desempeno_1_sem_2016', 'desempeno_2_sem_2016', 'desempeno_2017', 'desempeno_2018', 'desempeno_2019', 'desempeno_2020', 'desempeno_2021', 'periodo_tomado_vacaciones', 'periodos_faltantes_vacaciones','personas_a_cargo','hijos','estrato','edad','cedula']:
+                elif column in ['salario','tel_fijo' 'subsidio_transporte','dias_utilizados','personas_a_cargo','hijos','estrato','edad','cedula']:
                     integer = row[mapping]
                     integer = re.sub(r'\D', '', integer)
-                    if integer in ['','SIN INFORMACIÓN','933420000000000']:
+                    if integer in ['','SIN INFORMACIÓN','933420000000000',' $ - ']:
                         integer = None
+                        if column in ['personas_a_cargo','hijos','estrato']:
+                            integer = 0
+                    if column == 'dias_utilizados' and integer is not None:
+                        integer = int(integer)*15
                     print(integer)
                     column_values[column] = integer
+                elif column in ['lugar_expedicion']:
+                    texto = row[mapping]
+                    if texto in ['','SIN INFORMACIÓN']:
+                        texto = None
+                    elif texto == 'BOGOTÁ D.C.':
+                        texto = 'BOGOTA'
                 elif column in ['estado']:
                     estado = row[mapping]
                     print(estado)
@@ -134,13 +147,28 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                     elif estado == 'RETIRADO':
                         estado = 0
                     column_values[column] = estado
+                elif column == 'LLAMADO DE ATENCIÓN':
+                    query = "INSERT INTO disciplinary_actions (cedula, falta, tipo_sancion, sancion,fecha_faltas) VALUES (%s, %s, %s, %s, %s)"
+                    cursor.execute(query, (row["cedula"], row["LLAMADO DE ATENCIÓN"],None, None, None))
+                elif column == 'MEMORANDO 1':
+                    query = "INSERT INTO disciplinary_actions (cedula, falta, tipo_sancion, sancion,fecha_faltas) VALUES (%s, %s, %s, %s, %s)"
+                    cursor.execute(query, (row["cedula"], row["MEMORANDO 1"],None, None, None))
+                elif column == 'MEMORANDO 2':
+                    query = "INSERT INTO disciplinary_actions (cedula, falta, tipo_sancion, sancion,fecha_faltas) VALUES (%s, %s, %s, %s, %s)"
+                    cursor.execute(query, (row["cedula"], row["MEMORANDO 2"],None, None, None))
+                elif column == 'MEMORANDO 3':
+                    query = "INSERT INTO disciplinary_actions (cedula, falta, tipo_sancion, sancion,fecha_faltas) VALUES (%s, %s, %s, %s, %s)"
+                    cursor.execute(query, (row["cedula"], row["MEMORANDO 3"],None, None, None))
                 else:
                     column_values[column] = row[mapping]
+            # if 'estado' in column_values and column_values['estado'] == 0:
+            #     column_values['dias_utilizados'] = None
             column_names = ', '.join(column_values.keys())
             placeholders = ', '.join(['%s'] * len(column_values))
             update_columns = ', '.join([f"{column} = VALUES({column})" for column in column_values])
             query = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders}) ON DUPLICATE KEY UPDATE {update_columns}"
             try:
+                print(query , tuple(column_values.values()))
                 cursor.execute(query, tuple(column_values.values()))
             except Exception as e:
                 logging.error(f"Error inserting row into {table} table, error: ",e)

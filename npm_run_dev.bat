@@ -1,2 +1,2 @@
-cd /D S:\staffnet_react2
+cd /D D:\StaffNet
 npm run dev

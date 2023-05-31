@@ -23,6 +23,7 @@ import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import EmployeeHistory from "./EmployeeHistory";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -43,11 +44,12 @@ const HomeView = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [permissions, setPermissions] = useState("");
     const [dataCalculateAge, setDataCalculateAge] = useState();
-    const [seniority, setSeniority] = useState(1);
+    const [seniority, setSeniority] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [severityAlert, setSeverityAlert] = React.useState("info");
     const [file, setFile] = useState(null);
     const [gender, setGender] = useState("");
+    const [cedulaDetails, setCedulaDetails] = React.useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,7 +63,6 @@ const HomeView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                console.log(data);
                 if ("info" in data) {
                     setAccess(true);
                     setTableData(data.info.data);
@@ -96,16 +97,20 @@ const HomeView = () => {
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
             age--;
         }
-        return age;
+        return age + " años";
     };
-    const calculateSeniority = (seniority) => {
-        if (!isNaN(seniority) && seniority !== undefined) {
-            const fechaIngreso = new Date(seniority);
+
+    const calculateSeniority = (affiliationDate) => {
+        if (affiliationDate !== undefined) {
+            const fechaIngreso = new Date(affiliationDate);
             const fechaActual = new Date();
-            const antiguedadEnAños = fechaActual.getFullYear() - fechaIngreso.getFullYear();
-            setSeniority(antiguedadEnAños);
+            const antiguedadEnMeses = (fechaActual.getFullYear() - fechaIngreso.getFullYear()) * 12 + (fechaActual.getMonth() - fechaIngreso.getMonth());
+            const antiguedadEnAños = Math.floor(antiguedadEnMeses / 12);
+            const antiguedadEnMesesRestantes = antiguedadEnMeses % 12;
+            return antiguedadEnAños + " años y " + antiguedadEnMesesRestantes + " meses";
         }
     };
+
     const handleOpenModalAdd = () => {
         setOpenModalAdd(true);
         setFormData({});
@@ -123,24 +128,24 @@ const HomeView = () => {
             console.error("error:", message);
         }
     };
-    const handleOpenModal = (cedula) => {
+    const handleOpenModal = (identificador) => {
+        setCedulaDetails(identificador);
         setProgressBar(true);
-        const request_get = {
-            cedula: cedula,
-        };
+
         const getJoinInfo = async () => {
             try {
                 const response = await fetch("https://staffnetback.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(request_get),
+                    body: JSON.stringify({ cedula: identificador }),
                 });
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
                 const data = await response.json();
                 if (data.status === "success") {
+                    console.log(data.data);
                     setProgressBar(false);
                     setDetalles(data.data[0]);
                     setOpenModal(true);
@@ -169,7 +174,7 @@ const HomeView = () => {
         { field: "correo", headerName: "Correo", width: 230 },
         { field: "campana", headerName: "Campaña", width: 100 },
         { field: "gerencia", headerName: "Gerencia", width: 100 },
-        { field: "cargo", headerName: "Cargo", width: 170 },
+        { field: "cargo", headerName: "Cargo", width: 240 },
         {
             field: "detalles",
             headerName: "Detalles",
@@ -186,23 +191,23 @@ const HomeView = () => {
             },
         },
 
-        {
-            field: "estado",
-            headerName: "Estado",
-            width: 80,
-            renderCell: (params) => {
-                const { row } = params;
-                if (permissions.disable == 1) {
-                    return (
-                        <Tooltip title={row.estado ? "Inhabilitar" : "Habilitar"}>
-                            <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
-                        </Tooltip>
-                    );
-                } else {
-                    return <Switch disabled checked={row.estado} />;
-                }
-            },
-        },
+        // {
+        //     field: "estado",
+        //     headerName: "Estado",
+        //     width: 80,
+        //     renderCell: (params) => {
+        //         const { row } = params;
+        //         if (permissions.disable == 1) {
+        //             return (
+        //                 <Tooltip title={row.estado ? "Inhabilitar" : "Habilitar"}>
+        //                     <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
+        //                 </Tooltip>
+        //             );
+        //         } else {
+        //             return <Switch disabled checked={row.estado} />;
+        //         }
+        //     },
+        // },
     ];
 
     const pageInputs = [
@@ -229,14 +234,14 @@ const HomeView = () => {
                 },
                 {
                     id: "fecha_expedicion",
-                    label: "Fecha de expedition",
+                    label: "Fecha de expedición",
                     name: "fecha_expedicion",
                     type: "date",
                     shrink: true,
                 },
                 {
                     id: "2",
-                    label: "Nombre",
+                    label: "Nombre Completo",
                     name: "nombre",
                     type: "text",
                 },
@@ -254,11 +259,11 @@ const HomeView = () => {
                     name: "genero",
                     type: "select",
                     options: [
-                        { value: "Femenino", label: "Femenino" },
-                        { value: "Masculino", label: "Masculino" },
+                        { value: "FEMENINO", label: "Femenino" },
+                        { value: "MASCULINO", label: "Masculino" },
                     ],
                 },
-                { id: "5", label: "Edad", name: "edad", type: "number" },
+                { id: "5", label: "Edad", name: "edad", type: "text" },
                 {
                     id: "7",
                     label: "RH",
@@ -280,12 +285,12 @@ const HomeView = () => {
                     name: "estado_civil",
                     type: "select",
                     options: [
-                        { value: "Casado(a)", label: "Casado(a)" },
-                        { value: "Divorciado(a)", label: "Divorciado(a)" },
-                        { value: "Separado(a)", label: "Separado(a)" },
-                        { value: "Soltero(a)", label: "Soltero(a)" },
-                        { value: "Union Libre(a)", label: "Union Libre" },
-                        { value: "Viudo(a)", label: "Viudo(a)" },
+                        { value: "CASADO(A)", label: "Casado(a)" },
+                        { value: "DIVORCIADO(A)", label: "Divorciado(a)" },
+                        { value: "SEPARADO(A)", label: "Separado(a)" },
+                        { value: "SOLTERO(A)", label: "Soltero(a)" },
+                        { value: "UNION LIBRE(A)", label: "Union Libre" },
+                        { value: "VIUDO(A)", label: "Viudo(a)" },
                     ],
                 },
                 {
@@ -294,6 +299,7 @@ const HomeView = () => {
                     name: "hijos",
                     type: "select",
                     options: [
+                        { value: "0", label: "0" },
                         { value: "1", label: "1" },
                         { value: "2", label: "2" },
                         { value: "3", label: "3" },
@@ -307,6 +313,7 @@ const HomeView = () => {
                     name: "personas_a_cargo",
                     type: "select",
                     options: [
+                        { value: "0", label: "0" },
                         { value: "1", label: "1" },
                         { value: "2", label: "2" },
                         { value: "3", label: "3" },
@@ -361,17 +368,18 @@ const HomeView = () => {
                     name: "parentesco",
                     type: "select",
                     options: [
-                        { value: "Abuelo(a)", label: "Abuelo(a)" },
-                        { value: "Amigo(a)", label: "Amigo(a)" },
-                        { value: "Esposo(a)", label: "Esposo(a)" },
-                        { value: "Familiar(a)", label: "Familiar" },
-                        { value: "Hermano(a)", label: "Hermano(a)" },
-                        { value: "Hijo(a)", label: "Hijo(a)" },
-                        { value: "Madre(a)", label: "Madre(a)" },
-                        { value: "Padre(a)", label: "Padre(a)" },
-                        { value: "Pareja(a)", label: "Pareja(a)" },
-                        { value: "Primo(a)", label: "Primo(a)" },
-                        { value: "Tio(a)", label: "Tio(a)" },
+                        { value: "", label: "Seleccione una opción" },
+                        { value: "ABUELO(A)", label: "Abuelo(a)" },
+                        { value: "AMIGO(A)", label: "Amigo(a)" },
+                        { value: "ESPOSO(A)", label: "Esposo(a)" },
+                        { value: "FAMILIAR(A)", label: "Familiar" },
+                        { value: "HERMANO(A)", label: "Hermano(a)" },
+                        { value: "HIJO(A)", label: "Hijo(a)" },
+                        { value: "MADRE(A)", label: "Madre(a)" },
+                        { value: "PADRE(A)", label: "Padre(a)" },
+                        { value: "PAREJA(A)", label: "Pareja(a)" },
+                        { value: "PRIMO(A)", label: "Primo(a)" },
+                        { value: "TIO(A)", label: "Tio(a)" },
                     ],
                 },
                 {
@@ -392,14 +400,14 @@ const HomeView = () => {
                     name: "nivel_escolaridad",
                     type: "select",
                     options: [
-                        { value: "Primaria", label: "Primaria" },
-                        { value: "Bachiller", label: "Bachiller" },
-                        { value: "Técnico", label: "Técnico" },
-                        { value: "Tecnólogo", label: "Tecnólogo" },
-                        { value: "Auxiliar", label: "Auxiliar" },
-                        { value: "Universitario(a)", label: "Universitario" },
-                        { value: "Profesional", label: "Profesional" },
-                        { value: "Especialización", label: "Especialización" },
+                        { value: "PRIMARIA", label: "Primaria" },
+                        { value: "BACHILLER", label: "Bachiller" },
+                        { value: "TÉCNICO", label: "Técnico" },
+                        { value: "TECNÓLOGO", label: "Tecnólogo" },
+                        { value: "AUXILIAR", label: "Auxiliar" },
+                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
+                        { value: "PROFESIONAL", label: "Profesional" },
+                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
                     ],
                 },
                 {
@@ -426,9 +434,9 @@ const HomeView = () => {
                     name: "sede",
                     type: "select",
                     options: [
-                        { value: "bogota", label: "Bogotá D.C" },
-                        { value: "bucaramanga", label: "Bucaramanga" },
-                        { value: "medellin", label: "Medellin" },
+                        { value: "BOGOTA", label: "Bogotá D.C" },
+                        { value: "BUCARAMANGA", label: "Bucaramanga" },
+                        { value: "MEDELLIN", label: "Medellin" },
                     ],
                 },
                 {
@@ -442,7 +450,7 @@ const HomeView = () => {
                     id: "antiguedad",
                     label: "Antiguedad",
                     name: "antiguedad",
-                    type: "number",
+                    type: "text",
                     shrink: true,
                 },
                 {
@@ -451,17 +459,16 @@ const HomeView = () => {
                     name: "eps",
                     type: "select",
                     options: [
-                        { value: "ASMET_SALUD", label: "ASMET SALUD" },
-                        { value: "CAPITAL_SALUD", label: "CAPITAL SALUD" },
+                        { value: "ASMET SALUD", label: "ASMET SALUD" },
+                        { value: "CAPITAL SALUD", label: "CAPITAL SALUD" },
                         { value: "COMPENSAR", label: "COMPENSAR" },
                         { value: "COOSALUD", label: "COOSALUD" },
-                        { value: "COMPENSAR", label: "COMPENSAR" },
                         { value: "FAMISANAR", label: "FAMISANAR" },
                         { value: "N/A", label: "N/A" },
-                        { value: "NUEVA_EPS", label: "NUEVA EPS" },
-                        { value: "SALUD_TOTAL", label: "SALUD TOTAL" },
+                        { value: "NUEVA EPS", label: "NUEVA EPS" },
+                        { value: "SALUD TOTAL", label: "SALUD TOTAL" },
                         { value: "SANITAS", label: "SANITAS" },
-                        { value: "SURA_EPS", label: "SURA EPS" },
+                        { value: "SURA EPS", label: "SURA EPS" },
                     ],
                 },
                 {
@@ -497,13 +504,13 @@ const HomeView = () => {
                         { value: "PROTECCIÓN", label: "PROTECCIÓN" },
                     ],
                 },
-                {
-                    id: "cambio_eps_pension_fecha",
-                    label: "Cambio de eps y fecha de pension",
-                    name: "cambio_eps_pension_fecha",
-                    type: "date",
-                    shrink: true,
-                },
+                // {
+                //     id: "cambio_eps_pension_fecha",
+                //     label: "Cambio de eps y fecha de pension",
+                //     name: "cambio_eps_pension_fecha",
+                //     type: "date",
+                //     shrink: true,
+                // },
                 {
                     id: "cuenta_nomina",
                     label: "Cuenta nomina",
@@ -523,187 +530,58 @@ const HomeView = () => {
                     name: "cargo",
                     type: "select",
                     options: [
-                        {
-                            value: "Analista de Aplicaciones de Contact Center",
-                            label: "Analista de Aplicaciones de Contact Center",
-                        },
-                        {
-                            value: "Analista de BD y Aplicaciones",
-                            label: "Analista de BD y Aplicaciones",
-                        },
-                        {
-                            value: "Analista de Investigación",
-                            label: "Analista de Investigación",
-                        },
-                        {
-                            value: "Analista de Saneamiento",
-                            label: "Analista de Saneamiento",
-                        },
-                        {
-                            value: "Analista de Soporte",
-                            label: "Analista de Soporte",
-                        },
-                        {
-                            value: "Analista Gestión Humana",
-                            label: "Analista Gestión Humana",
-                        },
-                        {
-                            value: "Analista Jurídico",
-                            label: "Analista Jurídico",
-                        },
-                        {
-                            value: "Asesor(a) Comercial",
-                            label: "Asesor(a) Comercial",
-                        },
-                        {
-                            value: "Asesor(a) de Negociación",
-                            label: "Asesor(a) de Negociación",
-                        },
-                        {
-                            value: "Asesor(a) de Negociación jr",
-                            label: "Asesor(a) de Negociación jr",
-                        },
-                        {
-                            value: "Asesor(a) Senior",
-                            label: "Asesor(a) Senior",
-                        },
-                        {
-                            value: "Auxiliar Administrativo",
-                            label: "Auxiliar Administrativo",
-                        },
-                        {
-                            value: "Auxiliar de Licitación",
-                            label: "Auxiliar de Licitación",
-                        },
-                        {
-                            value: "Auxiliar de Recursos Físicos",
-                            label: "Auxiliar de Recursos Físicos",
-                        },
-                        {
-                            value: "Auxiliar Operativo",
-                            label: "Auxiliar Operativo",
-                        },
-                        { value: "Back Office", label: "Back Office" },
-                        {
-                            value: "Coordinador Contable",
-                            label: "Coordinador Contable",
-                        },
-                        {
-                            value: "Coordinador de Capacitación",
-                            label: "Coordinador de Capacitación",
-                        },
-                        {
-                            value: "Coordinador(a) BI",
-                            label: "Coordinador(a) BI",
-                        },
-                        {
-                            value: "Coordinador(a) de BackOffice",
-                            label: "Coordinador(a) de BackOffice",
-                        },
-                        {
-                            value: "Coordinador(a) de Investigaciones",
-                            label: "Coordinador(a) de Investigaciones",
-                        },
-                        {
-                            value: "Coordinador(a) de Planeación y Calidad",
-                            label: "Coordinador(a) de Planeación y Calidad",
-                        },
-                        {
-                            value: "Coordinador(a) de Proyecto",
-                            label: "Coordinador(a) de Proyecto",
-                        },
-                        { value: "Data Marshall", label: "Data Marshall" },
-                        {
-                            value: "Director(a) Analitycs",
-                            label: "Director(a) Analitycs",
-                        },
-                        {
-                            value: "Director(a) de Investigaciones",
-                            label: "Director(a) de Investigaciones",
-                        },
-                        {
-                            value: "Director(a) de Proyecto",
-                            label: "Director(a) de Proyecto",
-                        },
-                        {
-                            value: "Director(a) de Recursos Físicos",
-                            label: "Director(a) de Recursos Físicos",
-                        },
-                        {
-                            value: "Director(a) de SST",
-                            label: "Director(a) de SST",
-                        },
-                        {
-                            value: "Director(a) Jurídico",
-                            label: "Director(a) Jurídico",
-                        },
-                        { value: "Formador", label: "Formador" },
-                        {
-                            value: "Gerente Administrativa",
-                            label: "Gerente Administrativa",
-                        },
-                        {
-                            value: "Gerente de Control Interno",
-                            label: "Gerente de Control Interno",
-                        },
-                        {
-                            value: "Gerente de cuentas",
-                            label: "Gerente de cuentas",
-                        },
-                        {
-                            value: "Gerente de Gestión Humana",
-                            label: "Gerente de Gestión Humana",
-                        },
-                        {
-                            value: "Gerente de Legal y de Riesgo",
-                            label: "Gerente de Legal y de Riesgo",
-                        },
-                        {
-                            value: "Gerente de Mercadeo",
-                            label: "Gerente de Mercadeo",
-                        },
-                        {
-                            value: "Gerente de Operaciones",
-                            label: "Gerente de Operaciones",
-                        },
-                        {
-                            value: "Gerente de Planeación",
-                            label: "Gerente de Planeación",
-                        },
-                        {
-                            value: "Gerente de Tecnología",
-                            label: "Gerente de Tecnología",
-                        },
-                        { value: "Gerente General", label: "Gerente General" },
-                        {
-                            value: "Gerente Jr Infraestructura y Redes",
-                            label: "Gerente Jr Infraestructura y Redes",
-                        },
-                        {
-                            value: "Gerente jr. de Aplicaciones de Contact Center",
-                            label: "Gerente jr.de Aplicaciones de Contact Center",
-                        },
-                        {
-                            value: "Gerente jr. de Mesa de Servicio",
-                            label: "Gerente jr.de Mesa de Servicio",
-                        },
-                        {
-                            value: "Operador Logístico",
-                            label: "Operador Logístico",
-                        },
-                        { value: "Presidente", label: "Presidente" },
-                        { value: "Sena Lectiva", label: "Sena Lectiva" },
-                        { value: "Sena Productiva", label: "Sena Productiva" },
-                        {
-                            value: "Servicios Generales",
-                            label: "Servicios Generales",
-                        },
-                        { value: "Supernumerario", label: "Supernumerario" },
-                        {
-                            value: "Supervisor(a) de Calidad",
-                            label: "Supervisor(a) de Calidad",
-                        },
-                        { value: "en blanco", label: "En blanco" },
+                        { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
+                        { value: "ANALISTA DE BD Y APLICACIONES", label: "Analista de BD y Aplicaciones" },
+                        { value: "ANALISTA DE INVESTIGACIÓN", label: "Analista de Investigación" },
+                        { value: "ANALISTA DE SANEAMIENTO", label: "Analista de Saneamiento" },
+                        { value: "ANALISTA DE SOPORTE", label: "Analista de Soporte" },
+                        { value: "ANALISTA GESTIÓN HUMANA", label: "Analista Gestión Humana" },
+                        { value: "ANALISTA JURÍDICO", label: "Analista Jurídico" },
+                        { value: "ASESOR(A) COMERCIAL", label: "Asesor(a) Comercial" },
+                        { value: "ASESOR(A) DE NEGOCIACIÓN", label: "Asesor(a) de Negociación" },
+                        { value: "ASESOR(A) DE NEGOCIACIÓN JR", label: "Asesor(a) de Negociación jr" },
+                        { value: "ASESOR(A) SENIOR", label: "Asesor(a) Senior" },
+                        { value: "AUXILIAR ADMINISTRATIVO", label: "Auxiliar Administrativo" },
+                        { value: "AUXILIAR DE LICITACIÓN", label: "Auxiliar de Licitación" },
+                        { value: "AUXILIAR DE RECURSOS FÍSICOS", label: "Auxiliar de Recursos Físicos" },
+                        { value: "AUXILIAR OPERATIVO", label: "Auxiliar Operativo" },
+                        { value: "BACK OFFICE", label: "Back Office" },
+                        { value: "COORDINADOR CONTABLE", label: "Coordinador Contable" },
+                        { value: "COORDINADOR DE CAPACITACIÓN", label: "Coordinador de Capacitación" },
+                        { value: "COORDINADOR(A) BI", label: "Coordinador(a) BI" },
+                        { value: "COORDINADOR(A) DE BACKOFFICE", label: "Coordinador(a) de BackOffice" },
+                        { value: "COORDINADOR(A) DE INVESTIGACIONES", label: "Coordinador(a) de Investigaciones" },
+                        { value: "COORDINADOR(A) DE PLANEACIÓN Y CALIDAD", label: "Coordinador(a) de Planeación y Calidad" },
+                        { value: "COORDINADOR(A) DE PROYECTO", label: "Coordinador(a) de Proyecto" },
+                        { value: "DATA MARSHALL", label: "Data Marshall" },
+                        { value: "DIRECTOR(A) ANALITYCS", label: "Director(a) Analitycs" },
+                        { value: "DIRECTOR(A) DE INVESTIGACIONES", label: "Director(a) de Investigaciones" },
+                        { value: "DIRECTOR(A) DE PROYECTO", label: "Director(a) de Proyecto" },
+                        { value: "DIRECTOR(A) DE RECURSOS FÍSICOS", label: "Director(a) de Recursos Físicos" },
+                        { value: "DIRECTOR(A) DE SST", label: "Director(a) de SST" },
+                        { value: "DIRECTOR(A) JURÍDICO", label: "Director(a) Jurídico" },
+                        { value: "FORMADOR", label: "Formador" },
+                        { value: "GERENTE ADMINISTRATIVA", label: "Gerente Administrativa" },
+                        { value: "GERENTE DE CONTROL INTERNO", label: "Gerente de Control Interno" },
+                        { value: "GERENTE DE CUENTAS", label: "Gerente de cuentas" },
+                        { value: "GERENTE DE GESTIÓN HUMANA", label: "Gerente de Gestión Humana" },
+                        { value: "GERENTE DE LEGAL Y DE RIESGO", label: "Gerente de Legal y de Riesgo" },
+                        { value: "GERENTE DE MERCADEO", label: "Gerente de Mercadeo" },
+                        { value: "GERENTE DE OPERACIONES", label: "Gerente de Operaciones" },
+                        { value: "GERENTE DE PLANEACIÓN", label: "Gerente de Planeación" },
+                        { value: "GERENTE DE TECNOLOGÍA", label: "Gerente de Tecnología" },
+                        { value: "GERENTE GENERAL", label: "Gerente General" },
+                        { value: "GERENTE JR INFRAESTRUCTURA Y REDES", label: "Gerente Jr Infraestructura y Redes" },
+                        { value: "GERENTE JR. DE APLICACIONES DE CONTACT CENTER", label: "Gerente jr.de Aplicaciones de Contact Center" },
+                        { value: "GERENTE JR. DE MESA DE SERVICIO", label: "Gerente jr.de Mesa de Servicio" },
+                        { value: "OPERADOR LOGÍSTICO", label: "Operador Logístico" },
+                        { value: "PRESIDENTE", label: "Presidente" },
+                        { value: "SENA LECTIVA", label: "Sena Lectiva" },
+                        { value: "SENA PRODUCTIVA", label: "Sena Productiva" },
+                        { value: "SERVICIOS GENERALES", label: "Servicios Generales" },
+                        { value: "SUPERNUMERARIO", label: "Supernumerario" },
+                        { value: "SUPERVISOR(A) DE CALIDAD", label: "Supervisor(a) de Calidad" },
+                        { value: "EN BLANCO", label: "En blanco" },
                     ],
                 },
                 {
@@ -713,31 +591,31 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         {
-                            value: "Planeación",
+                            value: "PLANEACIÓN",
                             label: "Planeación",
                         },
                         {
-                            value: "Administrativa",
+                            value: "ADMINISTRATIVA",
                             label: "Administrativa",
                         },
                         {
-                            value: "Legal_Riesgo",
+                            value: "LEGAL RIESGO",
                             label: "Legal y Riesgo",
                         },
                         {
-                            value: "Tecnología",
+                            value: "TECNOLOGÍA",
                             label: "Tecnología",
                         },
                         {
-                            value: "Gestión_Humana",
+                            value: "GESTIÓN HUMANA",
                             label: "Gestión Humana",
                         },
                         {
-                            value: "Azteca",
+                            value: "AZTECA",
                             label: "Azteca",
                         },
                         {
-                            value: "Banco_Agrario",
+                            value: "BANCO AGRARIO",
                             label: "Banco Agrario",
                         },
                         {
@@ -745,139 +623,139 @@ const HomeView = () => {
                             label: "BBVA",
                         },
                         {
-                            value: "Claro",
+                            value: "CLARO",
                             label: "Claro",
                         },
                         {
-                            value: "Claro_Digital",
+                            value: "CLARO DIGITAL",
                             label: "Claro Digital",
                         },
                         {
-                            value: "Codensa",
+                            value: "CODENSA",
                             label: "Codensa",
                         },
                         {
-                            value: "Coomeva_Cartera",
+                            value: "COOMEVA CARTERA",
                             label: "Coomeva Cartera",
                         },
                         {
-                            value: "Coomeva_CEM",
+                            value: "COOMEVA CEM",
                             label: "Coomeva CEM",
                         },
                         {
-                            value: "Coomeva_MP",
+                            value: "COOMEVA MP",
                             label: "Coomeva MP",
                         },
                         {
-                            value: "Credibanco",
+                            value: "CREDIBANCO",
                             label: "Credibanco",
                         },
                         {
-                            value: "Dinerum",
+                            value: "DINERUM",
                             label: "Dinerum",
                         },
                         {
-                            value: "Falabella",
+                            value: "FALABELLA",
                             label: "Falabella",
                         },
                         {
-                            value: "Falabella_Medellín",
+                            value: "FALABELLA MEDELLÍN",
                             label: "Falabella Medellín",
                         },
                         {
-                            value: "Dinerum",
+                            value: "DINERUM",
                             label: "Dinerum",
                         },
                         {
-                            value: "Finandina",
+                            value: "FINANDINA",
                             label: "Finandina",
                         },
                         {
-                            value: "Gerencia_Administrativa",
+                            value: "GERENCIA ADMINISTRATIVA",
                             label: "Gerencia Administrativa",
                         },
                         {
-                            value: "Gerencia_Legal_Riesgo",
+                            value: "GERENCIA LEGAL RIESGO",
                             label: "Gerencia de Legal y Riesgo",
                         },
                         {
-                            value: "Gerencia_Mercadeo",
+                            value: "GERENCIA MERCADEO",
                             label: "Gerencia de Mercadeo",
                         },
                         {
-                            value: "Gerencia_Operaciones",
+                            value: "GERENCIA OPERACIONES",
                             label: "Gerencia de peraciones",
                         },
                         {
-                            value: "Gerencia_Planeación",
+                            value: "GERENCIA PLANEACIÓN",
                             label: "Gerencia de Planeación",
                         },
                         {
-                            value: "Gerencia_Riesgo_Control_Interno",
+                            value: "GERENCIA RIESGO CONTROL INTERNO",
                             label: "Gerencia de Riesgo y Control Interno",
                         },
                         {
-                            value: "Gerencia_Tecnología",
+                            value: "GERENCIA TECNOLOGÍA",
                             label: "Gerencia de Tecnología",
                         },
                         {
-                            value: "Gerencia_General",
+                            value: "GERENCIA GENERAL",
                             label: "Gerencia General",
                         },
                         {
-                            value: "Gerencia_Gestión_Humana",
+                            value: "GERENCIA GESTIÓN HUMANA",
                             label: "Gerencia Gestión Humana",
                         },
                         {
-                            value: "Liberty",
+                            value: "LIBERTY",
                             label: "Liberty",
                         },
                         {
-                            value: "MetLife",
+                            value: "METLIFE",
                             label: "MetLife",
                         },
                         {
-                            value: "Nueva_EPS",
+                            value: "NUEVA EPS",
                             label: "Nueva EPS",
                         },
                         {
-                            value: "Pay_U",
+                            value: "PAY U",
                             label: "Pay-U",
                         },
                         {
-                            value: "Presidencial",
+                            value: "PRESIDENCIAL",
                             label: "Presidencial",
                         },
                         {
-                            value: "Recursos_Físicos ",
+                            value: "RECURSOS FÍSICOS ",
                             label: "Recursos Físicos ",
                         },
                         {
-                            value: "Scotiabank_Colpatria",
+                            value: "SCOTIABANK COLPATRIA",
                             label: "Scotiabank Colpatria",
                         },
                         {
-                            value: "Sura",
+                            value: "SURA",
                             label: "Sura",
                         },
                         {
-                            value: "Yanbal_Bogotá",
+                            value: "YANBAL BOGOTÁ",
                             label: "Yanbal Bogotá",
                         },
                         {
-                            value: "Yanbal_Bucaramanga",
+                            value: "YANBAL BUCARAMANGA",
                             label: "Yanbal Bucaramanga",
                         },
                         {
-                            value: "Yanbal_Ibague",
+                            value: "YANBAL IBAGUE",
                             label: "Yanbal Ibague",
                         },
                         {
-                            value: "Yanbal_Medellín",
+                            value: "YANBAL MEDELLÍN",
                             label: "Yanbal Medellín",
                         },
                         {
-                            value: "Yanbal_Villavicencio",
+                            value: "YANBAL VILLAVICENCIO",
                             label: "Yanbal Villavicencio",
                         },
                     ],
@@ -889,31 +767,31 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         {
-                            value: "Planeación",
+                            value: "PLANEACIÓN",
                             label: "Planeación",
                         },
                         {
-                            value: "Administrativa",
+                            value: "ADMINISTRATIVA",
                             label: "Administrativa",
                         },
                         {
-                            value: "Legal_Riesgo",
+                            value: "LEGAL RIESGO",
                             label: "Legal y Riesgo",
                         },
                         {
-                            value: "Tecnología",
+                            value: "TECNOLOGÍA",
                             label: "Tecnología",
                         },
                         {
-                            value: "Gestión_Humana",
+                            value: "GESTIÓN HUMANA",
                             label: "Gestión Humana",
                         },
                         {
-                            value: "Azteca",
+                            value: "AZTECA",
                             label: "Azteca",
                         },
                         {
-                            value: "Banco_Agrario",
+                            value: "BANCO AGRARIO",
                             label: "Banco Agrario",
                         },
                         {
@@ -921,139 +799,139 @@ const HomeView = () => {
                             label: "BBVA",
                         },
                         {
-                            value: "Claro",
+                            value: "CLARO",
                             label: "Claro",
                         },
                         {
-                            value: "Claro_Digital",
+                            value: "CLARO DIGITAL",
                             label: "Claro Digital",
                         },
                         {
-                            value: "Codensa",
+                            value: "CODENSA",
                             label: "Codensa",
                         },
                         {
-                            value: "Coomeva_Cartera",
+                            value: "COOMEVA CARTERA",
                             label: "Coomeva Cartera",
                         },
                         {
-                            value: "Coomeva_CEM",
+                            value: "COOMEVA CEM",
                             label: "Coomeva CEM",
                         },
                         {
-                            value: "Coomeva_MP",
+                            value: "COOMEVA MP",
                             label: "Coomeva MP",
                         },
                         {
-                            value: "Credibanco",
+                            value: "CREDIBANCO",
                             label: "Credibanco",
                         },
                         {
-                            value: "Dinerum",
+                            value: "DINERUM",
                             label: "Dinerum",
                         },
                         {
-                            value: "Falabella",
+                            value: "FALABELLA",
                             label: "Falabella",
                         },
                         {
-                            value: "Falabella_Medellín",
+                            value: "FALABELLA MEDELLÍN",
                             label: "Falabella Medellín",
                         },
                         {
-                            value: "Dinerum",
+                            value: "DINERUM",
                             label: "Dinerum",
                         },
                         {
-                            value: "Finandina",
+                            value: "FINANDINA",
                             label: "Finandina",
                         },
                         {
-                            value: "Gerencia_Administrativa",
+                            value: "GERENCIA ADMINISTRATIVA",
                             label: "Gerencia Administrativa",
                         },
                         {
-                            value: "Gerencia_Legal_Riesgo",
+                            value: "GERENCIA LEGAL RIESGO",
                             label: "Gerencia de Legal y Riesgo",
                         },
                         {
-                            value: "Gerencia_Mercadeo",
+                            value: "GERENCIA MERCADEO",
                             label: "Gerencia de Mercadeo",
                         },
                         {
-                            value: "Gerencia_Operaciones",
+                            value: "GERENCIA OPERACIONES",
                             label: "Gerencia de peraciones",
                         },
                         {
-                            value: "Gerencia_Planeación",
+                            value: "GERENCIA PLANEACIÓN",
                             label: "Gerencia de Planeación",
                         },
                         {
-                            value: "Gerencia_Riesgo_Control_Interno",
+                            value: "GERENCIA RIESGO CONTROL INTERNO",
                             label: "Gerencia de Riesgo y Control Interno",
                         },
                         {
-                            value: "Gerencia_Tecnología",
+                            value: "GERENCIA TECNOLOGÍA",
                             label: "Gerencia de Tecnología",
                         },
                         {
-                            value: "Gerencia_General",
+                            value: "GERENCIA GENERAL",
                             label: "Gerencia General",
                         },
                         {
-                            value: "Gerencia_Gestión_Humana",
+                            value: "GERENCIA GESTIÓN HUMANA",
                             label: "Gerencia Gestión Humana",
                         },
                         {
-                            value: "Liberty",
+                            value: "LIBERTY",
                             label: "Liberty",
                         },
                         {
-                            value: "MetLife",
+                            value: "METLIFE",
                             label: "MetLife",
                         },
                         {
-                            value: "Nueva_EPS",
+                            value: "NUEVA EPS",
                             label: "Nueva EPS",
                         },
                         {
-                            value: "Pay_U",
+                            value: "PAY U",
                             label: "Pay-U",
                         },
                         {
-                            value: "Presidencial",
+                            value: "PRESIDENCIAL",
                             label: "Presidencial",
                         },
                         {
-                            value: "Recursos_Físicos ",
+                            value: "RECURSOS FÍSICOS ",
                             label: "Recursos Físicos ",
                         },
                         {
-                            value: "Scotiabank_Colpatria",
+                            value: "SCOTIABANK COLPATRIA",
                             label: "Scotiabank Colpatria",
                         },
                         {
-                            value: "Sura",
+                            value: "SURA",
                             label: "Sura",
                         },
                         {
-                            value: "Yanbal_Bogotá",
+                            value: "YANBAL BOGOTÁ",
                             label: "Yanbal Bogotá",
                         },
                         {
-                            value: "Yanbal_Bucaramanga",
+                            value: "YANBAL BUCARAMANGA",
                             label: "Yanbal Bucaramanga",
                         },
                         {
-                            value: "Yanbal_Ibague",
+                            value: "YANBAL IBAGUE",
                             label: "Yanbal Ibague",
                         },
                         {
-                            value: "Yanbal_Medellín",
+                            value: "YANBAL MEDELLÍN",
                             label: "Yanbal Medellín",
                         },
                         {
-                            value: "Yanbal_Villavicencio",
+                            value: "YANBAL VILLAVICENCIO",
                             label: "Yanbal Villavicencio",
                         },
                     ],
@@ -1064,8 +942,8 @@ const HomeView = () => {
                     name: "area_negocio",
                     type: "select",
                     options: [
-                        { value: "Dirección", label: "Dirección" },
-                        { value: "Negocio", label: "Negocio" },
+                        { value: "DIRECCÍON", label: "Dirección" },
+                        { value: "NEGOCIO", label: "Negocio" },
                     ],
                 },
                 {
@@ -1075,93 +953,52 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         {
-                            value: "Contrato a término indefinido",
+                            value: "CONTRATO A TÉRMINO INDEFINIDO",
                             label: "Contrato a término indefinido",
                         },
                         {
-                            value: "Contrato a término fijo",
+                            value: "CONTRATO A TÉRMINO FIJO",
                             label: "Contrato a término fijo",
                         },
                         {
-                            value: "Obra o Labor",
+                            value: "OBRA O LABOR",
                             label: "Obra o Labor",
                         },
                         {
-                            value: "Prestación de Servicio",
+                            value: "PRESTACIÓN DE SERVICIO",
                             label: "Prestación de Servicio",
                         },
                         {
-                            value: "Contrato de aprendizaje",
+                            value: "CONTRATO DE APRENDIZAJE",
                             label: "Contrato de aprendizaje",
                         },
                     ],
                 },
                 {
-                    id: "salario_2023",
-                    label: "Salario 2023",
-                    name: "salario_2023",
+                    id: "salario",
+                    label: "Salario",
+                    name: "salario",
                     type: "number",
                 },
                 {
-                    id: "subsidio_transporte_2023",
+                    id: "subsidio_transporte",
                     label: "Subsidio de transporte 2023",
-                    name: "subsidio_transporte_2023",
+                    name: "subsidio_transporte",
                     type: "number",
                 },
+                // {
+                //     id: "fecha_cambio_campana_periodo_prueba",
+                //     label: "Fecha de cambio de campaña y periodo de prueba",
+                //     name: "fecha_cambio_campana_periodo_prueba",
+                //     type: "date",
+                //     shrink: true,
+                // },
                 {
-                    id: "fecha_cambio_campana_periodo_prueba",
-                    label: "Fecha de cambio de campaña y periodo de prueba",
-                    name: "fecha_cambio_campana_periodo_prueba",
-                    type: "date",
+                    id: "desempeño",
+                    label: "Desempeño",
+                    name: "desempeño",
+                    type: "text",
                     shrink: true,
-                },
-            ],
-        },
-        // Inputs Pagina Evaluacion de Desempeño
-        {
-            title: "Evaluacion de Desempeño",
-            inputs: [
-                {
-                    id: "41",
-                    label: "Desempeño Primer Semestre 2016",
-                    name: "desempeno_1_sem_2016",
-                    type: "text",
-                },
-                {
-                    id: "42",
-                    label: "Desempeño Segundo Semestre 2016",
-                    name: "desempeno_2_sem_2016",
-                    type: "text",
-                },
-                {
-                    id: "44",
-                    label: "Desempeño 2017",
-                    name: "desempeno_2017",
-                    type: "Number",
-                },
-                {
-                    id: "45",
-                    label: "Desempeño 2018",
-                    name: "desempeno_2018",
-                    type: "Number",
-                },
-                {
-                    id: "46",
-                    label: "Desempeño 2019",
-                    name: "desempeno_2019",
-                    type: "Number",
-                },
-                {
-                    id: "47",
-                    label: "Desempeño 2020",
-                    name: "desempeno_2020",
-                    type: "Number",
-                },
-                {
-                    id: "48",
-                    label: "Desempeño 2021",
-                    name: "desempeno_2021",
-                    type: "Number",
                 },
             ],
         },
@@ -1170,27 +1007,21 @@ const HomeView = () => {
             title: "Acciones Disciplinarias",
             inputs: [
                 {
-                    id: "49",
-                    label: "Llamado de atencion",
-                    name: "llamado_atencion",
+                    id: "falta",
+                    label: "Falta",
+                    name: "falta",
                     type: "text",
                 },
                 {
-                    id: "50",
-                    label: "Memorando 1",
-                    name: "memorando_1",
+                    id: "tipo_sancion",
+                    label: "Tipo de Sanción",
+                    name: "tipo_sancion",
                     type: "text",
                 },
                 {
-                    id: "51",
-                    label: "Memorando 2",
-                    name: "memorando_2",
-                    type: "text",
-                },
-                {
-                    id: "52",
-                    label: "Memorando 3",
-                    name: "memorando_3",
+                    id: "sancion",
+                    label: "Sansión",
+                    name: "sancion",
                     type: "text",
                 },
             ],
@@ -1250,8 +1081,8 @@ const HomeView = () => {
                     name: "tipo_de_retiro",
                     type: "select",
                     options: [
-                        { value: "Voluntario", label: "Voluntario" },
-                        { value: "Involuntario", label: "Involuntario" },
+                        { value: "VOLUNTARIO", label: "Voluntario" },
+                        { value: "INVOLUNTARIO", label: "Involuntario" },
                     ],
                 },
                 {
@@ -1260,32 +1091,32 @@ const HomeView = () => {
                     name: "motivo_de_retiro",
                     type: "select",
                     options: [
-                        { value: "Baja remuneración", label: "Baja remuneración" },
-                        { value: "Calamidad familiar", label: "Calamidad familiar" },
-                        { value: "Cambio de actividad", label: "Cambio de actividad" },
-                        { value: "Conflictos en relaciones laborales", label: "Conflictos en relaciones laborales" },
-                        { value: "Desplazamiento", label: "Desplazamiento" },
-                        { value: "Estrés laboral", label: "Estrés laboral" },
-                        { value: "Falta de herramientas para  desempeñar la labor", label: "Falta de herramientas para  desempeñar la labor" },
-                        { value: "Falta de inducción al ingresar", label: "Falta de inducción al ingresar" },
-                        { value: "Falta de reconocimiento", label: "Falta de reconocimiento" },
-                        { value: "Horario laboral", label: "Horario laboral" },
-                        { value: "Incompatibilidad con el jefe", label: "Incompatibilidad con el jefe" },
-                        { value: "Mal ambiente laboral", label: "Mal ambiente laboral" },
-                        { value: "Motivos de estudio", label: "Motivos de estudio" },
-                        { value: "Motivos de salud", label: "Motivos de salud" },
-                        { value: "Motivos de viaje", label: "Motivos de viaje" },
-                        { value: "Motivos personales", label: "Motivos personales" },
-                        { value: "No hay oportunidades de crecimiento laboral", label: "No hay oportunidades de crecimiento laboral" },
-                        { value: "No hay oportunidades de estudiar", label: "No hay oportunidades de estudiar" },
-                        { value: "Otro", label: "Otro" },
-                        { value: "Problemas personales", label: "Problemas personales" },
-                        { value: "Terminación de contrato aprendizaje", label: "Terminación de contrato aprendizaje" },
-                        { value: "Terminación de contrato con justa causa", label: "Terminación de contrato con justa causa" },
-                        { value: "Terminación de contrato por periodo de prueba", label: "Terminación de contrato por periodo de prueba" },
-                        { value: "Terminación de contrato sin justa causa", label: "Terminación de contrato sin justa causa" },
-                        { value: "Terminación por abandono de puesto", label: "Terminación por abandono de puesto" },
-                        { value: "Terminación por obra o labor contratada ", label: "Terminación por obra o labor contratada " },
+                        { value: "BAJA REMUNERACIÓN", label: "Baja remuneración" },
+                        { value: "CALAMIDAD FAMILIAR", label: "Calamidad familiar" },
+                        { value: "CAMBIO DE ACTIVIDAD", label: "Cambio de actividad" },
+                        { value: "CONFLICTOS EN RELACIONES LABORALES", label: "Conflictos en relaciones laborales" },
+                        { value: "DESPLAZAMIENTO", label: "Desplazamiento" },
+                        { value: "ESTRÉS LABORAL", label: "Estrés laboral" },
+                        { value: "FALTA DE HERRAMIENTAS PARA  DESEMPEÑAR LA LABOR", label: "Falta de herramientas para  desempeñar la labor" },
+                        { value: "FALTA DE INDUCCIÓN AL INGRESAR", label: "Falta de inducción al ingresar" },
+                        { value: "FALTA DE RECONOCIMIENTO", label: "Falta de reconocimiento" },
+                        { value: "HORARIO LABORAL", label: "Horario laboral" },
+                        { value: "INCOMPATIBILIDAD CON EL JEFE", label: "Incompatibilidad con el jefe" },
+                        { value: "MAL AMBIENTE LABORAL", label: "Mal ambiente laboral" },
+                        { value: "MOTIVOS DE ESTUDIO", label: "Motivos de estudio" },
+                        { value: "MOTIVOS DE SALUD", label: "Motivos de salud" },
+                        { value: "MOTIVOS DE VIAJE", label: "Motivos de viaje" },
+                        { value: "MOTIVOS PERSONALES", label: "Motivos personales" },
+                        { value: "NO HAY OPORTUNIDADES DE CRECIMIENTO LABORAL", label: "No hay oportunidades de crecimiento laboral" },
+                        { value: "NO HAY OPORTUNIDADES DE ESTUDIAR", label: "No hay oportunidades de estudiar" },
+                        { value: "OTRO", label: "Otro" },
+                        { value: "PROBLEMAS PERSONALES", label: "Problemas personales" },
+                        { value: "TERMINACIÓN DE CONTRATO APRENDIZAJE", label: "Terminación de contrato aprendizaje" },
+                        { value: "TERMINACIÓN DE CONTRATO CON JUSTA CAUSA", label: "Terminación de contrato con justa causa" },
+                        { value: "TERMINACIÓN DE CONTRATO POR PERIODO DE PRUEBA", label: "Terminación de contrato por periodo de prueba" },
+                        { value: "TERMINACIÓN DE CONTRATO SIN JUSTA CAUSA", label: "Terminación de contrato sin justa causa" },
+                        { value: "TERMINACIÓN POR ABANDONO DE PUESTO", label: "Terminación por abandono de puesto" },
+                        { value: "TERMINACIÓN POR OBRA O LABOR CONTRATADA ", label: "Terminación por obra o labor contratada " },
                     ],
                 },
                 {
@@ -1304,11 +1135,12 @@ const HomeView = () => {
 
     pageInputs.forEach((page) => {
         page.inputs.forEach((input) => {
-            if (input.name in detalles) {
+            if (detalles && input.name in detalles) {
                 input.value = detalles[input.name];
             }
         });
     });
+
     useEffect(() => {
         const initialInputValues = {};
         pageInputs.forEach((section) => {
@@ -1316,25 +1148,26 @@ const HomeView = () => {
                 initialInputValues[input.name] = input.value;
             });
         });
+
         setInputValues(initialInputValues);
 
         // Calculate the age and the seniority
         const birthDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "3")?.value;
         setDataCalculateAge(calculateAge(birthDate));
+
         const affiliationDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "fecha_afiliacion")?.value;
         setSeniority(calculateSeniority(affiliationDate));
     }, [openModal]);
 
     // Search and table functionality
     useEffect(() => {
-        const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana, estado]) => ({
+        const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana]) => ({
             cedula,
             nombre,
             correo,
             cargo,
             gerencia,
             campana,
-            estado: estado === 1 ? true : false,
         }));
         setRows(newRows);
     }, [tableData]);
@@ -1388,7 +1221,6 @@ const HomeView = () => {
                 const data = await response.json();
                 if (data.status === "success") {
                     setTableResults(updatedTableResults);
-                    console.log(tableResults);
                     setRows(updatedRows);
                 }
             } catch (error) {
@@ -1460,6 +1292,24 @@ const HomeView = () => {
         event.preventDefault();
         setProgressBar(true);
         const insertTransaction = async (formData) => {
+            // let newObj = Object.assign(
+            //     {
+            //         falta: "",
+            //         tipo_sancion: "",
+            //         sancion: "",
+            //         licencia_no_remunerada: "",
+            //         periodo_tomado_vacaciones: "",
+            //         periodos_faltantes_vacaciones: "",
+            //         fecha_salida_vacaciones: "",
+            //         fecha_ingreso_vacaciones: "",
+            //         fecha_retiro: "2021-01-01",
+            //         tipo_de_retiro: "",
+            //         motivo_de_retiro: "",
+            //         estado: "1",
+            //     },
+            //     formData
+            // );
+
             try {
                 const response = await fetch("https://staffnetback.cyc-bpo.com//insert_transaction", {
                     method: "POST",
@@ -1478,7 +1328,8 @@ const HomeView = () => {
                     handleCloseModalAdd();
                     setShowSnackAlert("success", "Empleado añadido correctamente");
                 } else {
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true);
+                    console.log(data.error + "error alert");
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
                 }
             } catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
@@ -1528,7 +1379,6 @@ const HomeView = () => {
     //                 throw Error(response.statusText);
     //             }
     //             const data = await response.json();
-    //             console.log("enviado");
     //         } catch (error) {
     //             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
     //             if (error === "Usuario no ha iniciado sesion") {
@@ -1596,7 +1446,14 @@ const HomeView = () => {
                                             </Button>
 
                                             <Tooltip title="Cancelar">
-                                                <IconButton onClick={handleCloseModal}>
+                                                <IconButton
+                                                    onClick={handleCloseModal}
+                                                    sx={{
+                                                        "&:hover": {
+                                                            color: "#d32f2f",
+                                                        },
+                                                    }}
+                                                >
                                                     <CloseIcon />
                                                 </IconButton>
                                             </Tooltip>
@@ -1788,6 +1645,7 @@ const HomeView = () => {
                                                     })}
                                                 </Box>
                                             ))}
+                                            <EmployeeHistory setShowSnackAlert={setShowSnackAlert} cedulaDetails={cedulaDetails} />
                                         </Box>
                                     </List>
                                 </Box>
@@ -1821,9 +1679,15 @@ const HomeView = () => {
                                             </Box>
                                             Guardar
                                         </Button>
-
                                         <Tooltip title="Cancelar">
-                                            <IconButton onClick={handleCloseModalAdd}>
+                                            <IconButton
+                                                onClick={handleCloseModalAdd}
+                                                sx={{
+                                                    "&:hover": {
+                                                        color: "#d32f2f",
+                                                    },
+                                                }}
+                                            >
                                                 <CloseIcon />
                                             </IconButton>
                                         </Tooltip>
@@ -1848,6 +1712,27 @@ const HomeView = () => {
                                         <Box sx={{ p: 2 }}>
                                             {pageInputs.map((section) => {
                                                 function renderSelectInput(input, formData, handleFormChange) {
+                                                    if (input.id === "59" || input.id === "60" || input.id === "61") {
+                                                        return null;
+                                                    } else if (input.name === "parentesco") {
+                                                        return (
+                                                            <TextField
+                                                                select
+                                                                sx={{
+                                                                    width: "144px",
+                                                                }}
+                                                                key={input.id}
+                                                                options={input.options}
+                                                                name={input.name}
+                                                                onChange={handleFormChange}
+                                                                value={formData[input.name] || ""}
+                                                                defaultValue={input.defaultValue}
+                                                                variant="outlined"
+                                                                autoComplete="off"
+                                                                label={input.label}
+                                                            ></TextField>
+                                                        );
+                                                    }
                                                     return (
                                                         <TextField
                                                             select
@@ -1859,6 +1744,7 @@ const HomeView = () => {
                                                             name={input.name}
                                                             onChange={handleFormChange}
                                                             value={formData[input.name] || ""}
+                                                            defaultValue={input.defaultValue}
                                                             variant="outlined"
                                                             autoComplete="off"
                                                             label={input.label}
@@ -1875,10 +1761,10 @@ const HomeView = () => {
                                                 function renderTextInput(input, formData, handleFormChange) {
                                                     return (
                                                         <TextField
-                                                            required
                                                             sx={{
                                                                 width: "144px",
                                                             }}
+                                                            required
                                                             key={input.id}
                                                             name={input.name}
                                                             value={formData[input.name] || ""}
@@ -1905,7 +1791,25 @@ const HomeView = () => {
                                                         } else {
                                                             return renderSelectInput(input, formData, handleFormChange);
                                                         }
-                                                    } else if (["5", "antiguedad"].includes(input.id)) {
+                                                    } else if (
+                                                        [
+                                                            "5",
+                                                            "antiguedad",
+                                                            "desempeño",
+                                                            "falta",
+                                                            "tipo_sancion",
+                                                            "sancion",
+                                                            "53",
+                                                            "54",
+                                                            "55",
+                                                            "56",
+                                                            "57",
+                                                            "58",
+                                                            "59",
+                                                            "60",
+                                                            "61",
+                                                        ].includes(input.id)
+                                                    ) {
                                                         return null;
                                                     } else {
                                                         return renderTextInput(input, formData, handleFormChange);
@@ -1914,6 +1818,11 @@ const HomeView = () => {
 
                                                 function renderInputs(section, formData, handleFormChange) {
                                                     return section.inputs.map((input) => renderInput(input, formData, handleFormChange));
+                                                }
+
+                                                const excludedTitles = ["Acciones Disciplinarias", "Información de Vacaciones", "Información de Retiro"];
+                                                if (excludedTitles.includes(section.title)) {
+                                                    return null;
                                                 }
 
                                                 return (

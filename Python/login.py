@@ -36,10 +36,10 @@ def consulta_login(body, conexion):
                             'error': 'Contraseña Incorrecta'}
         else:
             response = {'status': 'failure',
-                        'error': 'usuario no encontrado'}
+                        'error': 'Usuario no encontrado'}
     else:
         response = {'status': 'failure',
-                    'error': 'usuario no encontrado'}
+                    'error': 'Usuario no encontrado'}
     cursor.close()
     return response
 

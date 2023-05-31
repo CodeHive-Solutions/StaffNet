@@ -32,7 +32,7 @@ def run_update(tabla, columna, params, where_clause, conexion):
     except mysql.connector.Error as error:
         logging.error(f"Error: {error}")
         print("Error: ", error)
-        rows_updated = {"status": "false", "error": error}
+        rows_updated = {"status": "False", "error": error}
     cursor.close()
     return rows_updated
 
@@ -45,7 +45,7 @@ def process_query(rows_updated):
         response = {'status': 'success'}
         print(response)
     else:
-        response = {'status': 'false', 'error': 'No hubo ningun cambio.'}
+        response = {'status': 'False', 'error': 'No hubo ningun cambio.'}
         print("submit failed")
     return response
 

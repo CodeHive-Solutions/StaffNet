@@ -27,7 +27,6 @@ def process_query(rows_updated):
         response = {'status': 'success'}
         print(response)
     else:
-        response = {'status': 'false'}
-        print("submit failed")
+        response = {'status': 'False', 'error': 'El registro no pudo ser subido'}
     return response
 
