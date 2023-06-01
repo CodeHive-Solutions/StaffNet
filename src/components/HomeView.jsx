@@ -24,6 +24,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import EmployeeHistory from "./EmployeeHistory";
+import { DataArray } from "@mui/icons-material";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -63,6 +64,7 @@ const HomeView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
+                console.log(data);
                 if ("info" in data) {
                     setAccess(true);
                     setTableData(data.info.data);
@@ -107,7 +109,21 @@ const HomeView = () => {
             const antiguedadEnMeses = (fechaActual.getFullYear() - fechaIngreso.getFullYear()) * 12 + (fechaActual.getMonth() - fechaIngreso.getMonth());
             const antiguedadEnAños = Math.floor(antiguedadEnMeses / 12);
             const antiguedadEnMesesRestantes = antiguedadEnMeses % 12;
-            return antiguedadEnAños + " años y " + antiguedadEnMesesRestantes + " meses";
+            if (antiguedadEnAños === 0 && antiguedadEnMesesRestantes === 1) {
+                return `${antiguedadEnMesesRestantes} mes `;
+            } else if (antiguedadEnAños === 0) {
+                return `${antiguedadEnMesesRestantes} meses`;
+            } else if (antiguedadEnAños === 1 && antiguedadEnMesesRestantes === 0) {
+                return `${antiguedadEnAños} año`;
+            } else if (antiguedadEnAños > 1 && antiguedadEnMesesRestantes === 0) {
+                return `${antiguedadEnAños} años`;
+            } else if (antiguedadEnAños === 1 && antiguedadEnMesesRestantes !== 1) {
+                return `${antiguedadEnAños} año y ${antiguedadEnMesesRestantes} meses`;
+            } else if (antiguedadEnMesesRestantes === 1) {
+                return `${antiguedadEnAños} años y ${antiguedadEnMesesRestantes} mes`;
+            } else {
+                return `${antiguedadEnAños} años y ${antiguedadEnMesesRestantes} meses`;
+            }
         }
     };
 
@@ -289,7 +305,7 @@ const HomeView = () => {
                         { value: "DIVORCIADO(A)", label: "Divorciado(a)" },
                         { value: "SEPARADO(A)", label: "Separado(a)" },
                         { value: "SOLTERO(A)", label: "Soltero(a)" },
-                        { value: "UNION LIBRE(A)", label: "Union Libre" },
+                        { value: "UNION LIBRE", label: "Union Libre" },
                         { value: "VIUDO(A)", label: "Viudo(a)" },
                     ],
                 },
@@ -372,15 +388,15 @@ const HomeView = () => {
                         { value: "ABUELO(A)", label: "Abuelo(a)" },
                         { value: "AMIGO(A)", label: "Amigo(a)" },
                         { value: "ESPOSO(A)", label: "Esposo(a)" },
-                        { value: "FAMILIAR(A)", label: "Familiar" },
+                        { value: "FAMILIAR", label: "Familiar" },
                         { value: "HERMANO(A)", label: "Hermano(a)" },
                         { value: "HIJO(A)", label: "Hijo(a)" },
-                        { value: "MADRE(A)", label: "Madre(a)" },
-                        { value: "PADRE(A)", label: "Padre(a)" },
-                        { value: "PAREJA(A)", label: "Pareja(a)" },
+                        { value: "MADRE", label: "Madre(a)" },
+                        { value: "PADRE", label: "Padre(a)" },
+                        { value: "PAREJA", label: "Pareja(a)" },
                         { value: "PRIMO(A)", label: "Primo(a)" },
                         { value: "TIO(A)", label: "Tio(a)" },
-                    ],
+                    ].filter((option) => option.value !== ""),
                 },
                 {
                     id: "18",
@@ -413,7 +429,7 @@ const HomeView = () => {
                 {
                     id: "20",
                     label: "Profesión",
-                    name: "Profesión",
+                    name: "profesion",
                     type: "text",
                 },
                 {
@@ -434,15 +450,15 @@ const HomeView = () => {
                     name: "sede",
                     type: "select",
                     options: [
-                        { value: "BOGOTA", label: "Bogotá D.C" },
+                        { value: "BOGOTÁ", label: "Bogotá D.C" },
                         { value: "BUCARAMANGA", label: "Bucaramanga" },
                         { value: "MEDELLIN", label: "Medellin" },
                     ],
                 },
                 {
-                    id: "fecha_afiliacion",
+                    id: "fecha_afiliacion_eps",
                     label: "Fecha de Afiliacion",
-                    name: "fecha_afiliacion",
+                    name: "fecha_afiliacion_eps",
                     type: "date",
                     shrink: true,
                 },
@@ -675,27 +691,27 @@ const HomeView = () => {
                             label: "Gerencia Administrativa",
                         },
                         {
-                            value: "GERENCIA LEGAL RIESGO",
+                            value: "GERENCIA DE LEGAL RIESGO",
                             label: "Gerencia de Legal y Riesgo",
                         },
                         {
-                            value: "GERENCIA MERCADEO",
+                            value: "GERENCIA DE MERCADEO",
                             label: "Gerencia de Mercadeo",
                         },
                         {
-                            value: "GERENCIA OPERACIONES",
+                            value: "GERENCIA DE OPERACIONES",
                             label: "Gerencia de peraciones",
                         },
                         {
-                            value: "GERENCIA PLANEACIÓN",
+                            value: "GERENCIA DE PLANEACIÓN",
                             label: "Gerencia de Planeación",
                         },
                         {
-                            value: "GERENCIA RIESGO CONTROL INTERNO",
+                            value: "GERENCIA DE RIESGO Y CONTROL INTERNO",
                             label: "Gerencia de Riesgo y Control Interno",
                         },
                         {
-                            value: "GERENCIA TECNOLOGÍA",
+                            value: "GERENCIA DE TECNOLOGÍA",
                             label: "Gerencia de Tecnología",
                         },
                         {
@@ -727,7 +743,7 @@ const HomeView = () => {
                             label: "Presidencial",
                         },
                         {
-                            value: "RECURSOS FÍSICOS ",
+                            value: "GERENCIA DE RECURSOS FÍSICOS ",
                             label: "Recursos Físicos ",
                         },
                         {
@@ -851,27 +867,27 @@ const HomeView = () => {
                             label: "Gerencia Administrativa",
                         },
                         {
-                            value: "GERENCIA LEGAL RIESGO",
+                            value: "GERENCIA DE LEGAL RIESGO",
                             label: "Gerencia de Legal y Riesgo",
                         },
                         {
-                            value: "GERENCIA MERCADEO",
+                            value: "GERENCIA DE MERCADEO",
                             label: "Gerencia de Mercadeo",
                         },
                         {
-                            value: "GERENCIA OPERACIONES",
+                            value: "GERENCIA DE OPERACIONES",
                             label: "Gerencia de peraciones",
                         },
                         {
-                            value: "GERENCIA PLANEACIÓN",
+                            value: "GERENCIA DE PLANEACIÓN",
                             label: "Gerencia de Planeación",
                         },
                         {
-                            value: "GERENCIA RIESGO CONTROL INTERNO",
+                            value: "GERENCIA DE RIESGO Y CONTROL INTERNO",
                             label: "Gerencia de Riesgo y Control Interno",
                         },
                         {
-                            value: "GERENCIA TECNOLOGÍA",
+                            value: "GERENCIA DE TECNOLOGÍA",
                             label: "Gerencia de Tecnología",
                         },
                         {
@@ -903,7 +919,7 @@ const HomeView = () => {
                             label: "Presidencial",
                         },
                         {
-                            value: "RECURSOS FÍSICOS ",
+                            value: "GERENCIA DE RECURSOS FÍSICOS ",
                             label: "Recursos Físicos ",
                         },
                         {
@@ -942,7 +958,7 @@ const HomeView = () => {
                     name: "area_negocio",
                     type: "select",
                     options: [
-                        { value: "DIRECCÍON", label: "Dirección" },
+                        { value: "DIRECCIÓN", label: "Dirección" },
                         { value: "NEGOCIO", label: "Negocio" },
                     ],
                 },
@@ -1078,7 +1094,7 @@ const HomeView = () => {
                 {
                     id: "59",
                     label: "Tipo de retiro",
-                    name: "tipo_de_retiro",
+                    name: "tipo_retiro",
                     type: "select",
                     options: [
                         { value: "VOLUNTARIO", label: "Voluntario" },
@@ -1088,7 +1104,7 @@ const HomeView = () => {
                 {
                     id: "60",
                     label: "Motivo del retiro",
-                    name: "motivo_de_retiro",
+                    name: "motivo_retiro",
                     type: "select",
                     options: [
                         { value: "BAJA REMUNERACIÓN", label: "Baja remuneración" },
@@ -1155,7 +1171,7 @@ const HomeView = () => {
         const birthDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "3")?.value;
         setDataCalculateAge(calculateAge(birthDate));
 
-        const affiliationDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "fecha_afiliacion")?.value;
+        const affiliationDate = pageInputs.flatMap((inputGroup) => inputGroup.inputs).find((input) => input.id === "fecha_ingreso")?.value;
         setSeniority(calculateSeniority(affiliationDate));
     }, [openModal]);
 
@@ -1176,7 +1192,7 @@ const HomeView = () => {
         setTableResults(
             rows.filter((person) => {
                 for (const key in person) {
-                    if (person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
+                    if (person[key] && person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
                         return true;
                     }
                 }
@@ -1185,50 +1201,50 @@ const HomeView = () => {
         );
     }, [searchTerm, rows]);
 
-    // Disable functionality
-    const handleSwitch = (row) => {
-        const updatedTableResults = tableResults.map((item) => {
-            if (item.cedula === row.cedula) {
-                return { ...item, estado: !item.estado };
-            } else {
-                return item;
-            }
-        });
-        const updatedRows = rows.map((item) => {
-            if (item.cedula === row.cedula) {
-                return { ...item, estado: !item.estado };
-            } else {
-                return item;
-            }
-        });
-        const dataP = {
-            cedula: row.cedula,
-            change_to: !row.estado,
-        };
-        const changeState = async () => {
-            try {
-                const response = await fetch("https://staffnetback.cyc-bpo.com//change_state", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dataP),
-                });
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                const data = await response.json();
-                if (data.status === "success") {
-                    setTableResults(updatedTableResults);
-                    setRows(updatedRows);
-                }
-            } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-            }
-        };
-        changeState();
-    };
+    // // Disable functionality
+    // const handleSwitch = (row) => {
+    //     const updatedTableResults = tableResults.map((item) => {
+    //         if (item.cedula === row.cedula) {
+    //             return { ...item, estado: !item.estado };
+    //         } else {
+    //             return item;
+    //         }
+    //     });
+    //     const updatedRows = rows.map((item) => {
+    //         if (item.cedula === row.cedula) {
+    //             return { ...item, estado: !item.estado };
+    //         } else {
+    //             return item;
+    //         }
+    //     });
+    //     const dataP = {
+    //         cedula: row.cedula,
+    //         change_to: !row.estado,
+    //     };
+    //     const changeState = async () => {
+    //         try {
+    //             const response = await fetch("https://staffnetback.cyc-bpo.com//change_state", {
+    //                 method: "POST",
+    //                 credentials: "include",
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //                 body: JSON.stringify(dataP),
+    //             });
+    //             if (!response.ok) {
+    //                 throw Error(response.statusText);
+    //             }
+    //             const data = await response.json();
+    //             if (data.status === "success") {
+    //                 setTableResults(updatedTableResults);
+    //                 setRows(updatedRows);
+    //             }
+    //         } catch (error) {
+    //             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+    //         }
+    //     };
+    //     changeState();
+    // };
 
     // Edit functionality
     const submitEdit = (event) => {

@@ -65,25 +65,25 @@ info_tables = {
     #     "desempeno_2020": "E. DESEMPEÑO 2020",
     #     "desempeno_2021": "E. DESEMPEÑO 2021"
     # },
-    "disciplinary_actions": {
-        "cedula": "CEDULA",
-        "falta": "LLAMADO DE ATENCIÓN",
-        "tipo_sancion": "MEMORANDO 1",
-        "sancion": "MEMORANDO 2",
-        # "memorando_3": "MEMORANDO 3"
-    },
-    "vacation_information": {
-        "cedula": "CEDULA",
-        "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
-        "dias_utilizados": "# PERIODO TOMADOS VACACIONES",
-        "fecha_salida_vacaciones": "FECHA SALIDA VACACIONES",
-        "fecha_ingreso_vacaciones": "FECHA INGRESO VACACIONES"
-    },
+    # "disciplinary_actions": {
+    #     "cedula": "CEDULA",
+    #     "falta": "LLAMADO DE ATENCIÓN",
+    #     "tipo_sancion": "MEMORANDO 1",
+    #     "sancion": "MEMORANDO 2",
+    #     # "memorando_3": "MEMORANDO 3"
+    # },
+    # "vacation_information": {
+    #     "cedula": "CEDULA",
+    #     "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
+    #     "dias_utilizados": "# PERIODO TOMADOS VACACIONES",
+    #     "fecha_salida_vacaciones": "FECHA SALIDA VACACIONES",
+    #     "fecha_ingreso_vacaciones": "FECHA INGRESO VACACIONES"
+    # },
     "leave_information": {
         "cedula": "CEDULA",
         "fecha_retiro": "FECHA RETIRO",
-        "tipo_de_retiro": "Tipo de Retiro",
-        "motivo_de_retiro": "MOTIVO DE RETIRO",
+        "tipo_retiro": "Tipo de Retiro",
+        "motivo_retiro": "MOTIVO DE RETIRO",
         "estado": "ESTADO"
     }
 }
@@ -110,6 +110,7 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
             for column, mapping in column_mapping.items():
                 row[mapping] = row[mapping].upper()
                 print(column)
+                print("mapping",row[mapping])
                 if column in ['fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
                     date_string = row[mapping]
                     print("fecha",date_string)
@@ -122,8 +123,9 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                         formatted_date = date_object.strftime('%Y-%m-%d')
                     print(formatted_date)
                     column_values[column] = formatted_date
-                elif column in ['salario','tel_fijo' 'subsidio_transporte','dias_utilizados','personas_a_cargo','hijos','estrato','edad','cedula']:
+                elif column in ['salario','tel_fijo', 'subsidio_transporte','dias_utilizados','personas_a_cargo','hijos','estrato','edad','cedula']:
                     integer = row[mapping]
+                    print("integer",integer)
                     integer = re.sub(r'\D', '', integer)
                     if integer in ['','SIN INFORMACIÓN','933420000000000',' $ - ']:
                         integer = None
@@ -131,7 +133,12 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                             integer = 0
                     if column == 'dias_utilizados' and integer is not None:
                         integer = int(integer)*15
-                    print(integer)
+                    if integer is not None:
+                        try:
+                            integer = int(integer)
+                        except:
+                            integer = None
+                    print("intoger",integer)
                     column_values[column] = integer
                 elif column in ['lugar_expedicion']:
                     texto = row[mapping]
@@ -160,6 +167,12 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                     query = "INSERT INTO disciplinary_actions (cedula, falta, tipo_sancion, sancion,fecha_faltas) VALUES (%s, %s, %s, %s, %s)"
                     cursor.execute(query, (row["cedula"], row["MEMORANDO 3"],None, None, None))
                 else:
+                    if row[mapping] in ['Gerencia de Recursos fisicos','Recursos Fisicos']:
+                        row[mapping] = 'Recursos Físicos '
+                        column_values[column] = row[mapping]
+                    elif row[mapping] in ["",'',' ','N/A',0,'0','SIN INFORMACION','SIN INFORMACIÓN']:
+                        row[mapping] = None
+                        column_values[column] = row[mapping]
                     column_values[column] = row[mapping]
             # if 'estado' in column_values and column_values['estado'] == 0:
             #     column_values['dias_utilizados'] = None

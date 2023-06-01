@@ -9,7 +9,6 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 import datetime
 import mysql.connector
 import redis
-from redis.exceptions import ConnectionError
 import os
 
 # Evitar logs innecesarios
@@ -79,24 +78,24 @@ def bd_info():
                         # "cedula": body.get("cedula"),
                         # "calificacion": body.get("desempeno"),
                     # },
-                    "disciplinary_actions": {
-                        "cedula": body.get("cedula"),
-                        "falta": body.get("falta"),
-                        "tipo_sancion": body.get("tipo_sancion"),
-                        "sancion": body.get("sancion"),
-                    },
-                    "vacation_information": {
-                        "cedula": body.get("cedula"),
-                        "licencia_no_remunerada": body.get("licencia_no_remunerada"),
-                        "dias_utilizados": "0",
-                        "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
-                        "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
-                    },
+                    # "disciplinary_actions": {
+                    #     "cedula": body.get("cedula"),
+                    #     "falta": body.get("falta"),
+                    #     "tipo_sancion": body.get("tipo_sancion"),
+                    #     "sancion": body.get("sancion"),
+                    # },
+                    # "vacation_information": {
+                    #     "cedula": body.get("cedula"),
+                    #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
+                    #     "dias_utilizados": "0",
+                    #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
+                    #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
+                    # },
                     "leave_information": {
                         "cedula": body.get("cedula"),
                         "fecha_retiro": body.get("fecha_retiro"),
-                        "tipo_de_retiro": body.get("tipo_de_retiro"),
-                        "motivo_de_retiro": body.get("motivo_de_retiro"),
+                        "tipo_retiro": body.get("tipo_de_retiro"),
+                        "motivo_retiro": body.get("motivo_de_retiro"),
                         "estado": body.get("estado")
                     }
                 }
@@ -354,7 +353,7 @@ def get_join_info():
     body = get_request_body()
     if session["consult"] == True:
         table_names = ["personal_information",
-                       "educational_information", "employment_information", "disciplinary_actions", "vacation_information", "leave_information"]
+                       "educational_information", "employment_information", "leave_information"]
         join_columns = ["cedula", "cedula",
                         "cedula", "cedula", "cedula", "cedula"]
         response = join_tables(
@@ -369,7 +368,7 @@ def get_historico():
     conexion = conexionMySQL()
     body = get_request_body()
     if session["consult"] == True:
-        response = search("*", "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+        response = search(["columna","valor_antiguo",'fecha_cambio'], "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}

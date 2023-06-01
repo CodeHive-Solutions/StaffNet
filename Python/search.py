@@ -16,8 +16,9 @@ def search(campos, tabla, condicion, params, conexion, active_directory=None, us
 
 def run_query(campos, tabla, condicion, conexion, params):
     cursor = conexion.cursor()
+    campos_str = ', '.join(campos)
     query = "SELECT {} FROM {} {}".format(
-        campos, tabla, condicion)
+        campos_str, tabla, condicion)
     logging.info(f"Ejecutando: {query % params}")
     cursor.execute(query, params)
     resultado = cursor.fetchall()
@@ -26,7 +27,8 @@ def run_query(campos, tabla, condicion, conexion, params):
 
 
 def process_query(results, active_directory, user_ad):
-    if results is not None:
+    logging.info(f"Result_5: {results}")
+    if results not in ['', None, []] :
         response = {'status': 'success', 'info': results}
     elif active_directory:
         status, result, respuesta, _ = consulta_usuario_ad(user_ad, 'name')

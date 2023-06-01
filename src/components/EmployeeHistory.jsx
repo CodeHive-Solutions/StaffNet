@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Divider } from "@mui/material";
 
 const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     const [employeeHistory, setEmployeeHistory] = useState([]);
@@ -38,7 +38,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
 
     if (renderHistory) {
         return (
-            <Box sx={{ width: "100%", textAlign: "center" }}>
+            <Box sx={{ width: "100%", textAlign: "center", mt: "35px" }}>
                 <Typography variant="h6" component="h3">
                     Historial del empleado
                 </Typography>
@@ -46,17 +46,17 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Campo</TableCell>
-                                <TableCell>Valor pasado</TableCell>
-                                <TableCell>Fecha del cambio</TableCell>
+                                <TableCell>Campo Editado</TableCell>
+                                <TableCell>Valor Pasado</TableCell>
+                                <TableCell>Fecha del Cambio</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {employeeHistory.map((historyItem, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{historyItem}</TableCell>
-                                    <TableCell>{historyItem}</TableCell>
-                                    <TableCell>{historyItem}</TableCell>
+                                    <TableCell>{historyItem[0]}</TableCell>
+                                    <TableCell>{historyItem[1]}</TableCell>
+                                    <TableCell>{historyItem[2]}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -65,7 +65,11 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
             </Box>
         );
     } else {
-        return null;
+        return (
+            <Typography sx={{ textAlign: "center", color: "gray", mt: "30px" }} variant="h8" component="h6">
+                Este empleado no posee un historico actualmente
+            </Typography>
+        );
     }
 };
 
