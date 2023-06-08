@@ -64,7 +64,6 @@ const HomeView = () => {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                console.log(data);
                 if ("info" in data) {
                     setAccess(true);
                     setTableData(data.info.data);
@@ -161,7 +160,6 @@ const HomeView = () => {
                 }
                 const data = await response.json();
                 if (data.status === "success") {
-                    console.log(data.data);
                     setProgressBar(false);
                     setDetalles(data.data[0]);
                     setOpenModal(true);
@@ -547,6 +545,8 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
+                        { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
+                        { value: "ABOGADO(A) JUNIOR", label: "Abogado(a) Junior" },
                         { value: "ANALISTA DE BD Y APLICACIONES", label: "Analista de BD y Aplicaciones" },
                         { value: "ANALISTA DE INVESTIGACIÓN", label: "Analista de Investigación" },
                         { value: "ANALISTA DE SANEAMIENTO", label: "Analista de Saneamiento" },
@@ -1602,6 +1602,15 @@ const HomeView = () => {
                                                                 );
                                                             }
                                                             if (input.type === "select") {
+                                                                const optionExists = input.options.some((option) => option.value === inputValues[input.name]);
+
+                                                                if (!optionExists) {
+                                                                    input.options.push({
+                                                                        value: inputValues[input.name],
+                                                                        label: inputValues[input.name],
+                                                                    });
+                                                                }
+
                                                                 return (
                                                                     <TextField
                                                                         select
@@ -1625,8 +1634,8 @@ const HomeView = () => {
                                                                             shrink: true,
                                                                         }}
                                                                     >
-                                                                        {input.options.map((option) => (
-                                                                            <MenuItem key={option.value} value={option.value}>
+                                                                        {input.options.map((option, index) => (
+                                                                            <MenuItem key={index} value={option.value}>
                                                                                 {option.label}
                                                                             </MenuItem>
                                                                         ))}
@@ -1765,8 +1774,8 @@ const HomeView = () => {
                                                             autoComplete="off"
                                                             label={input.label}
                                                         >
-                                                            {input.options.map((option) => (
-                                                                <MenuItem key={option.value} value={option.value}>
+                                                            {input.options.map((option, index) => (
+                                                                <MenuItem key={index} value={option.value}>
                                                                     {option.label}
                                                                 </MenuItem>
                                                             ))}
