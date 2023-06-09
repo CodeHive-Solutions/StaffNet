@@ -63,7 +63,7 @@ const PermissionsView = () => {
                 if (!access) {
                     navigate("/", { replace: true });
                 }
-                setShowSnackAlert("error", "Por fvor envia este error a desarrollo: " + error, true);
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
                 console.error("Error:", error);
             }
         };
@@ -131,16 +131,16 @@ const PermissionsView = () => {
                 }
                 if (data.status === "success" && data.info !== undefined) {
                     const newPermissions = [];
-                    if (data.info[0] == 1) {
+                    if (data.info[0][0] == 1) {
                         newPermissions.push("Consultar");
                     }
-                    if (data.info[1] == 1) {
+                    if (data.info[0][1] == 1) {
                         newPermissions.push("Crear");
                     }
-                    if (data.info[2] == 1) {
+                    if (data.info[0][2] == 1) {
                         newPermissions.push("Editar");
                     }
-                    if (data.info[3] == 1) {
+                    if (data.info[0][3] == 1) {
                         newPermissions.push("Inhabilitar");
                     }
                     setSelectedPermissions([...selectedPermissions, ...newPermissions]);
@@ -149,7 +149,7 @@ const PermissionsView = () => {
                     setOpenSearch(!openSearch);
                 }
 
-                if (data.status === "false") {
+                if (data.status === "False") {
                     setOpenSnack(true);
                     setError(data.error);
                 }

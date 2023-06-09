@@ -275,7 +275,7 @@ def search_ad():
         body = get_request_body()
         conexion = conexionMySQL()
         username = (body['username'],)
-        response = search('permission_consult, permission_create, permission_edit, permission_disable', 'users',
+        response = search(['permission_consult', 'permission_create', 'permission_edit', 'permission_disable'], 'users',
                           'WHERE user = %s', username, conexion, True, username)
     else:
         response = {'status': 'False',

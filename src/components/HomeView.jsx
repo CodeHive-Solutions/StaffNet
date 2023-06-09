@@ -1141,8 +1141,8 @@ const HomeView = () => {
                     name: "estado",
                     type: "select",
                     options: [
-                        { value: "1", label: "Activo" },
-                        { value: "0", label: "Inactivo" },
+                        { value: 1, label: "Activo" },
+                        { value: 0, label: "Inactivo" },
                     ],
                 },
             ],
@@ -1361,7 +1361,6 @@ const HomeView = () => {
         width: "82%",
         height: "80%",
         bgcolor: "background.paper",
-        boxShadow: 24,
         p: 4,
         borderRadius: "20px",
         overflow: "auto",
@@ -1529,7 +1528,7 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "144px",
                                                                         }}
-                                                                        value={seniority}
+                                                                        value={seniority || ""}
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1555,7 +1554,7 @@ const HomeView = () => {
                                                                     />
                                                                 );
                                                             }
-                                                            if (input.id === 1) {
+                                                            if (input.id === "1") {
                                                                 return (
                                                                     <TextField
                                                                         disabled
@@ -1626,7 +1625,9 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         onChange={(event) => handleChange(event, input)}
                                                                         value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                            inputValues[input.name] !== undefined &&
+                                                                            inputValues[input.name] !== null &&
+                                                                            inputValues[input.name] !== ""
                                                                                 ? inputValues[input.name]
                                                                                 : ""
                                                                         }
@@ -1655,7 +1656,9 @@ const HomeView = () => {
                                                                     autoComplete="off"
                                                                     label={input.label}
                                                                     value={
-                                                                        inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                        inputValues[input.name] !== undefined &&
+                                                                        inputValues[input.name] !== null &&
+                                                                        inputValues[input.name] !== ""
                                                                             ? inputValues[input.name]
                                                                             : ""
                                                                     }
@@ -1743,19 +1746,21 @@ const HomeView = () => {
                                                         return (
                                                             <TextField
                                                                 select
-                                                                sx={{
-                                                                    width: "144px",
-                                                                }}
-                                                                key={input.id}
-                                                                options={input.options}
-                                                                name={input.name}
-                                                                onChange={handleFormChange}
+                                                                label="Parentesco"
                                                                 value={formData[input.name] || ""}
-                                                                defaultValue={input.defaultValue}
+                                                                onChange={handleFormChange}
+                                                                sx={{ width: "144px" }}
                                                                 variant="outlined"
                                                                 autoComplete="off"
-                                                                label={input.label}
-                                                            ></TextField>
+                                                                name={input.name}
+                                                                key={input.id}
+                                                                defaultValue={input.defaultValue}
+                                                                children={input.options.map((option, index) => (
+                                                                    <MenuItem key={index} value={option.value}>
+                                                                        {option.label}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            />
                                                         );
                                                     }
                                                     return (

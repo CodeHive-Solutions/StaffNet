@@ -19,6 +19,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     throw new Error("Network response was not ok");
                 }
                 const data = await response.json();
+
                 console.log(data);
                 if (data.status === "success") {
                     setEmployeeHistory(data.info);
@@ -52,13 +53,21 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {employeeHistory.map((historyItem, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{historyItem[0]}</TableCell>
-                                    <TableCell>{historyItem[1]}</TableCell>
-                                    <TableCell>{historyItem[2]}</TableCell>
-                                </TableRow>
-                            ))}
+                            {employeeHistory.map((historyItem, index) => {
+                                const date = new Date(historyItem[2]);
+                                const hours = date.getUTCHours().toString().padStart(2, "0");
+                                const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+                                const formattedDate =
+                                    hours + ":" + minutes + " - " + date.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
+
+                                return (
+                                    <TableRow key={index}>
+                                        <TableCell>{historyItem[0]}</TableCell>
+                                        <TableCell>{historyItem[1]}</TableCell>
+                                        <TableCell>{formattedDate}</TableCell>
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 </TableContainer>
