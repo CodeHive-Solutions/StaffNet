@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { DataGrid } from "@mui/x-data-grid";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Divider } from "@mui/material";
 
 const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
@@ -20,22 +21,22 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 }
                 const data = await response.json();
 
-                console.log(data);
-                if (data.status === "success") {
-                    setEmployeeHistory(data.info);
-                } else if (data.error === "Registro no encontrado") {
-                    setRenderHistory(false);
-                    setShowSnackAlert("info", "Este empleado no posee un historico actualmente", true);
-                } else {
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true);
-                }
+                // Add an id property to each row
+                const rows = data.map((row, index) => ({ ...row, id: index }));
+
+                setEmployeeHistory(rows);
             } catch (error) {
                 console.error(error);
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                setShowSnackAlert(true);
+            } finally {
+                setRenderHistory(false);
             }
         };
-        getEmployeeHistory();
-    }, []);
+
+        if (renderHistory) {
+            getEmployeeHistory();
+        }
+    }, [renderHistory, cedulaDetails, setShowSnackAlert]);
 
     if (renderHistory) {
         return (
@@ -43,34 +44,15 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 <Typography variant="h6" component="h3">
                     Historial del empleado
                 </Typography>
-                <TableContainer>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Campo Editado</TableCell>
-                                <TableCell>Valor Pasado</TableCell>
-                                <TableCell>Fecha del Cambio</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {employeeHistory.map((historyItem, index) => {
-                                const date = new Date(historyItem[2]);
-                                const hours = date.getUTCHours().toString().padStart(2, "0");
-                                const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-                                const formattedDate =
-                                    hours + ":" + minutes + " - " + date.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
-
-                                return (
-                                    <TableRow key={index}>
-                                        <TableCell>{historyItem[0]}</TableCell>
-                                        <TableCell>{historyItem[1]}</TableCell>
-                                        <TableCell>{formattedDate}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <DataGrid
+                    rows={employeeHistory}
+                    columns={[
+                        { field: "editedField", headerName: "Campo Editado", width: 200 },
+                        { field: "previousValue", headerName: "Valor Pasado", width: 200 },
+                        { field: "changeDate", headerName: "Fecha del Cambio", width: 200 },
+                    ]}
+                    getRowId={(row) => row.id}
+                />
             </Box>
         );
     } else {

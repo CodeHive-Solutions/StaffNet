@@ -1,7 +1,4 @@
-import {
-    createBrowserRouter,
-    RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -15,7 +12,6 @@ const theme = createTheme({
     typography: {
         fontFamily: '"Open Sans", sans-serif',
     },
-    // any other styles you want to apply
 });
 
 const router = createBrowserRouter([

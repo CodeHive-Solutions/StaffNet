@@ -1306,7 +1306,10 @@ const HomeView = () => {
     // Add functionality
     const submitAdd = (event) => {
         event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.target));
+        console.log(data);
         setProgressBar(true);
+        console.log(formData);
         const insertTransaction = async (formData) => {
             // let newObj = Object.assign(
             //     {
@@ -1526,7 +1529,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "144px",
+                                                                            width: "188px",
                                                                         }}
                                                                         value={seniority || ""}
                                                                         InputLabelProps={{
@@ -1545,7 +1548,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "144px",
+                                                                            width: "188px",
                                                                         }}
                                                                         value={dataCalculateAge}
                                                                         InputLabelProps={{
@@ -1564,7 +1567,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "144px",
+                                                                            width: "188px",
                                                                         }}
                                                                         value={
                                                                             inputValues[input.name] !== undefined && inputValues[input.name] !== ""
@@ -1587,7 +1590,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "144px",
+                                                                            width: "188px",
                                                                         }}
                                                                         value={
                                                                             inputValues[input.name] !== undefined && inputValues[input.name] !== ""
@@ -1616,14 +1619,14 @@ const HomeView = () => {
                                                                         disabled={edit}
                                                                         key={input.id}
                                                                         sx={{
-                                                                            width: "144px",
+                                                                            width: "188px",
                                                                         }}
                                                                         required
                                                                         name={input.name}
                                                                         autoComplete="off"
                                                                         variant="outlined"
                                                                         label={input.label}
-                                                                        onChange={(event) => handleChange(event, input)}
+                                                                        // onChange={(event) => handleChange(event, input)}
                                                                         value={
                                                                             inputValues[input.name] !== undefined &&
                                                                             inputValues[input.name] !== null &&
@@ -1649,7 +1652,7 @@ const HomeView = () => {
                                                                     required
                                                                     key={input.id}
                                                                     sx={{
-                                                                        width: "144px",
+                                                                        width: "188px",
                                                                     }}
                                                                     type={input.type}
                                                                     name={input.name}
@@ -1747,9 +1750,7 @@ const HomeView = () => {
                                                             <TextField
                                                                 select
                                                                 label="Parentesco"
-                                                                value={formData[input.name] || ""}
-                                                                onChange={handleFormChange}
-                                                                sx={{ width: "144px" }}
+                                                                sx={{ width: "188px" }}
                                                                 variant="outlined"
                                                                 autoComplete="off"
                                                                 name={input.name}
@@ -1766,15 +1767,11 @@ const HomeView = () => {
                                                     return (
                                                         <TextField
                                                             select
-                                                            required
                                                             sx={{
-                                                                width: "144px",
+                                                                width: "188px",
                                                             }}
                                                             key={input.id}
                                                             name={input.name}
-                                                            onChange={handleFormChange}
-                                                            value={formData[input.name] || ""}
-                                                            defaultValue={input.defaultValue}
                                                             variant="outlined"
                                                             autoComplete="off"
                                                             label={input.label}
@@ -1792,16 +1789,13 @@ const HomeView = () => {
                                                     return (
                                                         <TextField
                                                             sx={{
-                                                                width: "144px",
+                                                                width: "188px",
                                                             }}
-                                                            required
                                                             key={input.id}
                                                             name={input.name}
-                                                            value={formData[input.name] || ""}
                                                             InputLabelProps={{
                                                                 shrink: input.shrink,
                                                             }}
-                                                            onChange={handleFormChange}
                                                             autoComplete="off"
                                                             type={input.type}
                                                             label={input.label}
@@ -1859,11 +1853,11 @@ const HomeView = () => {
                                                     <Box
                                                         key={section.title}
                                                         sx={{
-                                                            m: 2,
                                                             display: "flex",
                                                             flexWrap: "wrap",
                                                             width: "100%",
                                                             gap: "30px",
+                                                            my: 2,
                                                         }}
                                                     >
                                                         <Typography
