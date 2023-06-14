@@ -2,10 +2,11 @@ import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Divider } from "@mui/material";
+import { render } from "react-dom";
 
 const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     const [employeeHistory, setEmployeeHistory] = useState([]);
-    const [renderHistory, setRenderHistory] = useState(true);
+    const [renderHistory, setRenderHistory] = useState(false);
 
     useEffect(() => {
         const getEmployeeHistory = async () => {
@@ -20,22 +21,22 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     throw new Error("Network response was not ok");
                 }
                 const data = await response.json();
-
-                // Add an id property to each row
-                const rows = data.map((row, index) => ({ ...row, id: index }));
-
-                setEmployeeHistory(rows);
+                if (data.status === "success") {
+                    setRenderHistory(true);
+                    const rows = data.info.map((row, index) => ({ id: index, editedField: row[0], previousValue: row[1], changeDate: row[2] }));
+                    setEmployeeHistory(rows);
+                } else if (data.error === "Registro no encontrado") {
+                    setShowSnackAlert("info", "Este empleado no posee un historico actualmente", true);
+                } else {
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true);
+                }
             } catch (error) {
                 console.error(error);
-                setShowSnackAlert(true);
-            } finally {
-                setRenderHistory(false);
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
             }
         };
 
-        if (renderHistory) {
-            getEmployeeHistory();
-        }
+        getEmployeeHistory();
     }, [renderHistory, cedulaDetails, setShowSnackAlert]);
 
     if (renderHistory) {
@@ -47,9 +48,9 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 <DataGrid
                     rows={employeeHistory}
                     columns={[
-                        { field: "editedField", headerName: "Campo Editado", width: 200 },
-                        { field: "previousValue", headerName: "Valor Pasado", width: 200 },
-                        { field: "changeDate", headerName: "Fecha del Cambio", width: 200 },
+                        { field: "editedField", headerName: "Campo Editado", width: 300 },
+                        { field: "previousValue", headerName: "Valor Pasado", width: 300 },
+                        { field: "changeDate", headerName: "Fecha del Cambio", width: 300 },
                     ]}
                     getRowId={(row) => row.id}
                 />

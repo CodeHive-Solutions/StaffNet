@@ -1366,7 +1366,6 @@ const HomeView = () => {
         bgcolor: "background.paper",
         p: 4,
         borderRadius: "20px",
-        overflow: "auto",
     };
 
     const handleChange = useCallback(
