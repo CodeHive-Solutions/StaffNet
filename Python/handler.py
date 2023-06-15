@@ -20,7 +20,7 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
 
 try:
     redis_client = redis.Redis(
-        host='172.16.0.128', port=6379, password="654321")
+        host='172.16.0.128', port=6379, password=os.environ.get('Redis'))
 except:
     print("Connection to redis failed")
     redis_client = None
@@ -130,16 +130,10 @@ def login():
 def conexionMySQL():
     if "conexion" not in g:
         try:
-            # g.conexion = mysql.connector.connect(
-            #     host="172.16.0.6",
-            #     user="root",
-            #     password="*4b0g4d0s4s*",
-            #     database='StaffNet'
-            # )
             g.conexion = mysql.connector.connect(
-                host="172.16.0.115",
+                host="172.16.0.118",
                 user="root",
-                password=os.environ.get('MYSQL_115'),
+                password=os.environ.get('MYSQL_118'),
                 database='StaffNet'
             )
             logging.info("Connection to MYSQL success")

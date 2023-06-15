@@ -1,4 +1,5 @@
 import csv
+import os
 import re
 import datetime
 import mysql.connector
@@ -90,9 +91,9 @@ info_tables = {
 
 
 connection = mysql.connector.connect(
-    host='172.16.0.115',
+    host='172.16.0.118',
     user='root',
-    password='T3cn0l0g142023*',
+    password=os.environ['MYSQL_118'],
     database='StaffNet'
 )
 
