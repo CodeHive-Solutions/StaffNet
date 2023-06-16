@@ -1356,6 +1356,7 @@ const HomeView = () => {
         };
         insertTransaction(formData);
     };
+
     const stylesModal = {
         position: "absolute",
         top: "50%",
@@ -1366,6 +1367,7 @@ const HomeView = () => {
         bgcolor: "background.paper",
         p: 4,
         borderRadius: "20px",
+        // overflow: "auto",
     };
 
     const handleChange = useCallback(
@@ -1409,7 +1411,7 @@ const HomeView = () => {
     const handleGenderChange = (event) => {
         setGender(event.target.value);
     };
-
+    
     if (access) {
         return (
             <>

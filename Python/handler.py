@@ -37,7 +37,6 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_DOMAIN'] = '.cyc-bpo.com'
 app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24)
-# app.secret_key = "Hack_me_if_u_can"
 
 sess = Session()
 sess.init_app(app)
@@ -126,14 +125,13 @@ def login():
                     'create_admins': response["create_admins"]}
     return response
 
-
 def conexionMySQL():
     if "conexion" not in g:
         try:
             g.conexion = mysql.connector.connect(
-                host="172.16.0.118",
+                host="172.16.0.115",
                 user="root",
-                password=os.environ.get('MYSQL_118'),
+                password=os.environ.get('MYSQL_115'),
                 database='StaffNet'
             )
             logging.info("Connection to MYSQL success")
@@ -362,7 +360,7 @@ def get_historico():
     conexion = conexionMySQL()
     body = get_request_body()
     if session["consult"] == True:
-        response = search(["columna","valor_antiguo",'fecha_cambio'], "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+        response = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
