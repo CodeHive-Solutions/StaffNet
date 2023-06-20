@@ -1411,7 +1411,7 @@ const HomeView = () => {
     const handleGenderChange = (event) => {
         setGender(event.target.value);
     };
-    
+
     if (access) {
         return (
             <>
@@ -1627,7 +1627,7 @@ const HomeView = () => {
                                                                         autoComplete="off"
                                                                         variant="outlined"
                                                                         label={input.label}
-                                                                        // onChange={(event) => handleChange(event, input)}
+                                                                        onChange={(event) => handleChange(event, input)}
                                                                         value={
                                                                             inputValues[input.name] !== undefined &&
                                                                             inputValues[input.name] !== null &&
