@@ -1,5 +1,4 @@
 import React from "react";
-import UploadIcon from "@mui/icons-material/Upload";
 import SaveIcon from "@mui/icons-material/Save";
 import { useEffect, useState, useCallback } from "react";
 import Button from "@mui/material/Button";
@@ -11,7 +10,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from "@mui/material/Fade";
 import Header from "./Header";
-import Switch from "@mui/material/Switch";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
@@ -22,9 +20,17 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import {
+    DataGrid,
+    GridToolbarContainer,
+    GridToolbarExportContainer,
+    GridCsvExportMenuItem,
+    GridToolbarDensitySelector,
+    GridToolbarFilterButton,
+    GridToolbarColumnsButton,
+    GridToolbarQuickFilter,
+} from "@mui/x-data-grid";
 import EmployeeHistory from "./EmployeeHistory";
-import { DataArray } from "@mui/icons-material";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -41,14 +47,11 @@ const HomeView = () => {
     const [messageAlert, setMessageAlert] = React.useState(false);
     const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
     const [progressBar, setProgressBar] = React.useState(false);
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [permissions, setPermissions] = useState("");
     const [dataCalculateAge, setDataCalculateAge] = useState();
     const [seniority, setSeniority] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [severityAlert, setSeverityAlert] = React.useState("info");
-    const [file, setFile] = useState(null);
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = React.useState(0);
     const navigate = useNavigate();
@@ -56,7 +59,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnetback.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -149,7 +152,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnetback.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -177,10 +180,6 @@ const HomeView = () => {
         setEdit(true);
         setDetalles({});
     };
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
 
     const columns = [
         { field: "cedula", headerName: "Cedula", width: 120 },
@@ -204,24 +203,6 @@ const HomeView = () => {
                 );
             },
         },
-
-        // {
-        //     field: "estado",
-        //     headerName: "Estado",
-        //     width: 80,
-        //     renderCell: (params) => {
-        //         const { row } = params;
-        //         if (permissions.disable == 1) {
-        //             return (
-        //                 <Tooltip title={row.estado ? "Inhabilitar" : "Habilitar"}>
-        //                     <Switch checked={row.estado} onChange={() => handleSwitch(row)} />
-        //                 </Tooltip>
-        //             );
-        //         } else {
-        //             return <Switch disabled checked={row.estado} />;
-        //         }
-        //     },
-        // },
     ];
 
     const pageInputs = [
@@ -518,13 +499,6 @@ const HomeView = () => {
                         { value: "PROTECCIÓN", label: "PROTECCIÓN" },
                     ],
                 },
-                // {
-                //     id: "cambio_eps_pension_fecha",
-                //     label: "Cambio de eps y fecha de pension",
-                //     name: "cambio_eps_pension_fecha",
-                //     type: "date",
-                //     shrink: true,
-                // },
                 {
                     id: "cuenta_nomina",
                     label: "Cuenta nomina",
@@ -1002,13 +976,6 @@ const HomeView = () => {
                     name: "subsidio_transporte",
                     type: "number",
                 },
-                // {
-                //     id: "fecha_cambio_campana_periodo_prueba",
-                //     label: "Fecha de cambio de campaña y periodo de prueba",
-                //     name: "fecha_cambio_campana_periodo_prueba",
-                //     type: "date",
-                //     shrink: true,
-                // },
                 {
                     id: "desempeño",
                     label: "Desempeño",
@@ -1149,6 +1116,45 @@ const HomeView = () => {
         },
     ];
 
+    const columns2 = pageInputs.flatMap((page) => {
+        return page.inputs.map((input) => {
+            return {
+                field: input.name,
+                headerName: input.label,
+                width: 200,
+            };
+        });
+    });
+
+    const hiddenColumns = columns2.map((column) => column.field);
+
+    const columnVisibilityModel = {
+        ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
+        cedula: true,
+        nombre: true,
+        correo: true,
+        campana: true,
+        gerencia: true,
+        cargo: true,
+        detalles: true,
+    };
+
+    columns2.push({
+        field: "detalles",
+        headerName: "Detalles",
+        width: 65,
+        renderCell: (params) => {
+            const { row } = params;
+            return (
+                <Tooltip title="Detalles">
+                    <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
+                        <MoreIcon />
+                    </IconButton>
+                </Tooltip>
+            );
+        },
+    });
+
     pageInputs.forEach((page) => {
         page.inputs.forEach((input) => {
             if (detalles && input.name in detalles) {
@@ -1201,58 +1207,13 @@ const HomeView = () => {
         );
     }, [searchTerm, rows]);
 
-    // // Disable functionality
-    // const handleSwitch = (row) => {
-    //     const updatedTableResults = tableResults.map((item) => {
-    //         if (item.cedula === row.cedula) {
-    //             return { ...item, estado: !item.estado };
-    //         } else {
-    //             return item;
-    //         }
-    //     });
-    //     const updatedRows = rows.map((item) => {
-    //         if (item.cedula === row.cedula) {
-    //             return { ...item, estado: !item.estado };
-    //         } else {
-    //             return item;
-    //         }
-    //     });
-    //     const dataP = {
-    //         cedula: row.cedula,
-    //         change_to: !row.estado,
-    //     };
-    //     const changeState = async () => {
-    //         try {
-    //             const response = await fetch("https://staffnetback.cyc-bpo.com//change_state", {
-    //                 method: "POST",
-    //                 credentials: "include",
-    //                 headers: {
-    //                     "Content-Type": "application/json",
-    //                 },
-    //                 body: JSON.stringify(dataP),
-    //             });
-    //             if (!response.ok) {
-    //                 throw Error(response.statusText);
-    //             }
-    //             const data = await response.json();
-    //             if (data.status === "success") {
-    //                 setTableResults(updatedTableResults);
-    //                 setRows(updatedRows);
-    //             }
-    //         } catch (error) {
-    //             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-    //         }
-    //     };
-    //     changeState();
-    // };
-
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true);
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnetback.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1283,7 +1244,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("https://staffnetback.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1306,31 +1267,11 @@ const HomeView = () => {
     // Add functionality
     const submitAdd = (event) => {
         event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.target));
-        console.log(data);
         setProgressBar(true);
         console.log(formData);
         const insertTransaction = async (formData) => {
-            // let newObj = Object.assign(
-            //     {
-            //         falta: "",
-            //         tipo_sancion: "",
-            //         sancion: "",
-            //         licencia_no_remunerada: "",
-            //         periodo_tomado_vacaciones: "",
-            //         periodos_faltantes_vacaciones: "",
-            //         fecha_salida_vacaciones: "",
-            //         fecha_ingreso_vacaciones: "",
-            //         fecha_retiro: "2021-01-01",
-            //         tipo_de_retiro: "",
-            //         motivo_de_retiro: "",
-            //         estado: "1",
-            //     },
-            //     formData
-            // );
-
             try {
-                const response = await fetch("https://staffnetback.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1367,7 +1308,6 @@ const HomeView = () => {
         bgcolor: "background.paper",
         p: 4,
         borderRadius: "20px",
-        // overflow: "auto",
     };
 
     const handleChange = useCallback(
@@ -1380,37 +1320,37 @@ const HomeView = () => {
         [inputValues]
     );
 
-    // function to handle the database upload
-    // const handleChangeFile = (event) => {
-    //     setFile(event.target.files[0]);
-
-    //     const formData = new FormData();
-    //     formData.append("file", file);
-
-    //     const fetchEmployees = async () => {
-    //         try {
-    //             const response = await fetch("https://staffnetback.cyc-bpo.com//file", {
-    //                 method: "POST",
-    //                 credentials: "include",
-    //                 body: JSON.stringify(formData),
-    //             });
-    //             if (!response.ok) {
-    //                 throw Error(response.statusText);
-    //             }
-    //             const data = await response.json();
-    //         } catch (error) {
-    //             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-    //             if (error === "Usuario no ha iniciado sesion") {
-    //                 navigate("/");
-    //             }
-    //         }
-    //     };
-    //     fetchEmployees();
-    // };
-
     const handleGenderChange = (event) => {
         setGender(event.target.value);
     };
+
+    // Custom toolbar and export functionality
+    function CustomToolbar(props) {
+        return (
+            <GridToolbarContainer {...props}>
+                <GridToolbarColumnsButton />
+                <GridToolbarFilterButton />
+                <GridToolbarDensitySelector />
+                <CustomExportButton />
+                <Box sx={{ textAlign: "end", flex: "1" }}>
+                    <GridToolbarQuickFilter />
+                </Box>
+            </GridToolbarContainer>
+        );
+    }
+    function CustomExportButton(props) {
+        return (
+            <GridToolbarExportContainer {...props}>
+                <GridCsvExportMenuItem options={csvOptions} />
+            </GridToolbarExportContainer>
+        );
+    }
+    const csvOptions = { delimiter: ";", utf8WithBom: true };
+
+    const [filterModel, setFilterModel] = useState({
+        items: [],
+        quickFilterExcludeHiddenColumns: true,
+    });
 
     if (access) {
         return (
@@ -1524,7 +1464,6 @@ const HomeView = () => {
                                                                 return (
                                                                     <TextField
                                                                         disabled
-                                                                        required
                                                                         key={input.id}
                                                                         name={input.name}
                                                                         label={input.label}
@@ -1543,7 +1482,6 @@ const HomeView = () => {
                                                                 return (
                                                                     <TextField
                                                                         disabled
-                                                                        required
                                                                         key={input.id}
                                                                         name={input.name}
                                                                         label={input.label}
@@ -1562,7 +1500,6 @@ const HomeView = () => {
                                                                 return (
                                                                     <TextField
                                                                         disabled
-                                                                        required
                                                                         key={input.id}
                                                                         name={input.name}
                                                                         label={input.label}
@@ -1585,7 +1522,6 @@ const HomeView = () => {
                                                                 return (
                                                                     <TextField
                                                                         disabled
-                                                                        required
                                                                         key={input.id}
                                                                         name={input.name}
                                                                         label={input.label}
@@ -1622,7 +1558,6 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "188px",
                                                                         }}
-                                                                        required
                                                                         name={input.name}
                                                                         autoComplete="off"
                                                                         variant="outlined"
@@ -1650,7 +1585,6 @@ const HomeView = () => {
                                                             return (
                                                                 <TextField
                                                                     disabled={edit}
-                                                                    required
                                                                     key={input.id}
                                                                     sx={{
                                                                         width: "188px",
@@ -1768,11 +1702,14 @@ const HomeView = () => {
                                                     return (
                                                         <TextField
                                                             select
+                                                            required
                                                             sx={{
                                                                 width: "188px",
                                                             }}
                                                             key={input.id}
                                                             name={input.name}
+                                                            onChange={handleFormChange}
+                                                            value={formData[input.name] || ""}
                                                             variant="outlined"
                                                             autoComplete="off"
                                                             label={input.label}
@@ -1787,21 +1724,49 @@ const HomeView = () => {
                                                 }
 
                                                 function renderTextInput(input, formData, handleFormChange) {
-                                                    return (
-                                                        <TextField
-                                                            sx={{
-                                                                width: "188px",
-                                                            }}
-                                                            key={input.id}
-                                                            name={input.name}
-                                                            InputLabelProps={{
-                                                                shrink: input.shrink,
-                                                            }}
-                                                            autoComplete="off"
-                                                            type={input.type}
-                                                            label={input.label}
-                                                        />
-                                                    );
+                                                    if (
+                                                        input.name === "profesion" ||
+                                                        input.name === "correo_corporativo" ||
+                                                        input.name === "estudios_en_curso" ||
+                                                        input.name === "tel_fijo"
+                                                    ) {
+                                                        return (
+                                                            <TextField
+                                                                sx={{
+                                                                    width: "188px",
+                                                                }}
+                                                                key={input.id}
+                                                                name={input.name}
+                                                                InputLabelProps={{
+                                                                    shrink: input.shrink,
+                                                                }}
+                                                                onChange={handleFormChange}
+                                                                value={formData[input.name] || ""}
+                                                                autoComplete="off"
+                                                                type={input.type}
+                                                                label={input.label}
+                                                            />
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <TextField
+                                                                sx={{
+                                                                    width: "188px",
+                                                                }}
+                                                                key={input.id}
+                                                                required
+                                                                name={input.name}
+                                                                InputLabelProps={{
+                                                                    shrink: input.shrink,
+                                                                }}
+                                                                onChange={handleFormChange}
+                                                                value={formData[input.name] || ""}
+                                                                autoComplete="off"
+                                                                type={input.type}
+                                                                label={input.label}
+                                                            />
+                                                        );
+                                                    }
                                                 }
 
                                                 function renderInput(input, formData, handleFormChange) {
@@ -1945,23 +1910,30 @@ const HomeView = () => {
                                     Añadir
                                 </Button>
                             )}
-                            {/* <Button component="label" startIcon={<UploadIcon />}>
-                                Subir BD
-                                <input type="file" hidden accept=".csv" onChange={handleChangeFile} />
-                            </Button> */}
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
-                                slots={{ toolbar: GridToolbar }}
-                                columns={columns}
+                                slots={{ toolbar: CustomToolbar }}
+                                columns={columns2}
                                 getRowId={(row) => row.cedula}
                                 rows={tableResults}
                                 checkboxSelection
+                                filterModel={filterModel}
+                                onFilterModelChange={(newModel) => setFilterModel(newModel)}
                                 initialState={{
+                                    filter: {
+                                        filterModel: {
+                                            items: [],
+                                            quickFilterExcludeHiddenColumns: true,
+                                        },
+                                    },
                                     pagination: {
                                         paginationModel: {
                                             pageSize: 8,
                                         },
+                                    },
+                                    columns: {
+                                        columnVisibilityModel: columnVisibilityModel,
                                     },
                                 }}
                                 pageSizeOptions={[8]}

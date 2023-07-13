@@ -7,7 +7,7 @@ server = Server('CYC-SERVICES.COM.CO')
 
 def start_ldap():
     # Conexion a LDAP mediante usuario ADMIN
-    conn = Connection(server, user='Staffnet', password=os.environ['StaffNet'],
+    conn = Connection(server, user='Staffnet', password='T3cn0l0g142023*',
                       client_strategy=SAFE_SYNC, auto_bind=True)
     return conn, server
 

@@ -191,7 +191,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
-                      "staffnet.cyc-bpo.com", "http://localhost:5173"]
+                      "staffnet.cyc-bpo.com", "http://localhost:5173", "http://172.16.5.11:4173"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)

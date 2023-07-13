@@ -99,7 +99,7 @@ connection = mysql.connector.connect(
 
 cursor = connection.cursor()
 
-file_path = '/var/www/StaffNet/python/ENCUESTA SOCIODEMOGRÁFICA_PROYECTO_StaffNet.csv'
+file_path = '/var/www/StaffNet/python/StaffNeto.csv'
 
 with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter=";")
