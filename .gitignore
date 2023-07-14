@@ -32,3 +32,4 @@ dist-ssr
 *.csv
 #Vite temporals
 vite.config.js.timestamp
+venv/

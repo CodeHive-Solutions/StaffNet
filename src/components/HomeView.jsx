@@ -34,26 +34,26 @@ import EmployeeHistory from "./EmployeeHistory";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
-    const [detalles, setDetalles] = React.useState({});
+    const [detalles, setDetalles] = useState({});
     const [inputValues, setInputValues] = useState({});
     const [rows, setRows] = useState([]);
-    const [tableData, setTableData] = React.useState([]);
-    const [tableResults, setTableResults] = React.useState([]);
-    const [edit, setEdit] = React.useState(true);
+    const [tableData, setTableData] = useState([]);
+    const [tableResults, setTableResults] = useState([]);
+    const [edit, setEdit] = useState(true);
     const [access, setAccess] = useState(false);
-    const [openModal, setOpenModal] = React.useState(false);
-    const [transition, setTransition] = React.useState(false);
-    const [openModalAdd, setOpenModalAdd] = React.useState(false);
-    const [messageAlert, setMessageAlert] = React.useState(false);
-    const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
-    const [progressBar, setProgressBar] = React.useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [transition, setTransition] = useState(false);
+    const [openModalAdd, setOpenModalAdd] = useState(false);
+    const [messageAlert, setMessageAlert] = useState(false);
+    const [openSnackAlert, setOpenSnackAlert] = useState(false);
+    const [progressBar, setProgressBar] = useState(false);
     const [permissions, setPermissions] = useState("");
     const [dataCalculateAge, setDataCalculateAge] = useState();
     const [seniority, setSeniority] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
-    const [severityAlert, setSeverityAlert] = React.useState("info");
+    const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
-    const [cedulaDetails, setCedulaDetails] = React.useState(0);
+    const [cedulaDetails, setCedulaDetails] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -1183,6 +1183,7 @@ const HomeView = () => {
 
     // Search and table functionality
     useEffect(() => {
+        console.log(tableData);
         const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana]) => ({
             cedula,
             nombre,
@@ -1192,25 +1193,18 @@ const HomeView = () => {
             campana,
         }));
         setRows(newRows);
+        console.log(rows);
     }, [tableData]);
 
     useEffect(() => {
-        setTableResults(
-            rows.filter((person) => {
-                for (const key in person) {
-                    if (person[key] && person[key].toString().toLowerCase().includes(searchTerm.toLowerCase())) {
-                        return true;
-                    }
-                }
-                return false;
-            })
-        );
-    }, [searchTerm, rows]);
+        setTableResults(rows);
+    }, [rows]);
 
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true);
         event.preventDefault();
+        console.log(inputValues);
         const updateTransaction = async () => {
             try {
                 const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
@@ -1268,7 +1262,6 @@ const HomeView = () => {
     const submitAdd = (event) => {
         event.preventDefault();
         setProgressBar(true);
-        console.log(formData);
         const insertTransaction = async (formData) => {
             try {
                 const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
@@ -1847,7 +1840,7 @@ const HomeView = () => {
                             </Fade>
                         </Modal>
                         <Header></Header>
-                        <Box
+                        {/* <Box
                             sx={{
                                 display: "flex",
                                 justifyContent: "center",
@@ -1874,7 +1867,7 @@ const HomeView = () => {
                                     variant="standard"
                                 ></TextField>
                             </Box>
-                        </Box>
+                        </Box> */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -1916,10 +1909,8 @@ const HomeView = () => {
                                 slots={{ toolbar: CustomToolbar }}
                                 columns={columns2}
                                 getRowId={(row) => row.cedula}
-                                rows={tableResults}
+                                rows={rows}
                                 checkboxSelection
-                                filterModel={filterModel}
-                                onFilterModelChange={(newModel) => setFilterModel(newModel)}
                                 initialState={{
                                     filter: {
                                         filterModel: {
@@ -1938,6 +1929,9 @@ const HomeView = () => {
                                 }}
                                 pageSizeOptions={[8]}
                             />
+                        </Box>
+                        <Box sx={{ textAlign: "center" }}>
+                            <Typography sx={{ fontSize: "25px", color: "#d3d3d3", fontStyle: "italic", fontWeight: "semi-bold" }}>We will win</Typography>
                         </Box>
                     </Container>
                 </Fade>

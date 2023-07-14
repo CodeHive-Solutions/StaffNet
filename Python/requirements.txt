@@ -5,3 +5,4 @@ mysql.connector
 redis
 ldap3
 jwt
+python-dotenv

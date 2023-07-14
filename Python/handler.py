@@ -6,6 +6,7 @@ from login import consulta_login
 from update import update
 from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
+from dotenv import load_dotenv
 import datetime
 import mysql.connector
 import redis
@@ -20,12 +21,17 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
 
 try:
     redis_client = redis.Redis(
-        host='172.16.0.128', port=6379, password=os.environ.get('Redis'))
+        host='172.16.0.128', port=6379, password=os.getenv('Redis'))
 except:
     print("Connection to redis failed")
     redis_client = None
     logging.critical(f"Connection to redis failed", exc_info=True)
     raise
+
+if not os.path.isfile('/var/env/environment.env'):
+    raise FileNotFoundError('The env file was not found.')
+else:
+    load_dotenv("/var/env/environment.env")
 
 app = Flask(__name__)
 app.config['SESSION_TYPE'] = 'redis'
@@ -36,7 +42,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 # app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_DOMAIN'] = '.cyc-bpo.com'
-app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24)
+app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
 
 sess = Session()
 sess.init_app(app)
@@ -131,7 +137,7 @@ def conexionMySQL():
             g.conexion = mysql.connector.connect(
                 host="172.16.0.115",
                 user="root",
-                password=os.environ.get('MYSQL_115'),
+                password=os.getenv('MYSQL_115'),
                 database='StaffNet'
             )
             logging.info("Connection to MYSQL success")
