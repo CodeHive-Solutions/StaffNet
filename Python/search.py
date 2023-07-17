@@ -11,6 +11,8 @@ def search(campos, tabla, condicion, params, conexion, active_directory=None, us
     """The params is for the condicion argument that have to be an %s."""
     results = run_query(campos, tabla, condicion, conexion, params)
     response = process_query(results, active_directory, user_ad)
+    logging.info(f"Result_4: ")
+    logging.info(f"Result_4: {response}")
     return response
 
 

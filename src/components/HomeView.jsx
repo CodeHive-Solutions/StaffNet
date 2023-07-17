@@ -20,6 +20,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import teams from "../images/teams.png";
 import {
     DataGrid,
     GridToolbarContainer,
@@ -1906,6 +1907,24 @@ const HomeView = () => {
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
+                                sx={{
+                                    position: "relative",
+                                    "&::before": {
+                                        content: '""',
+                                        position: "absolute",
+                                        top: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        left: 0,
+                                        backgroundImage: `url(${teams})`,
+                                        backgroundSize: "cover",
+                                        backgroundRepeat: "no-repeat",
+                                        backgroundPosition: "center",
+                                        borderRadius: "10px",
+                                        opacity: 0.15,
+                                        zIndex: -1,
+                                    },
+                                }}
                                 slots={{ toolbar: CustomToolbar }}
                                 columns={columns2}
                                 getRowId={(row) => row.cedula}

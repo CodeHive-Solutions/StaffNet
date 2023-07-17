@@ -19,21 +19,26 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
+if not os.path.isfile('/var/env/environment.env'):
+    logging.critical(f"The env file was not found", exc_info=True)
+    raise FileNotFoundError('The env file was not found.')
+else:
+    load_dotenv("/var/env/environment.env")
+
 try:
     redis_client = redis.Redis(
         host='172.16.0.128', port=6379, password=os.getenv('Redis'))
+    logging.info(f"Connection to redis success")
+    redis_client.ping()
 except:
     print("Connection to redis failed")
     redis_client = None
     logging.critical(f"Connection to redis failed", exc_info=True)
     raise
 
-if not os.path.isfile('/var/env/environment.env'):
-    raise FileNotFoundError('The env file was not found.')
-else:
-    load_dotenv("/var/env/environment.env")
 
 app = Flask(__name__)
+app.config['WERKZEUG_LOGGING_LEVEL'] = 'ERROR'
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = redis_client
 app.config['SESSION_COOKIE_NAME'] = 'StaffNet'
@@ -161,8 +166,9 @@ def logs():
                 {"User": body["user"], "Peticion": petition})
         else:
             print("Peticion: ", petition)
-            logging.info({"User": session["username"], "Peticion": petition,
-                          "Valores": request.json})
+            if 'username' in session:
+                logging.info({"User": session["username"], "Peticion": petition,
+                                "Valores": request.json})
     else:
         petition = request.url.split("/")[3]
         if petition == "loged":
@@ -197,7 +203,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
-                      "staffnet.cyc-bpo.com", "http://localhost:5173", "http://172.16.5.11:4173"]
+                      "https://staffnet.cyc-bpo.com", "http://localhost:5173","http://localhost:3000", "http://172.16.5.11:4173"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)
