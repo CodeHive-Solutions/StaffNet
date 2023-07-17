@@ -46,7 +46,7 @@ const PermissionsView = () => {
 
         const validateCreateAdmins = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//validate_create_admins", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//validate_create_admins", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -113,7 +113,7 @@ const PermissionsView = () => {
         // Fetch search the windows user
         const searchAd = async (dataSearch) => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_ad", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_ad", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -192,7 +192,7 @@ const PermissionsView = () => {
             };
             const createData = async () => {
                 try {
-                    const response = await fetch("https://staffnet-api.cyc-bpo.com//create", {
+                    const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//create", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -223,7 +223,7 @@ const PermissionsView = () => {
             };
             const editAdmin = async () => {
                 try {
-                    const response = await fetch("https://staffnet-api.cyc-bpo.com//edit_admin", {
+                    const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//edit_admin", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",

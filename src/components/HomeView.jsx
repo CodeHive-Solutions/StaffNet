@@ -60,7 +60,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -153,7 +153,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -1184,7 +1184,6 @@ const HomeView = () => {
 
     // Search and table functionality
     useEffect(() => {
-        console.log(tableData);
         const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana]) => ({
             cedula,
             nombre,
@@ -1194,7 +1193,6 @@ const HomeView = () => {
             campana,
         }));
         setRows(newRows);
-        console.log(rows);
     }, [tableData]);
 
     useEffect(() => {
@@ -1205,10 +1203,9 @@ const HomeView = () => {
     const submitEdit = (event) => {
         setProgressBar(true);
         event.preventDefault();
-        console.log(inputValues);
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1239,7 +1236,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1265,7 +1262,7 @@ const HomeView = () => {
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1282,7 +1279,7 @@ const HomeView = () => {
                     handleCloseModalAdd();
                     setShowSnackAlert("success", "Empleado añadido correctamente");
                 } else {
-                    console.log(data.error + "error alert");
+                    console.error(data.error + "error alert");
                     setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
                 }
             } catch (error) {
