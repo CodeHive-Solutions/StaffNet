@@ -136,7 +136,6 @@ const HomeView = () => {
     };
     const handleCloseModalAdd = () => setOpenModalAdd(false);
     const handleCloseSnack = () => setOpenSnackAlert(false);
-    const handleChangePage = (event, newPage) => setPage(newPage);
     const handleEdit = () => setEdit(!edit);
     const setShowSnackAlert = (severity, message, errorDev) => {
         setSeverityAlert(severity);
@@ -212,6 +211,19 @@ const HomeView = () => {
             title: "Información Personal",
             inputs: [
                 {
+                    id: "1",
+                    label: "Cedula",
+                    name: "cedula",
+                    type: "text",
+                },
+                {
+                    id: "2",
+                    label: "Nombre Completo",
+                    name: "nombre",
+                    type: "text",
+                },
+
+                {
                     id: "tipo_documento",
                     label: "Tipo de documento",
                     name: "tipo_documento",
@@ -222,12 +234,7 @@ const HomeView = () => {
                         { value: "TI", label: "TI" },
                     ],
                 },
-                {
-                    id: "1",
-                    label: "Cedula",
-                    name: "cedula",
-                    type: "text",
-                },
+
                 {
                     id: "fecha_expedicion",
                     label: "Fecha de expedición",
@@ -235,12 +242,7 @@ const HomeView = () => {
                     type: "date",
                     shrink: true,
                 },
-                {
-                    id: "2",
-                    label: "Nombre Completo",
-                    name: "nombre",
-                    type: "text",
-                },
+
                 {
                     id: "3",
                     label: "Fecha de nacimiento",
@@ -386,55 +388,11 @@ const HomeView = () => {
                 },
             ],
         },
-        // Inputs Pagina Información Educativa
-        {
-            title: "Información Educativa",
-            inputs: [
-                {
-                    id: "19",
-                    label: "Nivel de escolaridad",
-                    name: "nivel_escolaridad",
-                    type: "select",
-                    options: [
-                        { value: "PRIMARIA", label: "Primaria" },
-                        { value: "BACHILLER", label: "Bachiller" },
-                        { value: "TÉCNICO", label: "Técnico" },
-                        { value: "TECNÓLOGO", label: "Tecnólogo" },
-                        { value: "AUXILIAR", label: "Auxiliar" },
-                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
-                        { value: "PROFESIONAL", label: "Profesional" },
-                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
-                    ],
-                },
-                {
-                    id: "20",
-                    label: "Profesión",
-                    name: "profesion",
-                    type: "text",
-                },
-                {
-                    id: "21",
-                    label: "Estudios en curso",
-                    name: "estudios_en_curso",
-                    type: "text",
-                },
-            ],
-        },
+
         // Inputs Pagina Información Empleado
         {
             title: "Información Empleado",
             inputs: [
-                {
-                    id: "sede",
-                    label: "Sede",
-                    name: "sede",
-                    type: "select",
-                    options: [
-                        { value: "BOGOTÁ", label: "Bogotá D.C" },
-                        { value: "BUCARAMANGA", label: "Bucaramanga" },
-                        { value: "MEDELLIN", label: "Medellin" },
-                    ],
-                },
                 {
                     id: "fecha_afiliacion_eps",
                     label: "Fecha de Afiliacion",
@@ -512,6 +470,17 @@ const HomeView = () => {
                     name: "fecha_ingreso",
                     type: "date",
                     shrink: true,
+                },
+                {
+                    id: "sede",
+                    label: "Sede",
+                    name: "sede",
+                    type: "select",
+                    options: [
+                        { value: "BOGOTÁ", label: "Bogotá D.C" },
+                        { value: "BUCARAMANGA", label: "Bucaramanga" },
+                        { value: "MEDELLIN", label: "Medellin" },
+                    ],
                 },
                 {
                     id: "cargo",
@@ -1010,6 +979,40 @@ const HomeView = () => {
                 },
             ],
         },
+        // Inputs Pagina Información Educativa
+        {
+            title: "Información Educativa",
+            inputs: [
+                {
+                    id: "19",
+                    label: "Nivel de escolaridad",
+                    name: "nivel_escolaridad",
+                    type: "select",
+                    options: [
+                        { value: "PRIMARIA", label: "Primaria" },
+                        { value: "BACHILLER", label: "Bachiller" },
+                        { value: "TÉCNICO", label: "Técnico" },
+                        { value: "TECNÓLOGO", label: "Tecnólogo" },
+                        { value: "AUXILIAR", label: "Auxiliar" },
+                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
+                        { value: "PROFESIONAL", label: "Profesional" },
+                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
+                    ],
+                },
+                {
+                    id: "20",
+                    label: "Profesión",
+                    name: "profesion",
+                    type: "text",
+                },
+                {
+                    id: "21",
+                    label: "Estudios en curso",
+                    name: "estudios_en_curso",
+                    type: "text",
+                },
+            ],
+        },
         // Inputs Pagina Información vacaciones
         {
             title: "Información de Vacaciones",
@@ -1118,13 +1121,15 @@ const HomeView = () => {
     ];
 
     const columns2 = pageInputs.flatMap((page) => {
-        return page.inputs.map((input) => {
-            return {
-                field: input.name,
-                headerName: input.label,
-                width: 200,
-            };
-        });
+        return page.inputs
+            .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
+            .map((input) => {
+                return {
+                    field: input.name,
+                    headerName: input.label,
+                    width: 200,
+                };
+            });
     });
 
     const hiddenColumns = columns2.map((column) => column.field);
@@ -1184,14 +1189,18 @@ const HomeView = () => {
 
     // Search and table functionality
     useEffect(() => {
-        const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana]) => ({
-            cedula,
-            nombre,
-            correo,
-            cargo,
-            gerencia,
-            campana,
-        }));
+        console.log(tableData);
+        const newRows = tableData.map((row) => {
+            const newRow = {};
+            columns2.forEach((column, index) => {
+                if (index < 20) {
+                    newRow[column.field] = row[index];
+                } else if (index >= 20) {
+                    newRow[column.field] = row[index + 1];
+                }
+            });
+            return newRow;
+        });
         setRows(newRows);
     }, [tableData]);
 

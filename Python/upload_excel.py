@@ -43,10 +43,10 @@ info_tables = {
         "eps": "EPS",
         "pension": "PENSION",
         "cesantias": "CESANTIAS",
-        "cambio_eps_pension_fecha": "CAMBIO EPS - PENSION FECHA",
+        # "cambio_eps_pension_fecha": "CAMBIO EPS - PENSION FECHA",
         "cuenta_nomina": "CUENTA NOMINA",
         "fecha_ingreso": "FECHA INGRESO",
-        "sede": "CIUDAD DE TRABAJO",
+        # "sede": "CIUDAD DE TRABAJO",
         "cargo": "CARGO",
         "gerencia": "GERENCIA",
         "campana_general": "CAMPAÑA GENERAL",
@@ -54,7 +54,7 @@ info_tables = {
         "tipo_contrato": "TIPO DE CONTRATO",
         "salario": " SALARIO 2023 ",
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
-        "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
+        # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
     # "performance_evaluation": {
     #     "cedula": "CEDULA",
@@ -91,10 +91,10 @@ info_tables = {
 
 
 connection = mysql.connector.connect(
-    host='172.16.0.118',
+    host='172.16.0.115',
     user='root',
-    password=os.environ['MYSQL_118'],
-    database='StaffNet'
+    password=os.environ['MYSQL_115'],
+    database='staffnet'
 )
 
 cursor = connection.cursor()
@@ -254,6 +254,7 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
 # Commit the changes and close the cursor and connection
 try:
     connection.commit()
+    print("Subida exitosa!")
     cursor.close()
     connection.close()
 except Exception as e:
