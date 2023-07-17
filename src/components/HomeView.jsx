@@ -39,7 +39,6 @@ const HomeView = () => {
     const [inputValues, setInputValues] = useState({});
     const [rows, setRows] = useState([]);
     const [tableData, setTableData] = useState([]);
-    const [tableResults, setTableResults] = useState([]);
     const [edit, setEdit] = useState(true);
     const [access, setAccess] = useState(false);
     const [openModal, setOpenModal] = useState(false);
@@ -180,30 +179,6 @@ const HomeView = () => {
         setEdit(true);
         setDetalles({});
     };
-
-    const columns = [
-        { field: "cedula", headerName: "Cedula", width: 120 },
-        { field: "nombre", headerName: "Nombre", width: 230 },
-        { field: "correo", headerName: "Correo", width: 230 },
-        { field: "campana", headerName: "Campaña", width: 100 },
-        { field: "gerencia", headerName: "Gerencia", width: 100 },
-        { field: "cargo", headerName: "Cargo", width: 240 },
-        {
-            field: "detalles",
-            headerName: "Detalles",
-            width: 65,
-            renderCell: (params) => {
-                const { row } = params;
-                return (
-                    <Tooltip title="Detalles">
-                        <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
-                            <MoreIcon />
-                        </IconButton>
-                    </Tooltip>
-                );
-            },
-        },
-    ];
 
     const pageInputs = [
         // Inputs Pagina Información Personal
@@ -955,30 +930,6 @@ const HomeView = () => {
                 },
             ],
         },
-        // Inputs Pagina Acciones Disciplinarias
-        {
-            title: "Acciones Disciplinarias",
-            inputs: [
-                {
-                    id: "falta",
-                    label: "Falta",
-                    name: "falta",
-                    type: "text",
-                },
-                {
-                    id: "tipo_sancion",
-                    label: "Tipo de Sanción",
-                    name: "tipo_sancion",
-                    type: "text",
-                },
-                {
-                    id: "sancion",
-                    label: "Sansión",
-                    name: "sancion",
-                    type: "text",
-                },
-            ],
-        },
         // Inputs Pagina Información Educativa
         {
             title: "Información Educativa",
@@ -1010,44 +961,6 @@ const HomeView = () => {
                     label: "Estudios en curso",
                     name: "estudios_en_curso",
                     type: "text",
-                },
-            ],
-        },
-        // Inputs Pagina Información vacaciones
-        {
-            title: "Información de Vacaciones",
-            inputs: [
-                {
-                    id: "53",
-                    label: "Licencia no remunerada",
-                    name: "licencia_no_remunerada",
-                    type: "text",
-                },
-                {
-                    id: "54",
-                    label: "Periodos tomados de vacaciones",
-                    name: "periodo_tomado_vacaciones",
-                    type: "number",
-                },
-                {
-                    id: "55",
-                    label: "Periodos faltantes de vacaciones",
-                    name: "periodos_faltantes_vacaciones",
-                    type: "number",
-                },
-                {
-                    id: "56",
-                    label: "Fecha de salida de vacaciones",
-                    name: "fecha_salida_vacaciones",
-                    type: "date",
-                    shrink: true,
-                },
-                {
-                    id: "57",
-                    label: "Fecha de ingreso de vacaciones",
-                    name: "fecha_ingreso_vacaciones",
-                    type: "date",
-                    shrink: true,
                 },
             ],
         },
@@ -1120,7 +1033,8 @@ const HomeView = () => {
         },
     ];
 
-    const columns2 = pageInputs.flatMap((page) => {
+    // Create the columns and hidden columns
+    const columns = pageInputs.flatMap((page) => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
             .map((input) => {
@@ -1132,7 +1046,7 @@ const HomeView = () => {
             });
     });
 
-    const hiddenColumns = columns2.map((column) => column.field);
+    const hiddenColumns = columns.map((column) => column.field);
 
     const columnVisibilityModel = {
         ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
@@ -1145,7 +1059,7 @@ const HomeView = () => {
         detalles: true,
     };
 
-    columns2.push({
+    columns.push({
         field: "detalles",
         headerName: "Detalles",
         width: 65,
@@ -1187,26 +1101,21 @@ const HomeView = () => {
         setSeniority(calculateSeniority(affiliationDate));
     }, [openModal]);
 
-    // Search and table functionality
+    // Table functionality
     useEffect(() => {
-        console.log(tableData);
-        const newRows = tableData.map((row) => {
-            const newRow = {};
-            columns2.forEach((column, index) => {
-                if (index < 20) {
-                    newRow[column.field] = row[index];
-                } else if (index >= 20) {
-                    newRow[column.field] = row[index + 1];
-                }
-            });
-            return newRow;
-        });
+        const deleteIndices = (array) => {
+            return array.map((register) => register.filter((_, index) => ![20, 35, 38].includes(index)));
+        };
+
+        const arrayCleaned = deleteIndices(tableData);
+        const newRows = arrayCleaned.map((row) =>
+            columns.reduce((newRow, column, index) => {
+                newRow[column.field] = row[index];
+                return newRow;
+            }, {})
+        );
         setRows(newRows);
     }, [tableData]);
-
-    useEffect(() => {
-        setTableResults(rows);
-    }, [rows]);
 
     // Edit functionality
     const submitEdit = (event) => {
@@ -1228,8 +1137,6 @@ const HomeView = () => {
                 const data = await response.json();
                 setProgressBar(false);
                 if (data.status === "success") {
-                    setTableResults([]);
-                    setSearchTerm("");
                     searchEmployeesEdit();
                     handleCloseModal();
                     setShowSnackAlert("success", "Edición realizada correctamente");
@@ -1847,34 +1754,6 @@ const HomeView = () => {
                             </Fade>
                         </Modal>
                         <Header></Header>
-                        {/* <Box
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    width: "500px",
-                                }}
-                            >
-                                <TextField
-                                    style={{ textAlign: "center" }}
-                                    InputLabelProps={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
-                                    autoFocus
-                                    fullWidth
-                                    autoComplete="off"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    variant="standard"
-                                ></TextField>
-                            </Box>
-                        </Box> */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -1932,7 +1811,7 @@ const HomeView = () => {
                                     },
                                 }}
                                 slots={{ toolbar: CustomToolbar }}
-                                columns={columns2}
+                                columns={columns}
                                 getRowId={(row) => row.cedula}
                                 rows={rows}
                                 checkboxSelection
