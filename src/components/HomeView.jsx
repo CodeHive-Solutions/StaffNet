@@ -32,6 +32,7 @@ import {
     GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 import EmployeeHistory from "./EmployeeHistory";
+import Switch from "@mui/material/Switch";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -54,6 +55,7 @@ const HomeView = () => {
     const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = useState(0);
+    const [checked, setChecked] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -209,7 +211,6 @@ const HomeView = () => {
                         { value: "TI", label: "TI" },
                     ],
                 },
-
                 {
                     id: "fecha_expedicion",
                     label: "Fecha de expedición",
@@ -1103,17 +1104,39 @@ const HomeView = () => {
 
     // Table functionality
     useEffect(() => {
+        // Define a function to format the date
+        function formatDate(dateString) {
+            let date = new Date(dateString);
+            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+            return date.toLocaleString("es-ES", options);
+        }
+
+        // Loop through the tableData and format the dates
+        for (let i = 0; i < tableData.length; i++) {
+            for (let j = 0; j < tableData[i].length; j++) {
+                if (typeof tableData[i][j] === "string" && tableData[i][j].includes("GMT")) {
+                    tableData[i][j] = formatDate(tableData[i][j]);
+                }
+            }
+        }
+
         const deleteIndices = (array) => {
             return array.map((register) => register.filter((_, index) => ![20, 35, 38].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
+
         const newRows = arrayCleaned.map((row) =>
             columns.reduce((newRow, column, index) => {
-                newRow[column.field] = row[index];
+                if (index === row.length - 1) {
+                    newRow[column.field] = row[index] ? "ACTIVO" : "INACTIVO";
+                } else {
+                    newRow[column.field] = row[index];
+                }
                 return newRow;
             }, {})
         );
+
         setRows(newRows);
     }, [tableData]);
 
@@ -1231,6 +1254,26 @@ const HomeView = () => {
         setGender(event.target.value);
     };
 
+    const handleChangeCheck = (event) => {
+        if (event.target.checked) {
+            setFilterModel({
+                items: [
+                    {
+                        columnField: "estado",
+                        operatorValue: "contains",
+                        value: "ACTIVO",
+                    },
+                ],
+                quickFilter: true,
+            });
+        } else {
+            setFilterModel({
+                items: [],
+                quickFilter: true,
+            });
+        }
+    };
+
     // Custom toolbar and export functionality
     function CustomToolbar(props) {
         return (
@@ -1239,12 +1282,37 @@ const HomeView = () => {
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
+                <Switch onChange={handleChangeCheck} inputProps={{ "aria-label": "controlled" }} />
+                {permissions.create == 1 ? (
+                    <Button
+                        startIcon={<PersonAddIcon />}
+                        size="small"
+                        onClick={() => {
+                            handleOpenModalAdd();
+                        }}
+                    >
+                        Añadir
+                    </Button>
+                ) : (
+                    <Button disabled>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                paddingRight: ".5em",
+                            }}
+                        >
+                            <PersonAddIcon />
+                        </Box>
+                        Añadir
+                    </Button>
+                )}
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />
                 </Box>
             </GridToolbarContainer>
         );
     }
+
     function CustomExportButton(props) {
         return (
             <GridToolbarExportContainer {...props}>
@@ -1816,12 +1884,7 @@ const HomeView = () => {
                                 rows={rows}
                                 checkboxSelection
                                 initialState={{
-                                    filter: {
-                                        filterModel: {
-                                            items: [],
-                                            quickFilterExcludeHiddenColumns: true,
-                                        },
-                                    },
+                                    filter: { filterModel },
                                     pagination: {
                                         paginationModel: {
                                             pageSize: 8,
