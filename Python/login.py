@@ -7,8 +7,8 @@ server = Server('CYC-SERVICES.COM.CO')
 
 def start_ldap():
     # Conexion a LDAP mediante usuario ADMIN
-    conn = Connection(server, user='Staffnet', password='T3cn0l0g142023*',
-                      client_strategy=SAFE_SYNC, auto_bind=True)
+    conn = Connection(server, user='Staffnet', password=os.getenv('StaffNetldap'),
+                      client_strategy=SAFE_SYNC, auto_bind=True) # type: ignore
     return conn, server
 
 
@@ -28,7 +28,7 @@ def consulta_login(body, conexion):
             nombre = atributos['name']
             try:
                 login = Connection(
-                    server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True)
+                    server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True) # type: ignore
                 response = {"disable": result_query[3], "edit": result_query[2], 'status': 'success', "consult": result_query[0], "create": result_query[1],
                             'create_admins': result_query[4]}
                 login.unbind()

@@ -19,11 +19,11 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-if not os.path.isfile('/var/env/environment.env'):
+if not os.path.isfile('/var/env/StaffNet.env'):
     logging.critical(f"The env file was not found", exc_info=True)
     raise FileNotFoundError('The env file was not found.')
 else:
-    load_dotenv("/var/env/environment.env")
+    load_dotenv("/var/env/StaffNet.env")
 
 try:
     redis_client = redis.Redis(
@@ -69,20 +69,20 @@ def bd_info():
                         "genero": body.get("genero"), "rh": body.get("rh"),
                         "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
                         "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
-                        "correo": body.get("correo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
+                        "correo": body.get("correo"),"correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
                         "contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
                     "educational_information": {
                         "cedula": body.get("cedula"),
                         "nivel_escolaridad": body.get("nivel_escolaridad"),
-                        "profesion": body.get("Profesión"),
+                        "profesion": body.get("profesion"),
                         "estudios_en_curso": body.get("estudios_en_curso")
                     },
                     "employment_information": {
-                        "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion"), "eps": body.get("eps"),
+                        "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
                         "pension": body.get("pension"),"caja_compensacion":body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
                         "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
                         "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
-                        "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario_2023"), "subsidio_transporte": body.get("subsidio_transporte_2023"),
+                        "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
                     },
                     # "performance_evaluation": {
                         # "cedula": body.get("cedula"),
@@ -104,8 +104,8 @@ def bd_info():
                     "leave_information": {
                         "cedula": body.get("cedula"),
                         "fecha_retiro": body.get("fecha_retiro"),
-                        "tipo_retiro": body.get("tipo_de_retiro"),
-                        "motivo_retiro": body.get("motivo_de_retiro"),
+                        "tipo_retiro": body.get("tipo_retiro"),
+                        "motivo_retiro": body.get("motivo_retiro"),
                         "estado": body.get("estado")
                     }
                 }
@@ -141,9 +141,9 @@ def conexionMySQL():
         try:
             g.conexion = mysql.connector.connect(
                 host="172.16.0.115",
-                user="root",
-                password=os.getenv('MYSQL_115'),
-                database='StaffNet'
+                user="StaffNetuser",
+                password=os.getenv('StaffNetmysql'),
+                database='staffnet'
             )
             logging.info("Connection to MYSQL success")
         except Exception as err:
@@ -336,11 +336,12 @@ def search_employees():
     if session["consult"] == True:
         conexion = conexionMySQL()
         table_info = {
-            "personal_information": "cedula,nombre,correo",
-            "employment_information": "cargo,gerencia,campana_general",
-            "leave_information": "estado"
+            "personal_information": "*",
+            "employment_information": "*",
+            'educational_information': '*',
+            "leave_information": "*"
         }
-        where = "employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula"
+        where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
