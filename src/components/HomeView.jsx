@@ -51,7 +51,6 @@ const HomeView = () => {
     const [permissions, setPermissions] = useState("");
     const [dataCalculateAge, setDataCalculateAge] = useState();
     const [seniority, setSeniority] = useState("");
-    const [searchTerm, setSearchTerm] = useState("");
     const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = useState(0);
@@ -71,6 +70,7 @@ const HomeView = () => {
                 const data = await response.json();
                 if ("info" in data) {
                     setAccess(true);
+                    console.log(data.info.data);
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
                 } else if (data.error === "conexion") {
@@ -440,13 +440,7 @@ const HomeView = () => {
                     name: "cuenta_nomina",
                     type: "number",
                 },
-                {
-                    id: "fecha_ingreso",
-                    label: "Fecha de ingreso",
-                    name: "fecha_ingreso",
-                    type: "date",
-                    shrink: true,
-                },
+
                 {
                     id: "sede",
                     label: "Sede",
@@ -519,6 +513,13 @@ const HomeView = () => {
                         { value: "SUPERVISOR(A) DE CALIDAD", label: "Supervisor(a) de Calidad" },
                         { value: "EN BLANCO", label: "En blanco" },
                     ],
+                },
+                {
+                    id: "fecha_nombramiento",
+                    label: "Fecha de Nombramiento",
+                    name: "fecha_nombramiento",
+                    type: "date",
+                    shrink: true,
                 },
                 {
                     id: "gerencia",
@@ -917,10 +918,23 @@ const HomeView = () => {
                     type: "number",
                 },
                 {
+                    id: "fecha_ingreso",
+                    label: "Fecha de ingreso",
+                    name: "fecha_ingreso",
+                    type: "date",
+                    shrink: true,
+                },
+                {
                     id: "subsidio_transporte",
                     label: "Subsidio de transporte 2023",
                     name: "subsidio_transporte",
                     type: "number",
+                },
+                {
+                    id: "legado_historico",
+                    label: "Legado Historico",
+                    name: "legado_historico",
+                    type: "text",
                 },
                 {
                     id: "desempeño",
@@ -1121,7 +1135,7 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![20, 35, 38].includes(index)));
+            return array.map((register) => register.filter((_, index) => ![22, 37, 40].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1255,23 +1269,7 @@ const HomeView = () => {
     };
 
     const handleChangeCheck = (event) => {
-        if (event.target.checked) {
-            setFilterModel({
-                items: [
-                    {
-                        columnField: "estado",
-                        operatorValue: "contains",
-                        value: "ACTIVO",
-                    },
-                ],
-                quickFilter: true,
-            });
-        } else {
-            setFilterModel({
-                items: [],
-                quickFilter: true,
-            });
-        }
+        console.log(rows);
     };
 
     // Custom toolbar and export functionality
@@ -1883,8 +1881,11 @@ const HomeView = () => {
                                 getRowId={(row) => row.cedula}
                                 rows={rows}
                                 checkboxSelection
+                                // filterModel={{
+                                //     items: [{ field: "cedula", operator: "contains", value: "1001185389" }],
+                                // }}
                                 initialState={{
-                                    filter: { filterModel },
+                                    filter: {},
                                     pagination: {
                                         paginationModel: {
                                             pageSize: 8,

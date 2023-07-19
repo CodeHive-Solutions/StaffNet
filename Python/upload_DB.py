@@ -1,7 +1,6 @@
 import csv
 import os
 import re
-import datetime
 import mysql.connector
 import logging
 import datetime
@@ -54,6 +53,8 @@ info_tables = {
         "tipo_contrato": "TIPO DE CONTRATO",
         "salario": " SALARIO 2023 ",
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
+        'legado_historico': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
+        'fecha_nombramiento': 'FECHA NOMBRAMIENTO CARGO',
         # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
     # "performance_evaluation": {
@@ -112,13 +113,22 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                 row[mapping] = row[mapping].upper().strip()
                 print(column)
                 print("mapping",row[mapping])
-                if column in ['fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
+                if column in ['fecha_nombramiento','fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
                     date_string = row[mapping]
                     print("fecha",date_string)
-                    if date_string in ['',' ','NO','0/01/1900','N/A'] or len(date_string) > 10:
+                    if date_string in ['#N/D','',' ','NO','0/01/1900','N/A']:
                         formatted_date = None
                         if column in ['fecha_nacimiento']:
                             formatted_date = '1000-01-01'
+                    elif not is_date(date_string):
+                        date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
+                        formatted_date = date_object.strftime('%Y-%m-%d')
+                    elif re.search(r'//', date_string):
+                        date_string = re.sub(r'/{2,}', '/', date_string)
+                        date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
+                        formatted_date = date_object.strftime('%Y-%m-%d')
+                    elif len(date_string) > 10:
+                        formatted_date = date_string
                     else:
                         date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
                         formatted_date = date_object.strftime('%Y-%m-%d')
