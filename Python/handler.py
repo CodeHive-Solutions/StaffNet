@@ -70,7 +70,7 @@ def bd_info():
                         "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
                         "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
                         "correo": body.get("correo"),"correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
-                        "contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
+                        'localidad':body.get('localidad'),"contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
                     "educational_information": {
                         "cedula": body.get("cedula"),
                         "nivel_escolaridad": body.get("nivel_escolaridad"),
@@ -418,3 +418,7 @@ def insert_in_tables():
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
     return response
+
+@ app.route('/download', methods=['POST'])
+def download():
+    

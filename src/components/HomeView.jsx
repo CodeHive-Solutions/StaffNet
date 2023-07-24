@@ -54,7 +54,13 @@ const HomeView = () => {
     const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = useState(0);
-    const [checked, setChecked] = useState(true);
+    const [checked, setChecked] = useState(false);
+    const [originalData, setOriginalData] = useState(rows);
+
+    // const [filterModel, setFilterModel] = .useState({
+    //     items: [{ columnField: "estado", operatorValue: "contains", value: "" }],
+    // });
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -70,7 +76,6 @@ const HomeView = () => {
                 const data = await response.json();
                 if ("info" in data) {
                     setAccess(true);
-                    console.log(data.info.data);
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
                 } else if (data.error === "conexion") {
@@ -322,6 +327,34 @@ const HomeView = () => {
                     label: "Correo Corporativo",
                     name: "correo_corporativo",
                     type: "email",
+                },
+                {
+                    id: "localidad",
+                    label: "Localidad",
+                    name: "localidad",
+                    type: "select",
+                    options: [
+                        { value: "Usaquén", label: "Usaquén" },
+                        { value: "Chapinero", label: "Chapinero" },
+                        { value: "Santa Fe", label: "Santa Fe" },
+                        { value: "San Cristóbal", label: "San Cristóbal" },
+                        { value: "Usme", label: "Usme" },
+                        { value: "Tunjuelito", label: "Tunjuelito" },
+                        { value: "Bosa", label: "Bosa" },
+                        { value: "Kennedy", label: "Kennedy" },
+                        { value: "Fontibón", label: "Fontibón" },
+                        { value: "Engativá", label: "Engativá" },
+                        { value: "Suba", label: "Suba" },
+                        { value: "Barrios Unidos", label: "Barrios Unidos" },
+                        { value: "Teusaquillo", label: "Teusaquillo" },
+                        { value: "Los Mártires", label: "Los Mártires" },
+                        { value: "Antonio Nariño", label: "Antonio Nariño" },
+                        { value: "Puente Aranda", label: "Puente Aranda" },
+                        { value: "La Candelaria", label: "La Candelaria" },
+                        { value: "Rafael Uribe Uribe", label: "Rafael Uribe Uribe" },
+                        { value: "Ciudad Bolívar", label: "Ciudad Bolívar" },
+                        { value: "Sumapaz", label: "Sumapaz" },
+                    ],
                 },
                 {
                     id: "14",
@@ -1152,6 +1185,7 @@ const HomeView = () => {
         );
 
         setRows(newRows);
+        setOriginalData(newRows);
     }, [tableData]);
 
     // Edit functionality
@@ -1204,6 +1238,7 @@ const HomeView = () => {
             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
         }
     };
+
     const handleFormChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
@@ -1269,8 +1304,14 @@ const HomeView = () => {
     };
 
     const handleChangeCheck = (event) => {
-        console.log(rows);
+        setChecked(event.target.checked);
+        if (event.target.checked === true) {
+            setRows(originalData.filter((record) => record.estado !== "INACTIVO"));
+        } else {
+            setRows(originalData.filter((record) => record.estado !== "ACTIVO"));
+        }
     };
+
 
     // Custom toolbar and export functionality
     function CustomToolbar(props) {
@@ -1280,7 +1321,7 @@ const HomeView = () => {
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
-                <Switch onChange={handleChangeCheck} inputProps={{ "aria-label": "controlled" }} />
+                <Switch onChange={handleChangeCheck} checked={checked} inputProps={{ "aria-label": "controlled" }} />
                 {permissions.create == 1 ? (
                     <Button
                         startIcon={<PersonAddIcon />}
@@ -1320,10 +1361,7 @@ const HomeView = () => {
     }
     const csvOptions = { delimiter: ";", utf8WithBom: true };
 
-    const [filterModel, setFilterModel] = useState({
-        items: [],
-        quickFilterExcludeHiddenColumns: true,
-    });
+    const handleSwitchChange = (event) => {};
 
     if (access) {
         return (
@@ -1881,6 +1919,8 @@ const HomeView = () => {
                                 getRowId={(row) => row.cedula}
                                 rows={rows}
                                 checkboxSelection
+                                // filterModel={filterModel}
+                                // onFilterModelChange={(model) => setFilterModel(model)}
                                 // filterModel={{
                                 //     items: [{ field: "cedula", operator: "contains", value: "1001185389" }],
                                 // }}

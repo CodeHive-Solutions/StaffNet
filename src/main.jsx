@@ -10,7 +10,7 @@ import LoginView from "./Components/LoginView";
 import SingUpView from "./Components/SingUpView";
 const theme = createTheme({
     typography: {
-        fontFamily: '"Open Sans", sans-serif',
+        fontFamily: '"Inter", sans-serif',
     },
 });
 
