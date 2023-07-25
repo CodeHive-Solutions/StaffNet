@@ -19,11 +19,11 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-if not os.path.isfile('/var/env/environment.env'):
+if not os.path.isfile('/var/env/StaffNet.env'):
     logging.critical(f"The env file was not found", exc_info=True)
     raise FileNotFoundError('The env file was not found.')
 else:
-    load_dotenv("/var/env/environment.env")
+    load_dotenv("/var/env/StaffNet.env")
 
 try:
     redis_client = redis.Redis(
@@ -140,10 +140,13 @@ def conexionMySQL():
     if "conexion" not in g:
         try:
             g.conexion = mysql.connector.connect(
-                host="172.16.0.115",
-                user="root",
-                password=os.getenv('MYSQL_115'),
-                database='StaffNet'
+                # host="172.16.0.115",
+                host="172.16.0.118",
+                # user="root",
+                user="StaffNetuser",
+                # password=os.getenv('MYSQL_115'),
+                password=os.getenv('StaffNetuser'),
+                database='staffnet'
             )
             logging.info("Connection to MYSQL success")
         except Exception as err:

@@ -46,7 +46,7 @@ info_tables = {
         "cambio_eps_pension_fecha": "CAMBIO EPS - PENSION FECHA",
         "cuenta_nomina": "CUENTA NOMINA",
         "fecha_ingreso": "FECHA INGRESO",
-        "sede": "CIUDAD DE TRABAJO",
+        # "sede": "CIUDAD DE TRABAJO",
         "cargo": "CARGO",
         "gerencia": "GERENCIA",
         "campana_general": "CAMPAÑA GENERAL",
@@ -92,9 +92,9 @@ info_tables = {
 
 connection = mysql.connector.connect(
     host='172.16.0.118',
-    user='root',
-    password=os.environ['MYSQL_118'],
-    database='StaffNet'
+    user='StaffNetuser',
+    password=os.environ['StaffNetuser'],
+    database='staffnet'
 )
 
 cursor = connection.cursor()
