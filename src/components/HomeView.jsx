@@ -20,6 +20,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import teams from "../images/teams.png";
 import {
     DataGrid,
@@ -56,10 +57,6 @@ const HomeView = () => {
     const [cedulaDetails, setCedulaDetails] = useState(0);
     const [checked, setChecked] = useState(false);
     const [originalData, setOriginalData] = useState(rows);
-
-    // const [filterModel, setFilterModel] = .useState({
-    //     items: [{ columnField: "estado", operatorValue: "contains", value: "" }],
-    // });
 
     const navigate = useNavigate();
 
@@ -914,6 +911,8 @@ const HomeView = () => {
                     options: [
                         { value: "DIRECCIÓN", label: "Dirección" },
                         { value: "NEGOCIO", label: "Negocio" },
+                        { value: "OPARATIVOS", label: "Operativos" },
+                        { value: "ADMINISTRATIVOS", label: "Administrativos" },
                     ],
                 },
                 {
@@ -945,17 +944,17 @@ const HomeView = () => {
                     ],
                 },
                 {
-                    id: "salario",
-                    label: "Salario",
-                    name: "salario",
-                    type: "number",
-                },
-                {
                     id: "fecha_ingreso",
                     label: "Fecha de ingreso",
                     name: "fecha_ingreso",
                     type: "date",
                     shrink: true,
+                },
+                {
+                    id: "salario",
+                    label: "Salario",
+                    name: "salario",
+                    type: "number",
                 },
                 {
                     id: "subsidio_transporte",
@@ -1074,8 +1073,14 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         { value: 1, label: "Activo" },
-                        { value: 0, label: "Inactivo" },
+                        { value: 0, label: "Retirado" },
                     ],
+                },
+                {
+                    id: "observacion",
+                    label: "Observaciónes",
+                    name: "observacion",
+                    type: "text",
                 },
             ],
         },
@@ -1086,11 +1091,47 @@ const HomeView = () => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
             .map((input) => {
-                return {
-                    field: input.name,
-                    headerName: input.label,
-                    width: 200,
-                };
+                if (
+                    input.name == "fecha_nacimiento" ||
+                    input.name == "fecha_afiliacion_eps" ||
+                    input.name == "fecha_nombramiento" ||
+                    input.name == "fecha_ingreso" ||
+                    input.name == "fecha_retiro"
+                ) {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 170,
+                        valueFormatter: (params) => {
+                            let date = params.value;
+                            if (date === null) {
+                                return "";
+                            }
+                            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+                            return date.toLocaleString("es-ES", options);
+                        },
+                    };
+                } else if (input.name == "salario" || input.name == "subsidio_transporte") {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 170,
+                        valueFormatter: (params) => {
+                            let salary = params.value;
+                            if (salary === null) {
+                                return "";
+                            }
+                            let options = { style: "currency", currency: "COP" };
+                            return salary.toLocaleString("es-CO", options);
+                        },
+                    };
+                } else {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 170,
+                    };
+                }
             });
     });
 
@@ -1102,8 +1143,9 @@ const HomeView = () => {
         nombre: true,
         correo: true,
         campana: true,
-        gerencia: true,
         cargo: true,
+        salario: true,
+        fecha_ingreso: true,
         detalles: true,
     };
 
@@ -1154,8 +1196,7 @@ const HomeView = () => {
         // Define a function to format the date
         function formatDate(dateString) {
             let date = new Date(dateString);
-            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
-            return date.toLocaleString("es-ES", options);
+            return date;
         }
 
         // Loop through the tableData and format the dates
@@ -1168,7 +1209,8 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![22, 37, 40].includes(index)));
+            console.log(array);
+            return array.map((register) => register.filter((_, index) => ![21, 39, 43].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1176,7 +1218,7 @@ const HomeView = () => {
         const newRows = arrayCleaned.map((row) =>
             columns.reduce((newRow, column, index) => {
                 if (index === row.length - 1) {
-                    newRow[column.field] = row[index] ? "ACTIVO" : "INACTIVO";
+                    newRow[column.field] = row[index] ? "ACTIVO" : "RETIRADO";
                 } else {
                     newRow[column.field] = row[index];
                 }
@@ -1186,6 +1228,7 @@ const HomeView = () => {
 
         setRows(newRows);
         setOriginalData(newRows);
+        console.log(newRows);
     }, [tableData]);
 
     // Edit functionality
@@ -1306,12 +1349,11 @@ const HomeView = () => {
     const handleChangeCheck = (event) => {
         setChecked(event.target.checked);
         if (event.target.checked === true) {
-            setRows(originalData.filter((record) => record.estado !== "INACTIVO"));
+            setRows(originalData.filter((record) => record.estado !== "RETIRADO"));
         } else {
             setRows(originalData.filter((record) => record.estado !== "ACTIVO"));
         }
     };
-
 
     // Custom toolbar and export functionality
     function CustomToolbar(props) {
@@ -1321,7 +1363,18 @@ const HomeView = () => {
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
-                <Switch onChange={handleChangeCheck} checked={checked} inputProps={{ "aria-label": "controlled" }} />
+                <FormControlLabel
+                    sx={{
+                        color: "#1976d2",
+                        typography: {
+                            fontFamily: "Arial, sans-serif",
+                            fontSize: "8px", // Change this value to the desired font size
+                        },
+                    }}
+                    control={<Switch onChange={handleChangeCheck} checked={checked} />}
+                    label="ACTIVOS/RETIRADOS"
+                />
+
                 {permissions.create == 1 ? (
                     <Button
                         startIcon={<PersonAddIcon />}
@@ -1360,8 +1413,6 @@ const HomeView = () => {
         );
     }
     const csvOptions = { delimiter: ";", utf8WithBom: true };
-
-    const handleSwitchChange = (event) => {};
 
     if (access) {
         return (
@@ -1471,7 +1522,24 @@ const HomeView = () => {
                                                     </Typography>
                                                     {section.inputs.map((input) => {
                                                         const getInputComponent = () => {
-                                                            if (input.id === "antiguedad") {
+                                                            if (input.id === "observacion") {
+                                                                return (
+                                                                    <TextField
+                                                                        key={input.id}
+                                                                        name={input.name}
+                                                                        label={input.label}
+                                                                        type={input.type}
+                                                                        multiline
+                                                                        rows={4}
+                                                                        sx={{
+                                                                            width: "100%",
+                                                                        }}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            } else if (input.id === "antiguedad") {
                                                                 return (
                                                                     <TextField
                                                                         disabled
@@ -1925,7 +1993,12 @@ const HomeView = () => {
                                 //     items: [{ field: "cedula", operator: "contains", value: "1001185389" }],
                                 // }}
                                 initialState={{
-                                    filter: {},
+                                    filter: {
+                                        filterModel: {
+                                            items: [],
+                                            quickFilterExcludeHiddenColumns: true,
+                                        },
+                                    },
                                     pagination: {
                                         paginationModel: {
                                             pageSize: 8,

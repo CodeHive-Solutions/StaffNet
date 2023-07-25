@@ -419,6 +419,6 @@ def insert_in_tables():
                     'error': 'No tienes permisos'}
     return response
 
-@ app.route('/download', methods=['POST'])
-def download():
+# @ app.route('/download', methods=['POST'])
+# def download():
     
