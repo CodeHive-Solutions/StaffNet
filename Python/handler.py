@@ -83,6 +83,7 @@ def bd_info():
                         "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
                         "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
                         "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
+                        'observaciones': body.get('observaciones')
                     },
                     # "performance_evaluation": {
                         # "cedula": body.get("cedula"),
@@ -337,8 +338,8 @@ def search_employees():
         conexion = conexionMySQL()
         table_info = {
             "personal_information": "*",
-            "employment_information": "*",
             'educational_information': '*',
+            "employment_information": "*",
             "leave_information": "*"
         }
         where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula"
@@ -419,6 +420,22 @@ def insert_in_tables():
                     'error': 'No tienes permisos'}
     return response
 
-# @ app.route('/download', methods=['POST'])
+# @ app.route('/download', methods=['POST']) #type: ignore
 # def download():
-    
+#     if session["consult"] == True:
+#         body = get_request_body()
+#         conexion = conexionMySQL()
+#         search("*", "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+
+# json_data = '[{"name": "Alice", "age": 30, "city": "New York"},{"name": "Bob", "age": 25, "city": "Los Angeles"},{"name": "Charlie", "age": 35, "city": "Chicago"}]'
+# data = json.loads(json_data)
+# # Specify the CSV file name
+# csv_file = "output.csv"
+
+# # Write JSON data to the CSV file
+# with open(csv_file, "w", newline="") as f:
+#     fieldnames = data[0].keys()  # Assuming all dictionaries have the same keys
+#     writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+#     writer.writeheader()  # Write the CSV header (field names)
+#     writer.writerows(data)  # Write the data rows

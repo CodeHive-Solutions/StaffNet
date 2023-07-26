@@ -22,6 +22,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import teams from "../images/teams.png";
+
 import {
     DataGrid,
     GridToolbarContainer,
@@ -31,6 +32,7 @@ import {
     GridToolbarFilterButton,
     GridToolbarColumnsButton,
     GridToolbarQuickFilter,
+    useGridApiContext,
 } from "@mui/x-data-grid";
 import EmployeeHistory from "./EmployeeHistory";
 import Switch from "@mui/material/Switch";
@@ -197,7 +199,7 @@ const HomeView = () => {
                 },
                 {
                     id: "2",
-                    label: "Nombre Completo",
+                    label: "Nombre completo",
                     name: "nombre",
                     type: "text",
                 },
@@ -257,7 +259,7 @@ const HomeView = () => {
                 },
                 {
                     id: "8",
-                    label: "Estado Civil",
+                    label: "Estado civil",
                     name: "estado_civil",
                     type: "select",
                     options: [
@@ -313,7 +315,7 @@ const HomeView = () => {
                 },
                 {
                     id: "11",
-                    label: "Telefono Fijo",
+                    label: "Telefono fijo",
                     name: "tel_fijo",
                     type: "number",
                 },
@@ -321,7 +323,7 @@ const HomeView = () => {
                 { id: "13", label: "Correo", name: "correo", type: "email" },
                 {
                     id: "correo_corporativo",
-                    label: "Correo Corporativo",
+                    label: "Correo corporativo",
                     name: "correo_corporativo",
                     type: "email",
                 },
@@ -353,13 +355,13 @@ const HomeView = () => {
                         { value: "Sumapaz", label: "Sumapaz" },
                     ],
                 },
+                { id: "15", label: "Barrio", name: "barrio", type: "text" },
                 {
                     id: "14",
-                    label: "Direccion",
+                    label: "Dirección",
                     name: "direccion",
                     type: "text",
                 },
-                { id: "15", label: "Barrio", name: "barrio", type: "text" },
                 {
                     id: "16",
                     label: "Contacto de emergencia",
@@ -395,16 +397,57 @@ const HomeView = () => {
             ],
         },
 
+        // Inputs Pagina Información Educativa
+        {
+            title: "Información Educativa",
+            inputs: [
+                {
+                    id: "19",
+                    label: "Nivel de escolaridad",
+                    name: "nivel_escolaridad",
+                    type: "select",
+                    options: [
+                        { value: "PRIMARIA", label: "Primaria" },
+                        { value: "BACHILLER", label: "Bachiller" },
+                        { value: "TÉCNICO", label: "Técnico" },
+                        { value: "TECNÓLOGO", label: "Tecnólogo" },
+                        { value: "AUXILIAR", label: "Auxiliar" },
+                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
+                        { value: "PROFESIONAL", label: "Profesional" },
+                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
+                    ],
+                },
+                {
+                    id: "20",
+                    label: "Profesión",
+                    name: "profesion",
+                    type: "text",
+                },
+                {
+                    id: "21",
+                    label: "Estudios en curso",
+                    name: "estudios_en_curso",
+                    type: "text",
+                },
+            ],
+        },
+
         // Inputs Pagina Información Empleado
         {
             title: "Información Empleado",
             inputs: [
                 {
                     id: "fecha_afiliacion_eps",
-                    label: "Fecha de Afiliacion",
+                    label: "Fecha de afiliación",
                     name: "fecha_afiliacion_eps",
                     type: "date",
                     shrink: true,
+                },
+                {
+                    id: "cambio_eps_legado",
+                    label: "Cambio EPS legado",
+                    name: "cambio_eps_legado",
+                    type: "text",
                 },
                 {
                     id: "antiguedad",
@@ -447,7 +490,7 @@ const HomeView = () => {
                 },
                 {
                     id: "caja_compensacion",
-                    label: "Caja de Compensacion",
+                    label: "Caja de Compensación",
                     name: "caja_compensacion",
                     type: "text",
                 },
@@ -479,7 +522,9 @@ const HomeView = () => {
                     options: [
                         { value: "BOGOTÁ", label: "Bogotá D.C" },
                         { value: "BUCARAMANGA", label: "Bucaramanga" },
+                        { value: "IBAGUE", label: "Ibague" },
                         { value: "MEDELLIN", label: "Medellin" },
+                        { value: "VILLAVICENCIO", label: "Villavicencio" },
                     ],
                 },
                 {
@@ -546,10 +591,9 @@ const HomeView = () => {
                 },
                 {
                     id: "fecha_nombramiento",
-                    label: "Fecha de Nombramiento",
+                    label: "Fecha de nombramiento legado",
                     name: "fecha_nombramiento",
-                    type: "date",
-                    shrink: true,
+                    type: "text",
                 },
                 {
                     id: "gerencia",
@@ -958,14 +1002,14 @@ const HomeView = () => {
                 },
                 {
                     id: "subsidio_transporte",
-                    label: "Subsidio de transporte 2023",
+                    label: "Subsidio de transporte",
                     name: "subsidio_transporte",
                     type: "number",
                 },
                 {
-                    id: "legado_historico",
-                    label: "Legado Historico",
-                    name: "legado_historico",
+                    id: "cambio_campaña_legado",
+                    label: "Cambio campaña legado",
+                    name: "cambio_campaña_legado",
                     type: "text",
                 },
                 {
@@ -975,38 +1019,10 @@ const HomeView = () => {
                     type: "text",
                     shrink: true,
                 },
-            ],
-        },
-        // Inputs Pagina Información Educativa
-        {
-            title: "Información Educativa",
-            inputs: [
                 {
-                    id: "19",
-                    label: "Nivel de escolaridad",
-                    name: "nivel_escolaridad",
-                    type: "select",
-                    options: [
-                        { value: "PRIMARIA", label: "Primaria" },
-                        { value: "BACHILLER", label: "Bachiller" },
-                        { value: "TÉCNICO", label: "Técnico" },
-                        { value: "TECNÓLOGO", label: "Tecnólogo" },
-                        { value: "AUXILIAR", label: "Auxiliar" },
-                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
-                        { value: "PROFESIONAL", label: "Profesional" },
-                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
-                    ],
-                },
-                {
-                    id: "20",
-                    label: "Profesión",
-                    name: "profesion",
-                    type: "text",
-                },
-                {
-                    id: "21",
-                    label: "Estudios en curso",
-                    name: "estudios_en_curso",
+                    id: "observaciones",
+                    label: "Observaciones",
+                    name: "observaciones",
                     type: "text",
                 },
             ],
@@ -1076,12 +1092,6 @@ const HomeView = () => {
                         { value: 0, label: "Retirado" },
                     ],
                 },
-                {
-                    id: "observacion",
-                    label: "Observaciónes",
-                    name: "observacion",
-                    type: "text",
-                },
             ],
         },
     ];
@@ -1091,13 +1101,7 @@ const HomeView = () => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
             .map((input) => {
-                if (
-                    input.name == "fecha_nacimiento" ||
-                    input.name == "fecha_afiliacion_eps" ||
-                    input.name == "fecha_nombramiento" ||
-                    input.name == "fecha_ingreso" ||
-                    input.name == "fecha_retiro"
-                ) {
+                if (input.name == "fecha_nacimiento" || input.name == "fecha_afiliacion_eps" || input.name == "fecha_ingreso" || input.name == "fecha_retiro") {
                     return {
                         field: input.name,
                         headerName: input.label,
@@ -1209,8 +1213,7 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            console.log(array);
-            return array.map((register) => register.filter((_, index) => ![21, 39, 43].includes(index)));
+            return array.map((register) => register.filter((_, index) => ![21, 25, 45].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1228,7 +1231,6 @@ const HomeView = () => {
 
         setRows(newRows);
         setOriginalData(newRows);
-        console.log(newRows);
     }, [tableData]);
 
     // Edit functionality
@@ -1357,13 +1359,43 @@ const HomeView = () => {
 
     // Custom toolbar and export functionality
     function CustomToolbar(props) {
+        const apiRef = useGridApiContext();
+        const handleExport = async () => {
+            const result = apiRef.current.getDataAsCsv(csvOptions);
+
+            try {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(result),
+                });
+                setProgressBar(false);
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const data = await response.json();
+                if (data.status === "success") {
+                    setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
+                } else {
+                    console.error(data.error + "error alert");
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
+                }
+            } catch (error) {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+            }
+        };
+
         return (
             <GridToolbarContainer {...props}>
                 <GridToolbarColumnsButton />
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
-                <FormControlLabel
+                {/* <Button onClick={() => handleExport()}>ExportBack</Button> */}
+                {/* <FormControlLabel
                     sx={{
                         color: "#1976d2",
                         typography: {
@@ -1372,10 +1404,10 @@ const HomeView = () => {
                         },
                     }}
                     control={<Switch onChange={handleChangeCheck} checked={checked} />}
-                    label="ACTIVOS/RETIRADOS"
-                />
+                    label="RETIRADOS/ACTIVOS"
+                /> */}
 
-                {permissions.create == 1 ? (
+                {/* {permissions.create == 1 ? (
                     <Button
                         startIcon={<PersonAddIcon />}
                         size="small"
@@ -1397,7 +1429,7 @@ const HomeView = () => {
                         </Box>
                         Añadir
                     </Button>
-                )}
+                )} */}
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />
                 </Box>
@@ -1522,9 +1554,10 @@ const HomeView = () => {
                                                     </Typography>
                                                     {section.inputs.map((input) => {
                                                         const getInputComponent = () => {
-                                                            if (input.id === "observacion") {
+                                                            if (input.id === "observaciones") {
                                                                 return (
                                                                     <TextField
+                                                                        disabled={edit}
                                                                         key={input.id}
                                                                         name={input.name}
                                                                         label={input.label}
@@ -1534,6 +1567,14 @@ const HomeView = () => {
                                                                         sx={{
                                                                             width: "100%",
                                                                         }}
+                                                                        value={
+                                                                            inputValues[input.name] !== undefined &&
+                                                                            inputValues[input.name] !== null &&
+                                                                            inputValues[input.name] !== ""
+                                                                                ? inputValues[input.name]
+                                                                                : ""
+                                                                        }
+                                                                        onChange={(event) => handleChange(event, input)}
                                                                         InputLabelProps={{
                                                                             shrink: true,
                                                                         }}
@@ -1826,6 +1867,26 @@ const HomeView = () => {
                                                                 label={input.label}
                                                             />
                                                         );
+                                                    } else if (input.name === "observaciones") {
+                                                        return (
+                                                            <TextField
+                                                                sx={{
+                                                                    width: "100%",
+                                                                }}
+                                                                key={input.id}
+                                                                multiline
+                                                                rows={4}
+                                                                name={input.name}
+                                                                InputLabelProps={{
+                                                                    shrink: input.shrink,
+                                                                }}
+                                                                onChange={handleFormChange}
+                                                                value={formData[input.name] || ""}
+                                                                autoComplete="off"
+                                                                type={input.type}
+                                                                label={input.label}
+                                                            />
+                                                        );
                                                     } else {
                                                         return (
                                                             <TextField
@@ -1932,6 +1993,14 @@ const HomeView = () => {
                                 justifyContent: "flex-end",
                             }}
                         >
+                            <FormControlLabel
+                                sx={{
+                                    color: "#1976d2",
+                                    fontSize: "5px", // Change this value to the desired font size
+                                }}
+                                control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
+                                label="RETIRADOS/ACTIVOS"
+                            />
                             {permissions.create == 1 ? (
                                 <Button
                                     onClick={() => {
@@ -1964,6 +2033,7 @@ const HomeView = () => {
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
+                                // getDataAsCsv={(options?: GridCsvExportOptions) => string}
                                 sx={{
                                     position: "relative",
                                     "&::before": {

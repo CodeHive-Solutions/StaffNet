@@ -1,4 +1,5 @@
 import csv
+from dateutil.parser import parse
 import os
 import re
 import mysql.connector
@@ -42,7 +43,7 @@ info_tables = {
         "eps": "EPS",
         "pension": "PENSION",
         "cesantias": "CESANTIAS",
-        # "cambio_eps_pension_fecha": "CAMBIO EPS - PENSION FECHA",
+        "cambio_eps_legado": "CAMBIO EPS - PENSION FECHA",
         "cuenta_nomina": "CUENTA NOMINA",
         "fecha_ingreso": "FECHA INGRESO",
         # "sede": "CIUDAD DE TRABAJO",
@@ -53,7 +54,7 @@ info_tables = {
         "tipo_contrato": "TIPO DE CONTRATO",
         "salario": " SALARIO 2023 ",
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
-        'legado_historico': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
+        'cambio_campaña_legado': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
         'fecha_nombramiento': 'FECHA NOMBRAMIENTO CARGO',
         # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
@@ -113,16 +114,17 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                 row[mapping] = row[mapping].upper().strip()
                 print(column)
                 print("mapping",row[mapping])
-                if column in ['fecha_nombramiento','fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
+                if column in ['','fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
                     date_string = row[mapping]
                     print("fecha",date_string)
                     if date_string in ['#N/D','',' ','NO','0/01/1900','N/A']:
+                        print("fecha vacia")
                         formatted_date = None
                         if column in ['fecha_nacimiento']:
                             formatted_date = '1000-01-01'
-                    elif not is_date(date_string):
-                        date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
-                        formatted_date = date_object.strftime('%Y-%m-%d')
+                        parsed_string = None
+                    # if parsed_string is list:
+                    #     result_string = ", ".join(parsed_string)
                     elif re.search(r'//', date_string):
                         date_string = re.sub(r'/{2,}', '/', date_string)
                         date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
@@ -132,8 +134,9 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                     else:
                         date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
                         formatted_date = date_object.strftime('%Y-%m-%d')
-                    print(formatted_date)
                     column_values[column] = formatted_date
+                elif column in ['fecha_nombramiento', 'legado_historico','cambio_eps_legado']:
+                    column_values[column] = row[mapping]
                 elif column in ['salario','tel_fijo', 'subsidio_transporte','dias_utilizados','personas_a_cargo','hijos','estrato','edad','cedula']:
                     integer = row[mapping]
                     print("integer",integer)
