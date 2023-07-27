@@ -19,7 +19,6 @@ def update_data(conexion, info_tables, where):
             sql = "UPDATE " + table_name + " SET " + \
                 ", ".join(values) + " WHERE " + where
             params = tuple(columns.values())
-            print("SQL: ", sql % params)
             mycursor.execute(sql, params)
             if mycursor.rowcount > 0:
                 response = {"status": "success"}
@@ -68,10 +67,8 @@ def search_transaction(conexion, table_info, where):
         column_names = ", ".join(column_names)
         sql = f"SELECT {column_names} FROM {table_names} WHERE {where}"
         # Execute the SQL statement with search_value as parameter
-        logging.info(f"SQL_search_employees: {sql}")
         mycursor.execute(sql)
         result = mycursor.fetchall()
-        logging.info(f"Result: {len(result)}")
         response = {"status": "success", "data": result}
         return response
     except mysql.connector.Error as error:
@@ -169,7 +166,6 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
         query += f" WHERE {table_names[0]}.{id_column} = {id_value}"
     try:
         # Execute the query
-        logging.info(f"Query: {query}")
         mycursor.execute(query)
         # Fetch the results
         results = mycursor.fetchall()

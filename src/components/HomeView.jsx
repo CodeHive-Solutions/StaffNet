@@ -20,7 +20,9 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import teams from "../images/teams.png";
+
 import {
     DataGrid,
     GridToolbarContainer,
@@ -30,6 +32,7 @@ import {
     GridToolbarFilterButton,
     GridToolbarColumnsButton,
     GridToolbarQuickFilter,
+    useGridApiContext,
 } from "@mui/x-data-grid";
 import EmployeeHistory from "./EmployeeHistory";
 import Switch from "@mui/material/Switch";
@@ -51,11 +54,12 @@ const HomeView = () => {
     const [permissions, setPermissions] = useState("");
     const [dataCalculateAge, setDataCalculateAge] = useState();
     const [seniority, setSeniority] = useState("");
-    const [searchTerm, setSearchTerm] = useState("");
     const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = useState(0);
     const [checked, setChecked] = useState(true);
+    const [originalData, setOriginalData] = useState(rows);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -195,7 +199,7 @@ const HomeView = () => {
                 },
                 {
                     id: "2",
-                    label: "Nombre Completo",
+                    label: "Nombre completo",
                     name: "nombre",
                     type: "text",
                 },
@@ -255,7 +259,7 @@ const HomeView = () => {
                 },
                 {
                     id: "8",
-                    label: "Estado Civil",
+                    label: "Estado civil",
                     name: "estado_civil",
                     type: "select",
                     options: [
@@ -311,7 +315,7 @@ const HomeView = () => {
                 },
                 {
                     id: "11",
-                    label: "Telefono Fijo",
+                    label: "Telefono fijo",
                     name: "tel_fijo",
                     type: "number",
                 },
@@ -319,17 +323,45 @@ const HomeView = () => {
                 { id: "13", label: "Correo", name: "correo", type: "email" },
                 {
                     id: "correo_corporativo",
-                    label: "Correo Corporativo",
+                    label: "Correo corporativo",
                     name: "correo_corporativo",
                     type: "email",
                 },
                 {
+                    id: "localidad",
+                    label: "Localidad",
+                    name: "localidad",
+                    type: "select",
+                    options: [
+                        { value: "Usaquén", label: "Usaquén" },
+                        { value: "Chapinero", label: "Chapinero" },
+                        { value: "Santa Fe", label: "Santa Fe" },
+                        { value: "San Cristóbal", label: "San Cristóbal" },
+                        { value: "Usme", label: "Usme" },
+                        { value: "Tunjuelito", label: "Tunjuelito" },
+                        { value: "Bosa", label: "Bosa" },
+                        { value: "Kennedy", label: "Kennedy" },
+                        { value: "Fontibón", label: "Fontibón" },
+                        { value: "Engativá", label: "Engativá" },
+                        { value: "Suba", label: "Suba" },
+                        { value: "Barrios Unidos", label: "Barrios Unidos" },
+                        { value: "Teusaquillo", label: "Teusaquillo" },
+                        { value: "Los Mártires", label: "Los Mártires" },
+                        { value: "Antonio Nariño", label: "Antonio Nariño" },
+                        { value: "Puente Aranda", label: "Puente Aranda" },
+                        { value: "La Candelaria", label: "La Candelaria" },
+                        { value: "Rafael Uribe Uribe", label: "Rafael Uribe Uribe" },
+                        { value: "Ciudad Bolívar", label: "Ciudad Bolívar" },
+                        { value: "Sumapaz", label: "Sumapaz" },
+                    ],
+                },
+                { id: "15", label: "Barrio", name: "barrio", type: "text" },
+                {
                     id: "14",
-                    label: "Direccion",
+                    label: "Dirección",
                     name: "direccion",
                     type: "text",
                 },
-                { id: "15", label: "Barrio", name: "barrio", type: "text" },
                 {
                     id: "16",
                     label: "Contacto de emergencia",
@@ -365,16 +397,57 @@ const HomeView = () => {
             ],
         },
 
+        // Inputs Pagina Información Educativa
+        {
+            title: "Información Educativa",
+            inputs: [
+                {
+                    id: "19",
+                    label: "Nivel de escolaridad",
+                    name: "nivel_escolaridad",
+                    type: "select",
+                    options: [
+                        { value: "PRIMARIA", label: "Primaria" },
+                        { value: "BACHILLER", label: "Bachiller" },
+                        { value: "TÉCNICO", label: "Técnico" },
+                        { value: "TECNÓLOGO", label: "Tecnólogo" },
+                        { value: "AUXILIAR", label: "Auxiliar" },
+                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
+                        { value: "PROFESIONAL", label: "Profesional" },
+                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
+                    ],
+                },
+                {
+                    id: "20",
+                    label: "Profesión",
+                    name: "profesion",
+                    type: "text",
+                },
+                {
+                    id: "21",
+                    label: "Estudios en curso",
+                    name: "estudios_en_curso",
+                    type: "text",
+                },
+            ],
+        },
+
         // Inputs Pagina Información Empleado
         {
             title: "Información Empleado",
             inputs: [
                 {
                     id: "fecha_afiliacion_eps",
-                    label: "Fecha de Afiliacion",
+                    label: "Fecha de afiliación",
                     name: "fecha_afiliacion_eps",
                     type: "date",
                     shrink: true,
+                },
+                {
+                    id: "cambio_eps_legado",
+                    label: "Cambio EPS legado",
+                    name: "cambio_eps_legado",
+                    type: "text",
                 },
                 {
                     id: "antiguedad",
@@ -417,7 +490,7 @@ const HomeView = () => {
                 },
                 {
                     id: "caja_compensacion",
-                    label: "Caja de Compensacion",
+                    label: "Caja de Compensación",
                     name: "caja_compensacion",
                     type: "text",
                 },
@@ -440,13 +513,7 @@ const HomeView = () => {
                     name: "cuenta_nomina",
                     type: "number",
                 },
-                {
-                    id: "fecha_ingreso",
-                    label: "Fecha de ingreso",
-                    name: "fecha_ingreso",
-                    type: "date",
-                    shrink: true,
-                },
+
                 {
                     id: "sede",
                     label: "Sede",
@@ -455,7 +522,9 @@ const HomeView = () => {
                     options: [
                         { value: "BOGOTÁ", label: "Bogotá D.C" },
                         { value: "BUCARAMANGA", label: "Bucaramanga" },
+                        { value: "IBAGUE", label: "Ibague" },
                         { value: "MEDELLIN", label: "Medellin" },
+                        { value: "VILLAVICENCIO", label: "Villavicencio" },
                     ],
                 },
                 {
@@ -519,6 +588,18 @@ const HomeView = () => {
                         { value: "SUPERVISOR(A) DE CALIDAD", label: "Supervisor(a) de Calidad" },
                         { value: "EN BLANCO", label: "En blanco" },
                     ],
+                },
+                {
+                    id: "fecha_nombramiento",
+                    label: "Fecha de nombramiento",
+                    name: "fecha_nombramiento",
+                    type: "date",
+                },
+                {
+                    id: "fecha_nombramiento_legado",
+                    label: "Fecha de nombramiento legado",
+                    name: "fecha_nombramiento_legado",
+                    type: "text",
                 },
                 {
                     id: "gerencia",
@@ -880,6 +961,8 @@ const HomeView = () => {
                     options: [
                         { value: "DIRECCIÓN", label: "Dirección" },
                         { value: "NEGOCIO", label: "Negocio" },
+                        { value: "OPARATIVOS", label: "Operativos" },
+                        { value: "ADMINISTRATIVOS", label: "Administrativos" },
                     ],
                 },
                 {
@@ -911,6 +994,13 @@ const HomeView = () => {
                     ],
                 },
                 {
+                    id: "fecha_ingreso",
+                    label: "Fecha de ingreso",
+                    name: "fecha_ingreso",
+                    type: "date",
+                    shrink: true,
+                },
+                {
                     id: "salario",
                     label: "Salario",
                     name: "salario",
@@ -918,9 +1008,15 @@ const HomeView = () => {
                 },
                 {
                     id: "subsidio_transporte",
-                    label: "Subsidio de transporte 2023",
+                    label: "Subsidio de transporte",
                     name: "subsidio_transporte",
                     type: "number",
+                },
+                {
+                    id: "cambio_campaña_legado",
+                    label: "Cambio campaña legado",
+                    name: "cambio_campaña_legado",
+                    type: "text",
                 },
                 {
                     id: "desempeño",
@@ -929,38 +1025,10 @@ const HomeView = () => {
                     type: "text",
                     shrink: true,
                 },
-            ],
-        },
-        // Inputs Pagina Información Educativa
-        {
-            title: "Información Educativa",
-            inputs: [
                 {
-                    id: "19",
-                    label: "Nivel de escolaridad",
-                    name: "nivel_escolaridad",
-                    type: "select",
-                    options: [
-                        { value: "PRIMARIA", label: "Primaria" },
-                        { value: "BACHILLER", label: "Bachiller" },
-                        { value: "TÉCNICO", label: "Técnico" },
-                        { value: "TECNÓLOGO", label: "Tecnólogo" },
-                        { value: "AUXILIAR", label: "Auxiliar" },
-                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
-                        { value: "PROFESIONAL", label: "Profesional" },
-                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
-                    ],
-                },
-                {
-                    id: "20",
-                    label: "Profesión",
-                    name: "profesion",
-                    type: "text",
-                },
-                {
-                    id: "21",
-                    label: "Estudios en curso",
-                    name: "estudios_en_curso",
+                    id: "observaciones",
+                    label: "Observaciones",
+                    name: "observaciones",
                     type: "text",
                 },
             ],
@@ -1027,7 +1095,7 @@ const HomeView = () => {
                     type: "select",
                     options: [
                         { value: 1, label: "Activo" },
-                        { value: 0, label: "Inactivo" },
+                        { value: 0, label: "Retirado" },
                     ],
                 },
             ],
@@ -1039,11 +1107,41 @@ const HomeView = () => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
             .map((input) => {
-                return {
-                    field: input.name,
-                    headerName: input.label,
-                    width: 200,
-                };
+                if (input.name == "fecha_nacimiento" || input.name == "fecha_afiliacion_eps" || input.name == "fecha_ingreso" || input.name == "fecha_retiro") {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 170,
+                        valueFormatter: (params) => {
+                            let date = params.value;
+                            if (date === null) {
+                                return "";
+                            }
+                            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+                            return date.toLocaleString("es-ES", options);
+                        },
+                    };
+                } else if (input.name == "salario" || input.name == "subsidio_transporte") {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 170,
+                        valueFormatter: (params) => {
+                            let salary = params.value;
+                            if (salary === null) {
+                                return "";
+                            }
+                            let options = { style: "currency", currency: "COP" };
+                            return salary.toLocaleString("es-CO", options);
+                        },
+                    };
+                } else {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 170,
+                    };
+                }
             });
     });
 
@@ -1055,8 +1153,9 @@ const HomeView = () => {
         nombre: true,
         correo: true,
         campana: true,
-        gerencia: true,
         cargo: true,
+        fecha_ingreso: true,
+        salario: true,
         detalles: true,
     };
 
@@ -1107,8 +1206,7 @@ const HomeView = () => {
         // Define a function to format the date
         function formatDate(dateString) {
             let date = new Date(dateString);
-            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
-            return date.toLocaleString("es-ES", options);
+            return date;
         }
 
         // Loop through the tableData and format the dates
@@ -1121,7 +1219,7 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![20, 35, 38].includes(index)));
+            return array.map((register) => register.filter((_, index) => ![21, 25, 45].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1129,7 +1227,7 @@ const HomeView = () => {
         const newRows = arrayCleaned.map((row) =>
             columns.reduce((newRow, column, index) => {
                 if (index === row.length - 1) {
-                    newRow[column.field] = row[index] ? "ACTIVO" : "INACTIVO";
+                    newRow[column.field] = row[index] ? "ACTIVO" : "RETIRADO";
                 } else {
                     newRow[column.field] = row[index];
                 }
@@ -1137,7 +1235,8 @@ const HomeView = () => {
             }, {})
         );
 
-        setRows(newRows);
+        setOriginalData(newRows);
+        setRows(newRows.filter((record) => record.estado !== "RETIRADO"));
     }, [tableData]);
 
     // Edit functionality
@@ -1190,6 +1289,7 @@ const HomeView = () => {
             setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
         }
     };
+
     const handleFormChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
@@ -1255,35 +1355,66 @@ const HomeView = () => {
     };
 
     const handleChangeCheck = (event) => {
-        if (event.target.checked) {
-            setFilterModel({
-                items: [
-                    {
-                        columnField: "estado",
-                        operatorValue: "contains",
-                        value: "ACTIVO",
-                    },
-                ],
-                quickFilter: true,
-            });
+        setChecked(event.target.checked);
+        if (event.target.checked === true) {
+            setRows(originalData.filter((record) => record.estado !== "RETIRADO"));
         } else {
-            setFilterModel({
-                items: [],
-                quickFilter: true,
-            });
+            setRows(originalData);
         }
     };
 
     // Custom toolbar and export functionality
     function CustomToolbar(props) {
+        const apiRef = useGridApiContext();
+        const handleExport = async () => {
+            const result = apiRef.current.getDataAsCsv(csvOptions);
+            console.log(result);
+            try {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "text/csv",
+                    },
+                    body: result,
+                });
+                setProgressBar(false);
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const data = await response.json();
+                if (data.status === "success") {
+                    setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
+                } else {
+                    console.error(data.error + "error alert");
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
+                }
+            } catch (error) {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+            }
+        };
+
+
         return (
             <GridToolbarContainer {...props}>
                 <GridToolbarColumnsButton />
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
-                <Switch onChange={handleChangeCheck} inputProps={{ "aria-label": "controlled" }} />
-                {permissions.create == 1 ? (
+                <Button onClick={() => handleExport()}>ExportBack</Button>
+                {/* <FormControlLabel
+                    sx={{
+                        color: "#1976d2",
+                        typography: {
+                            fontFamily: "Arial, sans-serif",
+                            fontSize: "8px", // Change this value to the desired font size
+                        },
+                    }}
+                    control={<Switch onChange={handleChangeCheck} checked={checked} />}
+                    label="RETIRADOS/ACTIVOS"
+                /> */}
+
+                {/* {permissions.create == 1 ? (
                     <Button
                         startIcon={<PersonAddIcon />}
                         size="small"
@@ -1305,7 +1436,7 @@ const HomeView = () => {
                         </Box>
                         Añadir
                     </Button>
-                )}
+                )} */}
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />
                 </Box>
@@ -1321,11 +1452,6 @@ const HomeView = () => {
         );
     }
     const csvOptions = { delimiter: ";", utf8WithBom: true };
-
-    const [filterModel, setFilterModel] = useState({
-        items: [],
-        quickFilterExcludeHiddenColumns: true,
-    });
 
     if (access) {
         return (
@@ -1435,7 +1561,33 @@ const HomeView = () => {
                                                     </Typography>
                                                     {section.inputs.map((input) => {
                                                         const getInputComponent = () => {
-                                                            if (input.id === "antiguedad") {
+                                                            if (input.id === "observaciones") {
+                                                                return (
+                                                                    <TextField
+                                                                        disabled={edit}
+                                                                        key={input.id}
+                                                                        name={input.name}
+                                                                        label={input.label}
+                                                                        type={input.type}
+                                                                        multiline
+                                                                        rows={4}
+                                                                        sx={{
+                                                                            width: "100%",
+                                                                        }}
+                                                                        value={
+                                                                            inputValues[input.name] !== undefined &&
+                                                                            inputValues[input.name] !== null &&
+                                                                            inputValues[input.name] !== ""
+                                                                                ? inputValues[input.name]
+                                                                                : ""
+                                                                        }
+                                                                        onChange={(event) => handleChange(event, input)}
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            } else if (input.id === "antiguedad") {
                                                                 return (
                                                                     <TextField
                                                                         disabled
@@ -1722,6 +1874,26 @@ const HomeView = () => {
                                                                 label={input.label}
                                                             />
                                                         );
+                                                    } else if (input.name === "observaciones") {
+                                                        return (
+                                                            <TextField
+                                                                sx={{
+                                                                    width: "100%",
+                                                                }}
+                                                                key={input.id}
+                                                                multiline
+                                                                rows={4}
+                                                                name={input.name}
+                                                                InputLabelProps={{
+                                                                    shrink: input.shrink,
+                                                                }}
+                                                                onChange={handleFormChange}
+                                                                value={formData[input.name] || ""}
+                                                                autoComplete="off"
+                                                                type={input.type}
+                                                                label={input.label}
+                                                            />
+                                                        );
                                                     } else {
                                                         return (
                                                             <TextField
@@ -1773,6 +1945,8 @@ const HomeView = () => {
                                                             "59",
                                                             "60",
                                                             "61",
+                                                            "cambio_campaña_legado",
+                                                            "cambio_eps_legado"
                                                         ].includes(input.id)
                                                     ) {
                                                         return null;
@@ -1828,6 +2002,14 @@ const HomeView = () => {
                                 justifyContent: "flex-end",
                             }}
                         >
+                            <FormControlLabel
+                                sx={{
+                                    color: "#1976d2",
+                                    fontSize: "5px", // Change this value to the desired font size
+                                }}
+                                control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
+                                label="TOTALES/ACTIVOS"
+                            />
                             {permissions.create == 1 ? (
                                 <Button
                                     onClick={() => {
@@ -1883,8 +2065,21 @@ const HomeView = () => {
                                 getRowId={(row) => row.cedula}
                                 rows={rows}
                                 checkboxSelection
+                                // filterModel={filterModel}
+                                // onFilterModelChange={(model) => setFilterModel(model)}
+                                // filterModel={{
+                                //     items: [{ field: "cedula", operator: "contains", value: "1001185389" }],
+                                // }}
                                 initialState={{
-                                    filter: { filterModel },
+                                    sorting: {
+                                        sortModel: [{ field: "fecha_ingreso", sort: "desc" }],
+                                    },
+                                    filter: {
+                                        filterModel: {
+                                            items: [],
+                                            quickFilterExcludeHiddenColumns: true,
+                                        },
+                                    },
                                     pagination: {
                                         paginationModel: {
                                             pageSize: 8,

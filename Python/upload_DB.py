@@ -1,7 +1,8 @@
 import csv
+from dotenv import load_dotenv
+from dateutil.parser import parse
 import os
 import re
-import datetime
 import mysql.connector
 import logging
 import datetime
@@ -9,6 +10,12 @@ import datetime
 logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
+
+if not os.path.isfile('/var/env/StaffNet.env'):
+    logging.critical(f"The env file was not found", exc_info=True)
+    raise FileNotFoundError('The env file was not found.')
+else:
+    load_dotenv("/var/env/StaffNet.env")
 
 info_tables = {
     "personal_information": {
@@ -43,7 +50,7 @@ info_tables = {
         "eps": "EPS",
         "pension": "PENSION",
         "cesantias": "CESANTIAS",
-        # "cambio_eps_pension_fecha": "CAMBIO EPS - PENSION FECHA",
+        "cambio_eps_legado": "CAMBIO EPS - PENSION FECHA",
         "cuenta_nomina": "CUENTA NOMINA",
         "fecha_ingreso": "FECHA INGRESO",
         # "sede": "CIUDAD DE TRABAJO",
@@ -54,6 +61,8 @@ info_tables = {
         "tipo_contrato": "TIPO DE CONTRATO",
         "salario": " SALARIO 2023 ",
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
+        'cambio_campaña_legado': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
+        'fecha_nombramiento': 'FECHA NOMBRAMIENTO CARGO',
         # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
     # "performance_evaluation": {
@@ -112,18 +121,29 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                 row[mapping] = row[mapping].upper().strip()
                 print(column)
                 print("mapping",row[mapping])
-                if column in ['fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
+                if column in ['','fecha_nacimiento', 'fecha_afiliacion_eps', 'fecha_ingreso','fecha_salida_vacaciones', 'fecha_ingreso_vacaciones', 'fecha_retiro']:
                     date_string = row[mapping]
                     print("fecha",date_string)
-                    if date_string in ['',' ','NO','0/01/1900','N/A'] or len(date_string) > 10:
+                    if date_string in ['#N/D','',' ','NO','0/01/1900','N/A']:
+                        print("fecha vacia")
                         formatted_date = None
                         if column in ['fecha_nacimiento']:
                             formatted_date = '1000-01-01'
+                        parsed_string = None
+                    # if parsed_string is list:
+                    #     result_string = ", ".join(parsed_string)
+                    elif re.search(r'//', date_string):
+                        date_string = re.sub(r'/{2,}', '/', date_string)
+                        date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
+                        formatted_date = date_object.strftime('%Y-%m-%d')
+                    elif len(date_string) > 10:
+                        formatted_date = date_string
                     else:
                         date_object = datetime.datetime.strptime(date_string, '%d/%m/%Y')
                         formatted_date = date_object.strftime('%Y-%m-%d')
-                    print(formatted_date)
                     column_values[column] = formatted_date
+                elif column in ['fecha_nombramiento', 'legado_historico','cambio_eps_legado']:
+                    column_values[column] = row[mapping]
                 elif column in ['salario','tel_fijo', 'subsidio_transporte','dias_utilizados','personas_a_cargo','hijos','estrato','edad','cedula']:
                     integer = row[mapping]
                     print("integer",integer)
