@@ -32,6 +32,7 @@ import {
     GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 import EmployeeHistory from "./EmployeeHistory";
+import Switch from "@mui/material/Switch";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -39,7 +40,6 @@ const HomeView = () => {
     const [inputValues, setInputValues] = useState({});
     const [rows, setRows] = useState([]);
     const [tableData, setTableData] = useState([]);
-    const [tableResults, setTableResults] = useState([]);
     const [edit, setEdit] = useState(true);
     const [access, setAccess] = useState(false);
     const [openModal, setOpenModal] = useState(false);
@@ -55,6 +55,7 @@ const HomeView = () => {
     const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = useState(0);
+    const [checked, setChecked] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -136,7 +137,6 @@ const HomeView = () => {
     };
     const handleCloseModalAdd = () => setOpenModalAdd(false);
     const handleCloseSnack = () => setOpenSnackAlert(false);
-    const handleChangePage = (event, newPage) => setPage(newPage);
     const handleEdit = () => setEdit(!edit);
     const setShowSnackAlert = (severity, message, errorDev) => {
         setSeverityAlert(severity);
@@ -182,35 +182,24 @@ const HomeView = () => {
         setDetalles({});
     };
 
-    const columns = [
-        { field: "cedula", headerName: "Cedula", width: 120 },
-        { field: "nombre", headerName: "Nombre", width: 230 },
-        { field: "correo", headerName: "Correo", width: 230 },
-        { field: "campana", headerName: "Campaña", width: 100 },
-        { field: "gerencia", headerName: "Gerencia", width: 100 },
-        { field: "cargo", headerName: "Cargo", width: 240 },
-        {
-            field: "detalles",
-            headerName: "Detalles",
-            width: 65,
-            renderCell: (params) => {
-                const { row } = params;
-                return (
-                    <Tooltip title="Detalles">
-                        <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
-                            <MoreIcon />
-                        </IconButton>
-                    </Tooltip>
-                );
-            },
-        },
-    ];
-
     const pageInputs = [
         // Inputs Pagina Información Personal
         {
             title: "Información Personal",
             inputs: [
+                {
+                    id: "1",
+                    label: "Cedula",
+                    name: "cedula",
+                    type: "text",
+                },
+                {
+                    id: "2",
+                    label: "Nombre Completo",
+                    name: "nombre",
+                    type: "text",
+                },
+
                 {
                     id: "tipo_documento",
                     label: "Tipo de documento",
@@ -223,24 +212,13 @@ const HomeView = () => {
                     ],
                 },
                 {
-                    id: "1",
-                    label: "Cedula",
-                    name: "cedula",
-                    type: "text",
-                },
-                {
                     id: "fecha_expedicion",
                     label: "Fecha de expedición",
                     name: "fecha_expedicion",
                     type: "date",
                     shrink: true,
                 },
-                {
-                    id: "2",
-                    label: "Nombre Completo",
-                    name: "nombre",
-                    type: "text",
-                },
+
                 {
                     id: "3",
                     label: "Fecha de nacimiento",
@@ -386,55 +364,11 @@ const HomeView = () => {
                 },
             ],
         },
-        // Inputs Pagina Información Educativa
-        {
-            title: "Información Educativa",
-            inputs: [
-                {
-                    id: "19",
-                    label: "Nivel de escolaridad",
-                    name: "nivel_escolaridad",
-                    type: "select",
-                    options: [
-                        { value: "PRIMARIA", label: "Primaria" },
-                        { value: "BACHILLER", label: "Bachiller" },
-                        { value: "TÉCNICO", label: "Técnico" },
-                        { value: "TECNÓLOGO", label: "Tecnólogo" },
-                        { value: "AUXILIAR", label: "Auxiliar" },
-                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
-                        { value: "PROFESIONAL", label: "Profesional" },
-                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
-                    ],
-                },
-                {
-                    id: "20",
-                    label: "Profesión",
-                    name: "profesion",
-                    type: "text",
-                },
-                {
-                    id: "21",
-                    label: "Estudios en curso",
-                    name: "estudios_en_curso",
-                    type: "text",
-                },
-            ],
-        },
+
         // Inputs Pagina Información Empleado
         {
             title: "Información Empleado",
             inputs: [
-                {
-                    id: "sede",
-                    label: "Sede",
-                    name: "sede",
-                    type: "select",
-                    options: [
-                        { value: "BOGOTÁ", label: "Bogotá D.C" },
-                        { value: "BUCARAMANGA", label: "Bucaramanga" },
-                        { value: "MEDELLIN", label: "Medellin" },
-                    ],
-                },
                 {
                     id: "fecha_afiliacion_eps",
                     label: "Fecha de Afiliacion",
@@ -512,6 +446,17 @@ const HomeView = () => {
                     name: "fecha_ingreso",
                     type: "date",
                     shrink: true,
+                },
+                {
+                    id: "sede",
+                    label: "Sede",
+                    name: "sede",
+                    type: "select",
+                    options: [
+                        { value: "BOGOTÁ", label: "Bogotá D.C" },
+                        { value: "BUCARAMANGA", label: "Bucaramanga" },
+                        { value: "MEDELLIN", label: "Medellin" },
+                    ],
                 },
                 {
                     id: "cargo",
@@ -986,65 +931,37 @@ const HomeView = () => {
                 },
             ],
         },
-        // Inputs Pagina Acciones Disciplinarias
+        // Inputs Pagina Información Educativa
         {
-            title: "Acciones Disciplinarias",
+            title: "Información Educativa",
             inputs: [
                 {
-                    id: "falta",
-                    label: "Falta",
-                    name: "falta",
+                    id: "19",
+                    label: "Nivel de escolaridad",
+                    name: "nivel_escolaridad",
+                    type: "select",
+                    options: [
+                        { value: "PRIMARIA", label: "Primaria" },
+                        { value: "BACHILLER", label: "Bachiller" },
+                        { value: "TÉCNICO", label: "Técnico" },
+                        { value: "TECNÓLOGO", label: "Tecnólogo" },
+                        { value: "AUXILIAR", label: "Auxiliar" },
+                        { value: "UNIVERSITARIO(A)", label: "Universitario" },
+                        { value: "PROFESIONAL", label: "Profesional" },
+                        { value: "ESPECIALIZACIÓN", label: "Especialización" },
+                    ],
+                },
+                {
+                    id: "20",
+                    label: "Profesión",
+                    name: "profesion",
                     type: "text",
                 },
                 {
-                    id: "tipo_sancion",
-                    label: "Tipo de Sanción",
-                    name: "tipo_sancion",
+                    id: "21",
+                    label: "Estudios en curso",
+                    name: "estudios_en_curso",
                     type: "text",
-                },
-                {
-                    id: "sancion",
-                    label: "Sansión",
-                    name: "sancion",
-                    type: "text",
-                },
-            ],
-        },
-        // Inputs Pagina Información vacaciones
-        {
-            title: "Información de Vacaciones",
-            inputs: [
-                {
-                    id: "53",
-                    label: "Licencia no remunerada",
-                    name: "licencia_no_remunerada",
-                    type: "text",
-                },
-                {
-                    id: "54",
-                    label: "Periodos tomados de vacaciones",
-                    name: "periodo_tomado_vacaciones",
-                    type: "number",
-                },
-                {
-                    id: "55",
-                    label: "Periodos faltantes de vacaciones",
-                    name: "periodos_faltantes_vacaciones",
-                    type: "number",
-                },
-                {
-                    id: "56",
-                    label: "Fecha de salida de vacaciones",
-                    name: "fecha_salida_vacaciones",
-                    type: "date",
-                    shrink: true,
-                },
-                {
-                    id: "57",
-                    label: "Fecha de ingreso de vacaciones",
-                    name: "fecha_ingreso_vacaciones",
-                    type: "date",
-                    shrink: true,
                 },
             ],
         },
@@ -1117,17 +1034,20 @@ const HomeView = () => {
         },
     ];
 
-    const columns2 = pageInputs.flatMap((page) => {
-        return page.inputs.map((input) => {
-            return {
-                field: input.name,
-                headerName: input.label,
-                width: 200,
-            };
-        });
+    // Create the columns and hidden columns
+    const columns = pageInputs.flatMap((page) => {
+        return page.inputs
+            .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
+            .map((input) => {
+                return {
+                    field: input.name,
+                    headerName: input.label,
+                    width: 200,
+                };
+            });
     });
 
-    const hiddenColumns = columns2.map((column) => column.field);
+    const hiddenColumns = columns.map((column) => column.field);
 
     const columnVisibilityModel = {
         ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
@@ -1140,7 +1060,7 @@ const HomeView = () => {
         detalles: true,
     };
 
-    columns2.push({
+    columns.push({
         field: "detalles",
         headerName: "Detalles",
         width: 65,
@@ -1182,22 +1102,43 @@ const HomeView = () => {
         setSeniority(calculateSeniority(affiliationDate));
     }, [openModal]);
 
-    // Search and table functionality
+    // Table functionality
     useEffect(() => {
-        const newRows = tableData.map(([cedula, nombre, correo, cargo, gerencia, campana]) => ({
-            cedula,
-            nombre,
-            correo,
-            cargo,
-            gerencia,
-            campana,
-        }));
+        // Define a function to format the date
+        function formatDate(dateString) {
+            let date = new Date(dateString);
+            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+            return date.toLocaleString("es-ES", options);
+        }
+
+        // Loop through the tableData and format the dates
+        for (let i = 0; i < tableData.length; i++) {
+            for (let j = 0; j < tableData[i].length; j++) {
+                if (typeof tableData[i][j] === "string" && tableData[i][j].includes("GMT")) {
+                    tableData[i][j] = formatDate(tableData[i][j]);
+                }
+            }
+        }
+
+        const deleteIndices = (array) => {
+            return array.map((register) => register.filter((_, index) => ![20, 35, 38].includes(index)));
+        };
+
+        const arrayCleaned = deleteIndices(tableData);
+
+        const newRows = arrayCleaned.map((row) =>
+            columns.reduce((newRow, column, index) => {
+                if (index === row.length - 1) {
+                    newRow[column.field] = row[index] ? "ACTIVO" : "INACTIVO";
+                } else {
+                    newRow[column.field] = row[index];
+                }
+                return newRow;
+            }, {})
+        );
+
         setRows(newRows);
     }, [tableData]);
-
-    useEffect(() => {
-        setTableResults(rows);
-    }, [rows]);
 
     // Edit functionality
     const submitEdit = (event) => {
@@ -1219,8 +1160,6 @@ const HomeView = () => {
                 const data = await response.json();
                 setProgressBar(false);
                 if (data.status === "success") {
-                    setTableResults([]);
-                    setSearchTerm("");
                     searchEmployeesEdit();
                     handleCloseModal();
                     setShowSnackAlert("success", "Edición realizada correctamente");
@@ -1315,6 +1254,26 @@ const HomeView = () => {
         setGender(event.target.value);
     };
 
+    const handleChangeCheck = (event) => {
+        if (event.target.checked) {
+            setFilterModel({
+                items: [
+                    {
+                        columnField: "estado",
+                        operatorValue: "contains",
+                        value: "ACTIVO",
+                    },
+                ],
+                quickFilter: true,
+            });
+        } else {
+            setFilterModel({
+                items: [],
+                quickFilter: true,
+            });
+        }
+    };
+
     // Custom toolbar and export functionality
     function CustomToolbar(props) {
         return (
@@ -1323,12 +1282,37 @@ const HomeView = () => {
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
+                <Switch onChange={handleChangeCheck} inputProps={{ "aria-label": "controlled" }} />
+                {permissions.create == 1 ? (
+                    <Button
+                        startIcon={<PersonAddIcon />}
+                        size="small"
+                        onClick={() => {
+                            handleOpenModalAdd();
+                        }}
+                    >
+                        Añadir
+                    </Button>
+                ) : (
+                    <Button disabled>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                paddingRight: ".5em",
+                            }}
+                        >
+                            <PersonAddIcon />
+                        </Box>
+                        Añadir
+                    </Button>
+                )}
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />
                 </Box>
             </GridToolbarContainer>
         );
     }
+
     function CustomExportButton(props) {
         return (
             <GridToolbarExportContainer {...props}>
@@ -1838,34 +1822,6 @@ const HomeView = () => {
                             </Fade>
                         </Modal>
                         <Header></Header>
-                        {/* <Box
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    width: "500px",
-                                }}
-                            >
-                                <TextField
-                                    style={{ textAlign: "center" }}
-                                    InputLabelProps={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
-                                    autoFocus
-                                    fullWidth
-                                    autoComplete="off"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    variant="standard"
-                                ></TextField>
-                            </Box>
-                        </Box> */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -1923,17 +1879,12 @@ const HomeView = () => {
                                     },
                                 }}
                                 slots={{ toolbar: CustomToolbar }}
-                                columns={columns2}
+                                columns={columns}
                                 getRowId={(row) => row.cedula}
                                 rows={rows}
                                 checkboxSelection
                                 initialState={{
-                                    filter: {
-                                        filterModel: {
-                                            items: [],
-                                            quickFilterExcludeHiddenColumns: true,
-                                        },
-                                    },
+                                    filter: { filterModel },
                                     pagination: {
                                         paginationModel: {
                                             pageSize: 8,

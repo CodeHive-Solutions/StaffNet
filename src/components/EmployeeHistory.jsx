@@ -24,7 +24,22 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 if (data.status === "success") {
                     setRenderHistory(true);
                     console.log(data.info);
-                    const rows = data.info.map((row, index) => ({ id: index, editedField: row[0], previousValue: row[1], newValue: row[2], changeDate: row[3] }));
+
+                    // Define a function to format the date
+                    function formatDate(dateString) {
+                        let date = new Date(dateString);
+                        let options = { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
+                        return date.toLocaleString("es-ES", options);
+                    }
+
+                    const rows = data.info.map((row, index) => ({
+                        id: index,
+                        editedField: row[0],
+                        previousValue: row[1],
+                        newValue: row[2],
+                        changeDate: formatDate(row[3]),
+                    }));
+
                     setEmployeeHistory(rows);
                 } else if (data.error === "Registro no encontrado") {
                     setShowSnackAlert("info", "Este empleado no posee un historico actualmente", true);
