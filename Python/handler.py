@@ -62,59 +62,60 @@ def get_request_body():
 
 def bd_info():
     body = get_request_body()
-    logging.info(f"Request: {body}")
-    info_tables = {}
-    try:
-        info_tables = {
-                    "personal_information": {
-                        "cedula": body.get("cedula"), "nombre": body.get("nombre"),"tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
-                        "genero": body.get("genero"), "rh": body.get("rh"),
-                        "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
-                        "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
-                        "correo": body.get("correo"),"correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
-                        'localidad':body.get('localidad'),"contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
-                    "educational_information": {
-                        "cedula": body.get("cedula"),
-                        "nivel_escolaridad": body.get("nivel_escolaridad"),
-                        "profesion": body.get("profesion"),
-                        "estudios_en_curso": body.get("estudios_en_curso")
-                    },
-                    "employment_information": {
-                        "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
-                        "pension": body.get("pension"),"caja_compensacion":body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
-                        "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
-                        "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
-                        "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
-                        'observaciones': body.get('observaciones')
-                    },
-                    # "performance_evaluation": {
-                        # "cedula": body.get("cedula"),
-                        # "calificacion": body.get("desempeno"),
-                    # },
-                    # "disciplinary_actions": {
-                    #     "cedula": body.get("cedula"),
-                    #     "falta": body.get("falta"),
-                    #     "tipo_sancion": body.get("tipo_sancion"),
-                    #     "sancion": body.get("sancion"),
-                    # },
-                    # "vacation_information": {
-                    #     "cedula": body.get("cedula"),
-                    #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
-                    #     "dias_utilizados": "0",
-                    #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
-                    #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
-                    # },
-                    "leave_information": {
-                        "cedula": body.get("cedula"),
-                        "fecha_retiro": body.get("fecha_retiro"),
-                        "tipo_retiro": body.get("tipo_retiro"),
-                        "motivo_retiro": body.get("motivo_retiro"),
-                        "estado": body.get("estado")
+    if body != str: 
+        logging.info(f"Request: {body}")
+        info_tables = {}
+        try:
+            info_tables = {
+                        "personal_information": {
+                            "cedula": body.get("cedula"), "nombre": body.get("nombre"),"tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
+                            "genero": body.get("genero"), "rh": body.get("rh"),
+                            "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
+                            "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
+                            "correo": body.get("correo"),"correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
+                            'localidad':body.get('localidad'),"contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
+                        "educational_information": {
+                            "cedula": body.get("cedula"),
+                            "nivel_escolaridad": body.get("nivel_escolaridad"),
+                            "profesion": body.get("profesion"),
+                            "estudios_en_curso": body.get("estudios_en_curso")
+                        },
+                        "employment_information": {
+                            "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
+                            "pension": body.get("pension"),"caja_compensacion":body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
+                            "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
+                            "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
+                            "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
+                            'observaciones': body.get('observaciones')
+                        },
+                        # "performance_evaluation": {
+                            # "cedula": body.get("cedula"),
+                            # "calificacion": body.get("desempeno"),
+                        # },
+                        # "disciplinary_actions": {
+                        #     "cedula": body.get("cedula"),
+                        #     "falta": body.get("falta"),
+                        #     "tipo_sancion": body.get("tipo_sancion"),
+                        #     "sancion": body.get("sancion"),
+                        # },
+                        # "vacation_information": {
+                        #     "cedula": body.get("cedula"),
+                        #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
+                        #     "dias_utilizados": "0",
+                        #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
+                        #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
+                        # },
+                        "leave_information": {
+                            "cedula": body.get("cedula"),
+                            "fecha_retiro": body.get("fecha_retiro"),
+                            "tipo_retiro": body.get("tipo_retiro"),
+                            "motivo_retiro": body.get("motivo_retiro"),
+                            "estado": body.get("estado")
+                        }
                     }
-                }
-    except Exception as error:
-        logging.error(f"Campo no encontrado: {error}")
-    return info_tables
+        except Exception as error:
+            logging.error(f"Campo no encontrado: {error}")
+        return info_tables
 
 @ app.route('/login', methods=['POST'])
 def login():
@@ -431,7 +432,9 @@ def insert_in_tables():
 @ app.route('/download', methods=['POST']) #type: ignore
 def download():
     if session["consult"] == True:
-        body = get_request_body()
+        body = request.get_data(as_text=True)
+        logging.info("BODY")
+        logging.info("BODY",body)
         conexion = conexionMySQL()
         history = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", None,None, conexion)
         rows = body.strip().split("\n")
@@ -439,23 +442,8 @@ def download():
         writer = csv.writer(csv_buffer, delimiter=";")
         for row in rows:
             writer.writerow(row.split(";"))
-
         # Create a response object with CSV content
         response = Response(csv_buffer.getvalue(), content_type="text/csv")
         response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.csv"'
         response.headers["Cache-Control"] = "no-cache"
         return response
-
-# json_data = '[{"name": "Alice", "age": 30, "city": "New York"},{"name": "Bob", "age": 25, "city": "Los Angeles"},{"name": "Charlie", "age": 35, "city": "Chicago"}]'
-# data = json.loads(json_data)
-# # Specify the CSV file name
-# csv_file = "output.csv"
-
-# # Write JSON data to the CSV file
-# with open(csv_file, "w", newline="") as f:
-#     fieldnames = data[0].keys()  # Assuming all dictionaries have the same keys
-#     writer = csv.DictWriter(f, fieldnames=fieldnames)
-
-#     writer.writeheader()  # Write the CSV header (field names)
-#     writer.writerows(data)  # Write the data rows
-

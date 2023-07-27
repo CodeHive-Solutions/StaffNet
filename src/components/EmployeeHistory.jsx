@@ -23,7 +23,6 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 const data = await response.json();
                 if (data.status === "success") {
                     setRenderHistory(true);
-                    console.log(data.info);
 
                     // Define a function to format the date
                     function formatDate(dateString) {

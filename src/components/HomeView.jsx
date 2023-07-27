@@ -444,19 +444,6 @@ const HomeView = () => {
                     shrink: true,
                 },
                 {
-                    id: "cambio_eps_legado",
-                    label: "Cambio EPS legado",
-                    name: "cambio_eps_legado",
-                    type: "text",
-                },
-                {
-                    id: "antiguedad",
-                    label: "Antiguedad",
-                    name: "antiguedad",
-                    type: "text",
-                    shrink: true,
-                },
-                {
                     id: "eps",
                     label: "EPS",
                     name: "eps",
@@ -473,6 +460,20 @@ const HomeView = () => {
                         { value: "SANITAS", label: "SANITAS" },
                         { value: "SURA EPS", label: "SURA EPS" },
                     ],
+                },
+
+                {
+                    id: "antiguedad",
+                    label: "Antiguedad",
+                    name: "antiguedad",
+                    type: "text",
+                    shrink: true,
+                },
+                {
+                    id: "cambio_eps_legado",
+                    label: "Cambio EPS legado",
+                    name: "cambio_eps_legado",
+                    type: "text",
                 },
                 {
                     id: "pension",
@@ -594,6 +595,7 @@ const HomeView = () => {
                     label: "Fecha de nombramiento",
                     name: "fecha_nombramiento",
                     type: "date",
+                    shrink: true,
                 },
                 {
                     id: "fecha_nombramiento_legado",
@@ -1111,7 +1113,7 @@ const HomeView = () => {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 170,
+                        width: 145,
                         valueFormatter: (params) => {
                             let date = params.value;
                             if (date === null) {
@@ -1125,7 +1127,7 @@ const HomeView = () => {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 170,
+                        width: 145,
                         valueFormatter: (params) => {
                             let salary = params.value;
                             if (salary === null) {
@@ -1139,7 +1141,15 @@ const HomeView = () => {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 170,
+                        width: 145,
+                        valueFormatter: (params) => {
+                            let value = params.value;
+                            if (value === "" || value === null || value === undefined) {
+                                return "-";
+                            } else {
+                                return value;
+                            }
+                        },
                     };
                 }
             });
@@ -1157,6 +1167,7 @@ const HomeView = () => {
         fecha_ingreso: true,
         salario: true,
         detalles: true,
+        campana_general: true,
     };
 
     columns.push({
@@ -1219,7 +1230,7 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![21, 25, 45].includes(index)));
+            return array.map((register) => register.filter((_, index) => ![21, 25, 46].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1382,18 +1393,26 @@ const HomeView = () => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
-                const data = await response.json();
-                if (data.status === "success") {
+
+                console.log(response);
+                const data = await response.text();
+                if (response.status === 200) {
                     setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
+                    const blob = new Blob([data], { type: "text/csv;charset=utf-8" });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute("download", "filename.csv");
+                    document.body.appendChild(link);
+                    link.click();
                 } else {
-                    console.error(data.error + "error alert");
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
+                    console.error(response.status + response.statusText);
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + response.statusText, true);
                 }
             } catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
             }
         };
-
 
         return (
             <GridToolbarContainer {...props}>
@@ -1452,7 +1471,7 @@ const HomeView = () => {
         );
     }
     const csvOptions = { delimiter: ";", utf8WithBom: true };
-
+    
     if (access) {
         return (
             <>
@@ -1623,7 +1642,12 @@ const HomeView = () => {
                                                                     />
                                                                 );
                                                             }
-                                                            if (input.id === "1") {
+                                                            if (
+                                                                input.id === "1" ||
+                                                                input.id === "fecha_nombramiento_legado" ||
+                                                                input.id === "cambio_campaña_legado" ||
+                                                                input.id === "cambio_eps_legado"
+                                                            ) {
                                                                 return (
                                                                     <TextField
                                                                         disabled
@@ -1945,8 +1969,9 @@ const HomeView = () => {
                                                             "59",
                                                             "60",
                                                             "61",
+                                                            "fecha_nombramiento_legado",
                                                             "cambio_campaña_legado",
-                                                            "cambio_eps_legado"
+                                                            "cambio_eps_legado",
                                                         ].includes(input.id)
                                                     ) {
                                                         return null;
@@ -2042,6 +2067,7 @@ const HomeView = () => {
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
+                                GridColDef={"center"}
                                 sx={{
                                     position: "relative",
                                     "&::before": {
