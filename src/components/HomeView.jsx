@@ -57,7 +57,7 @@ const HomeView = () => {
     const [severityAlert, setSeverityAlert] = useState("info");
     const [gender, setGender] = useState("");
     const [cedulaDetails, setCedulaDetails] = useState(0);
-    const [checked, setChecked] = useState(false);
+    const [checked, setChecked] = useState(true);
     const [originalData, setOriginalData] = useState(rows);
 
     const navigate = useNavigate();
@@ -591,8 +591,14 @@ const HomeView = () => {
                 },
                 {
                     id: "fecha_nombramiento",
-                    label: "Fecha de nombramiento legado",
+                    label: "Fecha de nombramiento",
                     name: "fecha_nombramiento",
+                    type: "date",
+                },
+                {
+                    id: "fecha_nombramiento_legado",
+                    label: "Fecha de nombramiento legado",
+                    name: "fecha_nombramiento_legado",
                     type: "text",
                 },
                 {
@@ -1148,8 +1154,8 @@ const HomeView = () => {
         correo: true,
         campana: true,
         cargo: true,
-        salario: true,
         fecha_ingreso: true,
+        salario: true,
         detalles: true,
     };
 
@@ -1229,8 +1235,8 @@ const HomeView = () => {
             }, {})
         );
 
-        setRows(newRows);
         setOriginalData(newRows);
+        setRows(newRows.filter((record) => record.estado !== "RETIRADO"));
     }, [tableData]);
 
     // Edit functionality
@@ -1353,7 +1359,7 @@ const HomeView = () => {
         if (event.target.checked === true) {
             setRows(originalData.filter((record) => record.estado !== "RETIRADO"));
         } else {
-            setRows(originalData.filter((record) => record.estado !== "ACTIVO"));
+            setRows(originalData);
         }
     };
 
@@ -1362,15 +1368,15 @@ const HomeView = () => {
         const apiRef = useGridApiContext();
         const handleExport = async () => {
             const result = apiRef.current.getDataAsCsv(csvOptions);
-
+            console.log(result);
             try {
                 const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {
-                        "Content-Type": "application/json",
+                        "Content-Type": "text/csv",
                     },
-                    body: JSON.stringify(result),
+                    body: result,
                 });
                 setProgressBar(false);
                 if (!response.ok) {
@@ -1388,13 +1394,14 @@ const HomeView = () => {
             }
         };
 
+
         return (
             <GridToolbarContainer {...props}>
                 <GridToolbarColumnsButton />
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <CustomExportButton />
-                {/* <Button onClick={() => handleExport()}>ExportBack</Button> */}
+                <Button onClick={() => handleExport()}>ExportBack</Button>
                 {/* <FormControlLabel
                     sx={{
                         color: "#1976d2",
@@ -1938,6 +1945,8 @@ const HomeView = () => {
                                                             "59",
                                                             "60",
                                                             "61",
+                                                            "cambio_campaña_legado",
+                                                            "cambio_eps_legado"
                                                         ].includes(input.id)
                                                     ) {
                                                         return null;
@@ -1999,7 +2008,7 @@ const HomeView = () => {
                                     fontSize: "5px", // Change this value to the desired font size
                                 }}
                                 control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
-                                label="RETIRADOS/ACTIVOS"
+                                label="TOTALES/ACTIVOS"
                             />
                             {permissions.create == 1 ? (
                                 <Button
@@ -2033,7 +2042,6 @@ const HomeView = () => {
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
-                                // getDataAsCsv={(options?: GridCsvExportOptions) => string}
                                 sx={{
                                     position: "relative",
                                     "&::before": {
@@ -2063,6 +2071,9 @@ const HomeView = () => {
                                 //     items: [{ field: "cedula", operator: "contains", value: "1001185389" }],
                                 // }}
                                 initialState={{
+                                    sorting: {
+                                        sortModel: [{ field: "fecha_ingreso", sort: "desc" }],
+                                    },
                                     filter: {
                                         filterModel: {
                                             items: [],

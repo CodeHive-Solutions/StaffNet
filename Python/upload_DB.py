@@ -1,4 +1,5 @@
 import csv
+from dotenv import load_dotenv
 from dateutil.parser import parse
 import os
 import re
@@ -9,6 +10,12 @@ import datetime
 logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
+
+if not os.path.isfile('/var/env/StaffNet.env'):
+    logging.critical(f"The env file was not found", exc_info=True)
+    raise FileNotFoundError('The env file was not found.')
+else:
+    load_dotenv("/var/env/StaffNet.env")
 
 info_tables = {
     "personal_information": {

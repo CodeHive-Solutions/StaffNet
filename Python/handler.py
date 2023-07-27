@@ -1,5 +1,7 @@
 import logging
-from flask import Flask, request, session, g
+from io import StringIO
+import csv
+from flask import Flask,Response, request, session, g
 from flask_session import Session
 from insert import insert
 from login import consulta_login
@@ -156,6 +158,7 @@ def conexionMySQL():
 
 @app.before_request
 def logs():
+    logging.info("Request: %s", request.content_type)
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
@@ -165,11 +168,16 @@ def logs():
             print("Peticion: ", petition, "user: ", body["user"])
             logging.info(
                 {"User": body["user"], "Peticion": petition})
+        elif petition == "download":
+            logging.info(
+                {"User": session["username"], "Peticion": petition})
         else:
             print("Peticion: ", petition)
             if 'username' in session:
                 logging.info({"User": session["username"], "Peticion": petition,
                                 "Valores": request.json})
+    elif request.content_type == 'text/csv': 
+        logging.info({"User": session["username"], "Peticion": "download"})
     else:
         petition = request.url.split("/")[3]
         if petition == "loged":
@@ -204,7 +212,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
-                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173","http://localhost:3000", "http://172.16.5.11:4173"]
+                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173","http://localhost:3000", "http://172.16.5.11:3000"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)
@@ -420,12 +428,23 @@ def insert_in_tables():
                     'error': 'No tienes permisos'}
     return response
 
-# @ app.route('/download', methods=['POST']) #type: ignore
-# def download():
-#     if session["consult"] == True:
-#         body = get_request_body()
-#         conexion = conexionMySQL()
-#         search("*", "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+@ app.route('/download', methods=['POST']) #type: ignore
+def download():
+    if session["consult"] == True:
+        body = get_request_body()
+        conexion = conexionMySQL()
+        history = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", None,None, conexion)
+        rows = body.strip().split("\n")
+        csv_buffer = StringIO()
+        writer = csv.writer(csv_buffer, delimiter=";")
+        for row in rows:
+            writer.writerow(row.split(";"))
+
+        # Create a response object with CSV content
+        response = Response(csv_buffer.getvalue(), content_type="text/csv")
+        response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.csv"'
+        response.headers["Cache-Control"] = "no-cache"
+        return response
 
 # json_data = '[{"name": "Alice", "age": 30, "city": "New York"},{"name": "Bob", "age": 25, "city": "Los Angeles"},{"name": "Charlie", "age": 35, "city": "Chicago"}]'
 # data = json.loads(json_data)
