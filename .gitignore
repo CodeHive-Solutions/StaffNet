@@ -33,3 +33,6 @@ dist-ssr
 #Vite temporals
 vite.config.js.timestamp
 venv/
+*.xlsx
+*.xls
+*.csv
