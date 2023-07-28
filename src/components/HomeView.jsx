@@ -396,7 +396,14 @@ const HomeView = () => {
                 },
             ],
         },
-
+        {
+            title: "Acciones Disciplinarias",
+            inputs: [
+                { id: "50", label: "Memorando 1", name: "memorando_1", type: "text" },
+                { id: "51", label: "Memorando 2", name: "memorando_2", type: "text" },
+                { id: "52", label: "Memorando 3", name: "memorando_3", type: "text" },
+            ],
+        },
         // Inputs Pagina Información Educativa
         {
             title: "Información Educativa",
@@ -1348,7 +1355,8 @@ const HomeView = () => {
         height: "80%",
         bgcolor: "background.paper",
         p: 4,
-        borderRadius: "20px",
+        // borderRadius: "20px",
+        overflow: "auto",
     };
 
     const handleChange = useCallback(
@@ -1379,7 +1387,6 @@ const HomeView = () => {
         const apiRef = useGridApiContext();
         const handleExport = async () => {
             const result = apiRef.current.getDataAsCsv(csvOptions);
-            console.log(result);
             try {
                 const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
                     method: "POST",
@@ -1471,7 +1478,7 @@ const HomeView = () => {
         );
     }
     const csvOptions = { delimiter: ";", utf8WithBom: true };
-    
+
     if (access) {
         return (
             <>

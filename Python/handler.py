@@ -1,7 +1,7 @@
 import logging
 from io import StringIO
 import csv
-from flask import Flask,Response, request, session, g
+from flask import Flask, Response, request, session, g
 from flask_session import Session
 from insert import insert
 from login import consulta_login
@@ -54,68 +54,71 @@ app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
 sess = Session()
 sess.init_app(app)
 
+
 def get_request_body():
     if request.content_type == 'application/json':
         return request.get_json()
     else:
         return {}
 
+
 def bd_info():
     body = get_request_body()
-    if body != str: 
+    if body != str:
         logging.info(f"Request: {body}")
         info_tables = {}
         try:
             info_tables = {
-                        "personal_information": {
-                            "cedula": body.get("cedula"), "nombre": body.get("nombre"),"tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
-                            "genero": body.get("genero"), "rh": body.get("rh"),
-                            "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
-                            "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
-                            "correo": body.get("correo"),"correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
-                            'localidad':body.get('localidad'),"contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
-                        "educational_information": {
-                            "cedula": body.get("cedula"),
-                            "nivel_escolaridad": body.get("nivel_escolaridad"),
-                            "profesion": body.get("profesion"),
-                            "estudios_en_curso": body.get("estudios_en_curso")
-                        },
-                        "employment_information": {
-                            "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
-                            "pension": body.get("pension"),"caja_compensacion":body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
-                            "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
-                            "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
-                            "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
-                            'observaciones': body.get('observaciones')
-                        },
-                        # "performance_evaluation": {
-                            # "cedula": body.get("cedula"),
-                            # "calificacion": body.get("desempeno"),
-                        # },
-                        # "disciplinary_actions": {
-                        #     "cedula": body.get("cedula"),
-                        #     "falta": body.get("falta"),
-                        #     "tipo_sancion": body.get("tipo_sancion"),
-                        #     "sancion": body.get("sancion"),
-                        # },
-                        # "vacation_information": {
-                        #     "cedula": body.get("cedula"),
-                        #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
-                        #     "dias_utilizados": "0",
-                        #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
-                        #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
-                        # },
-                        "leave_information": {
-                            "cedula": body.get("cedula"),
-                            "fecha_retiro": body.get("fecha_retiro"),
-                            "tipo_retiro": body.get("tipo_retiro"),
-                            "motivo_retiro": body.get("motivo_retiro"),
-                            "estado": body.get("estado")
-                        }
-                    }
+                "personal_information": {
+                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
+                    "genero": body.get("genero"), "rh": body.get("rh"),
+                    "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
+                    "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
+                    "correo": body.get("correo"), "correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
+                    'localidad': body.get('localidad'), "contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
+                "educational_information": {
+                    "cedula": body.get("cedula"),
+                    "nivel_escolaridad": body.get("nivel_escolaridad"),
+                    "profesion": body.get("profesion"),
+                    "estudios_en_curso": body.get("estudios_en_curso")
+                },
+                "employment_information": {
+                    "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
+                    "pension": body.get("pension"), "caja_compensacion": body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
+                    "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"), "sede": body.get("sede"), "cargo": body.get("cargo"),
+                    "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
+                    "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
+                    'observaciones': body.get('observaciones')
+                },
+                # "performance_evaluation": {
+                # "cedula": body.get("cedula"),
+                # "calificacion": body.get("desempeno"),
+                # },
+                # "disciplinary_actions": {
+                #     "cedula": body.get("cedula"),
+                #     "falta": body.get("falta"),
+                #     "tipo_sancion": body.get("tipo_sancion"),
+                #     "sancion": body.get("sancion"),
+                # },
+                # "vacation_information": {
+                #     "cedula": body.get("cedula"),
+                #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
+                #     "dias_utilizados": "0",
+                #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
+                #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
+                # },
+                "leave_information": {
+                    "cedula": body.get("cedula"),
+                    "fecha_retiro": body.get("fecha_retiro"),
+                    "tipo_retiro": body.get("tipo_retiro"),
+                    "motivo_retiro": body.get("motivo_retiro"),
+                    "estado": body.get("estado")
+                }
+            }
         except Exception as error:
             logging.error(f"Campo no encontrado: {error}")
         return info_tables
+
 
 @ app.route('/login', methods=['POST'])
 def login():
@@ -139,6 +142,7 @@ def login():
         response = {"status": 'success',
                     'create_admins': response["create_admins"]}
     return response
+
 
 def conexionMySQL():
     if "conexion" not in g:
@@ -176,8 +180,8 @@ def logs():
             print("Peticion: ", petition)
             if 'username' in session:
                 logging.info({"User": session["username"], "Peticion": petition,
-                                "Valores": request.json})
-    elif request.content_type == 'text/csv': 
+                              "Valores": request.json})
+    elif request.content_type == 'text/csv':
         logging.info({"User": session["username"], "Peticion": "download"})
     else:
         petition = request.url.split("/")[3]
@@ -213,7 +217,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
-                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173","http://localhost:3000", "http://172.16.5.11:3000"]
+                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173", "http://localhost:3000", "http://172.16.5.11:3000"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)
@@ -378,17 +382,20 @@ def get_join_info():
                     'error': 'No tienes permisos'}
     return response
 
+
 @ app.route('/employee_history', methods=['POST'])
 def get_historico():
     conexion = conexionMySQL()
     body = get_request_body()
     if session["consult"] == True:
-        response = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+        response = search(["columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'],
+                          "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
     logging.info(f"response4: {response}")
     return response
+
 
 @ app.route('/change_state', methods=['POST'])
 def change_state():
@@ -429,14 +436,16 @@ def insert_in_tables():
                     'error': 'No tienes permisos'}
     return response
 
-@ app.route('/download', methods=['POST']) #type: ignore
+
+@ app.route('/download', methods=['POST'])  # type: ignore
 def download():
     if session["consult"] == True:
         body = request.get_data(as_text=True)
         logging.info("BODY")
-        logging.info("BODY",body)
+        logging.info("BODY", body)
         conexion = conexionMySQL()
-        history = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", None,None, conexion)
+        history = search(["columna", "valor_antiguo", "valor_nuevo",
+                         'fecha_cambio'], "historical", None, None, conexion)
         rows = body.strip().split("\n")
         csv_buffer = StringIO()
         writer = csv.writer(csv_buffer, delimiter=";")
