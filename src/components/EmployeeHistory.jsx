@@ -61,6 +61,11 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     Historial del empleado
                 </Typography>
                 <DataGrid
+                    initialState={{
+                        sorting: {
+                            sortModel: [{ field: "changeDate", sort: "desc" }],
+                        },
+                    }}
                     rows={employeeHistory}
                     columns={[
                         { field: "editedField", headerName: "Campo Editado", width: 250 },

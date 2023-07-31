@@ -1,6 +1,6 @@
 import logging
-from io import StringIO
-import csv
+from io import BytesIO, TextIOWrapper, StringIO
+import re
 from flask import Flask, Response, request, session, g
 from flask_session import Session
 from insert import insert
@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import datetime
 import mysql.connector
 import redis
+import pandas as pd
 import os
 
 # Evitar logs innecesarios
@@ -85,7 +86,7 @@ def bd_info():
                 "employment_information": {
                     "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
                     "pension": body.get("pension"), "caja_compensacion": body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
-                    "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"), "sede": body.get("sede"), "cargo": body.get("cargo"),
+                    "cuenta_nomina": body.get("cuenta_nomina"),"fecha_nombramiento": body.get("fecha_nombramiento"), "fecha_ingreso": body.get("fecha_ingreso"), "sede": body.get("sede"), "cargo": body.get("cargo"),
                     "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
                     "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
                     'observaciones': body.get('observaciones')
@@ -94,12 +95,12 @@ def bd_info():
                 # "cedula": body.get("cedula"),
                 # "calificacion": body.get("desempeno"),
                 # },
-                # "disciplinary_actions": {
-                #     "cedula": body.get("cedula"),
-                #     "falta": body.get("falta"),
-                #     "tipo_sancion": body.get("tipo_sancion"),
-                #     "sancion": body.get("sancion"),
-                # },
+                "disciplinary_actions": {
+                    "cedula": body.get("cedula"),
+                    "memorando_1": body.get("memorando_1"),
+                    "memorando_2": body.get("memorando_2"),
+                    "memorando_3": body.get("memorando_3"),
+                },
                 # "vacation_information": {
                 #     "cedula": body.get("cedula"),
                 #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
@@ -351,11 +352,12 @@ def search_employees():
         conexion = conexionMySQL()
         table_info = {
             "personal_information": "*",
+            "disciplinary_actions": "*",
             'educational_information': '*',
             "employment_information": "*",
             "leave_information": "*"
         }
-        where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula"
+        where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula AND disciplinary_actions.cedula = personal_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
@@ -393,7 +395,6 @@ def get_historico():
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
-    logging.info(f"response4: {response}")
     return response
 
 
@@ -436,23 +437,65 @@ def insert_in_tables():
                     'error': 'No tienes permisos'}
     return response
 
-
-@ app.route('/download', methods=['POST'])  # type: ignore
+@app.route('/download', methods=['POST'])  # type: ignore
 def download():
     if session["consult"] == True:
-        body = request.get_data(as_text=True)
-        logging.info("BODY")
-        logging.info("BODY", body)
-        conexion = conexionMySQL()
-        history = search(["columna", "valor_antiguo", "valor_nuevo",
-                         'fecha_cambio'], "historical", None, None, conexion)
-        rows = body.strip().split("\n")
-        csv_buffer = StringIO()
-        writer = csv.writer(csv_buffer, delimiter=";")
-        for row in rows:
-            writer.writerow(row.split(";"))
-        # Create a response object with CSV content
-        response = Response(csv_buffer.getvalue(), content_type="text/csv")
-        response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.csv"'
-        response.headers["Cache-Control"] = "no-cache"
-        return response
+        try:
+            body = request.get_data(as_text=True)
+            logging.info("BODY %s", body)
+            conexion = conexionMySQL()
+
+            # Parse the CSV data from the request body
+            csv_df = pd.read_csv(StringIO(body), delimiter=";")  # Use StringIO from the io module
+
+            # Extract "Cedula" values from the first column of the DataFrame
+            cedula_values = csv_df.iloc[:, 0].tolist()
+
+            # Build the WHERE clause for MySQL
+            where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values])
+            logging.info("WHERE %s", where)
+            # Fetch history data from MySQL based on the WHERE clause
+            history = search(["columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
+
+            # Use the csv module to parse the CSV data
+            csv_data = TextIOWrapper(BytesIO(body.encode()), encoding='utf-8', newline='')
+            # Use Pandas to read the CSV data into a DataFrame
+            csv_df = pd.read_csv(csv_data, delimiter=";")
+
+            # Create a DataFrame from the history list
+            history_data = pd.DataFrame(history["info"], columns=["columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
+
+            # Save CSV data to one sheet and history data to another sheet in the same Excel file
+            excel_data = BytesIO()  # Use BytesIO for Excel data
+            with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:  # Use excel_data as the file-like object
+                csv_df.to_excel(writer, sheet_name='CSV Data', index=False)
+                history_data.to_excel(writer, sheet_name='History Info', index=False)
+
+                # Get the XlsxWriter workbook and worksheet objects
+                workbook = writer.book
+                csv_sheet = writer.sheets['CSV Data']
+                history_sheet = writer.sheets['History Info']
+
+                # Function to calculate the column width based on content
+                def get_column_width(data):
+                    values = [len(str(value)) for value in data if str(value).strip()]
+                    return max(values) if values else 10  # Set a minimum width if column is empty
+
+                # Set column width for CSV Data sheet
+                for i, column in enumerate(csv_df.columns):
+                    column_width = get_column_width(csv_df[column])
+                    csv_sheet.set_column(i, i, column_width + 2)
+
+                # Set column width for History Info sheet
+                for i, column in enumerate(history_data.columns):
+                    column_width = get_column_width(history_data[column])
+                    history_sheet.set_column(i, i, column_width + 2)
+
+            # Create a response object with the Excel content
+            response = Response(excel_data.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.xlsx"'
+            response.headers["Cache-Control"] = "no-cache"
+            return response
+        except Exception as e:
+            logging.exception(e)
+            return Response(status=500)

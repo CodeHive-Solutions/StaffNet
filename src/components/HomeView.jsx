@@ -399,9 +399,9 @@ const HomeView = () => {
         {
             title: "Acciones Disciplinarias",
             inputs: [
-                { id: "50", label: "Memorando 1", name: "memorando_1", type: "text" },
-                { id: "51", label: "Memorando 2", name: "memorando_2", type: "text" },
-                { id: "52", label: "Memorando 3", name: "memorando_3", type: "text" },
+                { id: "memorando_1", label: "Memorando 1", name: "memorando_1", type: "text" },
+                { id: "memorando_2", label: "Memorando 2", name: "memorando_2", type: "text" },
+                { id: "memorando_3", label: "Memorando 3", name: "memorando_3", type: "text" },
             ],
         },
         // Inputs Pagina Información Educativa
@@ -1237,7 +1237,7 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![21, 25, 46].includes(index)));
+            return array.map((register) => register.filter((_, index) => ![21, 25, 29, 50].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1260,6 +1260,7 @@ const HomeView = () => {
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true);
+        console.log(inputValues);
         event.preventDefault();
         const updateTransaction = async () => {
             try {
@@ -1383,9 +1384,10 @@ const HomeView = () => {
     };
 
     // Custom toolbar and export functionality
-    function CustomToolbar(props) {
+    const CustomToolbar = (props) => {
         const apiRef = useGridApiContext();
         const handleExport = async () => {
+            setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
                 const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
@@ -1401,15 +1403,14 @@ const HomeView = () => {
                     throw new Error("Network response was not ok");
                 }
 
-                console.log(response);
-                const data = await response.text();
+                const blob2 = await response.blob();
+                // const data = await response.text();
                 if (response.status === 200) {
-                    setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
-                    const blob = new Blob([data], { type: "text/csv;charset=utf-8" });
-                    const url = URL.createObjectURL(blob);
+                    // const blob = new Blob([data], { type: "text/csv;charset=utf-8" });
+                    const url = window.URL.createObjectURL(blob2);
                     const link = document.createElement("a");
                     link.href = url;
-                    link.setAttribute("download", "filename.csv");
+                    link.setAttribute("download", "filename.xlsx");
                     document.body.appendChild(link);
                     link.click();
                 } else {
@@ -1468,7 +1469,7 @@ const HomeView = () => {
                 </Box>
             </GridToolbarContainer>
         );
-    }
+    };
 
     function CustomExportButton(props) {
         return (
@@ -1666,7 +1667,9 @@ const HomeView = () => {
                                                                             width: "188px",
                                                                         }}
                                                                         value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                            inputValues[input.name] !== undefined &&
+                                                                            inputValues[input.name] !== null &&
+                                                                            inputValues[input.name] !== ""
                                                                                 ? inputValues[input.name]
                                                                                 : ""
                                                                         }
@@ -1991,7 +1994,7 @@ const HomeView = () => {
                                                     return section.inputs.map((input) => renderInput(input, formData, handleFormChange));
                                                 }
 
-                                                const excludedTitles = ["Acciones Disciplinarias", "Información de Vacaciones", "Información de Retiro"];
+                                                const excludedTitles = ["Información de Vacaciones", "Información de Retiro"];
                                                 if (excludedTitles.includes(section.title)) {
                                                     return null;
                                                 }
@@ -2040,7 +2043,7 @@ const HomeView = () => {
                                     fontSize: "5px", // Change this value to the desired font size
                                 }}
                                 control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
-                                label="TOTALES/ACTIVOS"
+                                label="SOLO ACTIVOS"
                             />
                             {permissions.create == 1 ? (
                                 <Button
