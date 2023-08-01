@@ -22,6 +22,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import teams from "../images/teams.png";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 import {
     DataGrid,
@@ -65,7 +66,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -157,7 +158,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -1264,7 +1265,7 @@ const HomeView = () => {
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1293,7 +1294,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1320,7 +1321,7 @@ const HomeView = () => {
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1390,7 +1391,7 @@ const HomeView = () => {
             setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1427,8 +1428,9 @@ const HomeView = () => {
                 <GridToolbarColumnsButton />
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
-                <CustomExportButton />
-                <Button onClick={() => handleExport()}>ExportBack</Button>
+                <Button size="small" startIcon={<FileDownloadIcon />} onClick={() => handleExport()}>
+                    Export
+                </Button>
                 {/* <FormControlLabel
                     sx={{
                         color: "#1976d2",

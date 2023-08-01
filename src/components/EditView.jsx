@@ -290,7 +290,7 @@
 //             "cedula": "1000065648",
 //             token: Cookies.get('token')
 //         }
-//         fetch('https://staffnet-api-dev.cyc-bpo.com//App', {
+//         fetch('https://staffnet-api.cyc-bpo.com//App', {
 //             method: 'POST',
 //             body: JSON.stringify(request),
 //         })
@@ -324,7 +324,7 @@
 //         setPage(1);
 //         event.preventDefault();
 
-//         fetch('https://staffnet-api-dev.cyc-bpo.com//App', {
+//         fetch('https://staffnet-api.cyc-bpo.com//App', {
 //             method: 'POST',
 //             body: JSON.stringify(),
 //         })
