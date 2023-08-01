@@ -452,18 +452,21 @@ def download():
             cedula_values = csv_df.iloc[:, 0].tolist()
 
             # Build the WHERE clause for MySQL
-            where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values])
+            where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
             logging.info("WHERE %s", where)
             # Fetch history data from MySQL based on the WHERE clause
-            history = search(["columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
-
+            history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
+            if "error" in history and history['error'] == "Registro no encontrado":
+                history = {"info": []}
+            else:
+                logging.info("HISTORY %s", history)
             # Use the csv module to parse the CSV data
             csv_data = TextIOWrapper(BytesIO(body.encode()), encoding='utf-8', newline='')
             # Use Pandas to read the CSV data into a DataFrame
             csv_df = pd.read_csv(csv_data, delimiter=";")
 
             # Create a DataFrame from the history list
-            history_data = pd.DataFrame(history["info"], columns=["columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
+            history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
 
             # Save CSV data to one sheet and history data to another sheet in the same Excel file
             excel_data = BytesIO()  # Use BytesIO for Excel data
