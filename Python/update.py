@@ -33,6 +33,7 @@ def run_update(tabla, columna, params, where_clause, conexion):
         logging.error(f"Error: {error}")
         print("Error: ", error)
         rows_updated = {"status": "False", "error": error}
+        return rows_updated
     cursor.close()
     return rows_updated
 
