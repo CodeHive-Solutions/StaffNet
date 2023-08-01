@@ -20,6 +20,11 @@ def run_query(campos, tabla, condicion, conexion, params):
     if condicion == None:
         query = "SELECT {} FROM {}".format(campos_str, tabla)
         cursor.execute(query)
+    elif params == None:
+        query = "SELECT {} FROM {} {}".format(
+            campos_str, tabla, condicion)
+        logging.info(f"Ejecutando: {query}")
+        cursor.execute(query)
     else:
         query = "SELECT {} FROM {} {}".format(
             campos_str, tabla, condicion)

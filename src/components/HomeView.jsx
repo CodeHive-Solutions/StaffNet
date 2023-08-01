@@ -22,6 +22,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import teams from "../images/teams.png";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 import {
     DataGrid,
@@ -65,7 +66,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -157,7 +158,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -396,7 +397,14 @@ const HomeView = () => {
                 },
             ],
         },
-
+        {
+            title: "Acciones Disciplinarias",
+            inputs: [
+                { id: "memorando_1", label: "Memorando 1", name: "memorando_1", type: "text" },
+                { id: "memorando_2", label: "Memorando 2", name: "memorando_2", type: "text" },
+                { id: "memorando_3", label: "Memorando 3", name: "memorando_3", type: "text" },
+            ],
+        },
         // Inputs Pagina Información Educativa
         {
             title: "Información Educativa",
@@ -444,19 +452,6 @@ const HomeView = () => {
                     shrink: true,
                 },
                 {
-                    id: "cambio_eps_legado",
-                    label: "Cambio EPS legado",
-                    name: "cambio_eps_legado",
-                    type: "text",
-                },
-                {
-                    id: "antiguedad",
-                    label: "Antiguedad",
-                    name: "antiguedad",
-                    type: "text",
-                    shrink: true,
-                },
-                {
                     id: "eps",
                     label: "EPS",
                     name: "eps",
@@ -473,6 +468,20 @@ const HomeView = () => {
                         { value: "SANITAS", label: "SANITAS" },
                         { value: "SURA EPS", label: "SURA EPS" },
                     ],
+                },
+
+                {
+                    id: "antiguedad",
+                    label: "Antiguedad",
+                    name: "antiguedad",
+                    type: "text",
+                    shrink: true,
+                },
+                {
+                    id: "cambio_eps_legado",
+                    label: "Cambio EPS legado",
+                    name: "cambio_eps_legado",
+                    type: "text",
                 },
                 {
                     id: "pension",
@@ -594,6 +603,7 @@ const HomeView = () => {
                     label: "Fecha de nombramiento",
                     name: "fecha_nombramiento",
                     type: "date",
+                    shrink: true,
                 },
                 {
                     id: "fecha_nombramiento_legado",
@@ -1111,7 +1121,7 @@ const HomeView = () => {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 170,
+                        width: 145,
                         valueFormatter: (params) => {
                             let date = params.value;
                             if (date === null) {
@@ -1125,7 +1135,7 @@ const HomeView = () => {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 170,
+                        width: 145,
                         valueFormatter: (params) => {
                             let salary = params.value;
                             if (salary === null) {
@@ -1139,7 +1149,15 @@ const HomeView = () => {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 170,
+                        width: 145,
+                        valueFormatter: (params) => {
+                            let value = params.value;
+                            if (value === "" || value === null || value === undefined) {
+                                return "-";
+                            } else {
+                                return value;
+                            }
+                        },
                     };
                 }
             });
@@ -1157,6 +1175,7 @@ const HomeView = () => {
         fecha_ingreso: true,
         salario: true,
         detalles: true,
+        campana_general: true,
     };
 
     columns.push({
@@ -1219,7 +1238,7 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![21, 25, 45].includes(index)));
+            return array.map((register) => register.filter((_, index) => ![21, 25, 29, 50].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1242,10 +1261,11 @@ const HomeView = () => {
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true);
+        console.log(inputValues);
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1274,7 +1294,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1301,7 +1321,7 @@ const HomeView = () => {
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1337,7 +1357,8 @@ const HomeView = () => {
         height: "80%",
         bgcolor: "background.paper",
         p: 4,
-        borderRadius: "20px",
+        // borderRadius: "20px",
+        overflow: "auto",
     };
 
     const handleChange = useCallback(
@@ -1364,13 +1385,13 @@ const HomeView = () => {
     };
 
     // Custom toolbar and export functionality
-    function CustomToolbar(props) {
+    const CustomToolbar = (props) => {
         const apiRef = useGridApiContext();
         const handleExport = async () => {
+            setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const result = apiRef.current.getDataAsCsv(csvOptions);
-            console.log(result);
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1382,26 +1403,34 @@ const HomeView = () => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
-                const data = await response.json();
-                if (data.status === "success") {
-                    setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
+
+                const blob2 = await response.blob();
+                // const data = await response.text();
+                if (response.status === 200) {
+                    // const blob = new Blob([data], { type: "text/csv;charset=utf-8" });
+                    const url = window.URL.createObjectURL(blob2);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute("download", "filename.xlsx");
+                    document.body.appendChild(link);
+                    link.click();
                 } else {
-                    console.error(data.error + "error alert");
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
+                    console.error(response.status + response.statusText);
+                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + response.statusText, true);
                 }
             } catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
             }
         };
 
-
         return (
             <GridToolbarContainer {...props}>
                 <GridToolbarColumnsButton />
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
-                <CustomExportButton />
-                <Button onClick={() => handleExport()}>ExportBack</Button>
+                <Button size="small" startIcon={<FileDownloadIcon />} onClick={() => handleExport()}>
+                    Export
+                </Button>
                 {/* <FormControlLabel
                     sx={{
                         color: "#1976d2",
@@ -1442,7 +1471,7 @@ const HomeView = () => {
                 </Box>
             </GridToolbarContainer>
         );
-    }
+    };
 
     function CustomExportButton(props) {
         return (
@@ -1623,7 +1652,12 @@ const HomeView = () => {
                                                                     />
                                                                 );
                                                             }
-                                                            if (input.id === "1") {
+                                                            if (
+                                                                input.id === "1" ||
+                                                                input.id === "fecha_nombramiento_legado" ||
+                                                                input.id === "cambio_campaña_legado" ||
+                                                                input.id === "cambio_eps_legado"
+                                                            ) {
                                                                 return (
                                                                     <TextField
                                                                         disabled
@@ -1635,7 +1669,9 @@ const HomeView = () => {
                                                                             width: "188px",
                                                                         }}
                                                                         value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
+                                                                            inputValues[input.name] !== undefined &&
+                                                                            inputValues[input.name] !== null &&
+                                                                            inputValues[input.name] !== ""
                                                                                 ? inputValues[input.name]
                                                                                 : ""
                                                                         }
@@ -1945,8 +1981,9 @@ const HomeView = () => {
                                                             "59",
                                                             "60",
                                                             "61",
+                                                            "fecha_nombramiento_legado",
                                                             "cambio_campaña_legado",
-                                                            "cambio_eps_legado"
+                                                            "cambio_eps_legado",
                                                         ].includes(input.id)
                                                     ) {
                                                         return null;
@@ -1959,7 +1996,7 @@ const HomeView = () => {
                                                     return section.inputs.map((input) => renderInput(input, formData, handleFormChange));
                                                 }
 
-                                                const excludedTitles = ["Acciones Disciplinarias", "Información de Vacaciones", "Información de Retiro"];
+                                                const excludedTitles = ["Información de Vacaciones", "Información de Retiro"];
                                                 if (excludedTitles.includes(section.title)) {
                                                     return null;
                                                 }
@@ -2008,7 +2045,7 @@ const HomeView = () => {
                                     fontSize: "5px", // Change this value to the desired font size
                                 }}
                                 control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
-                                label="TOTALES/ACTIVOS"
+                                label="SOLO ACTIVOS"
                             />
                             {permissions.create == 1 ? (
                                 <Button
@@ -2042,6 +2079,7 @@ const HomeView = () => {
                         </Box>
                         <Box sx={{ padding: "15px 0px" }}>
                             <DataGrid
+                                GridColDef={"center"}
                                 sx={{
                                     position: "relative",
                                     "&::before": {

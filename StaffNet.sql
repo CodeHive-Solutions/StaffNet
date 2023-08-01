@@ -1,8 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `StaffNet` /*!40100 DEFAULT CHARACTER SET latin1 */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `StaffNet`;
+CREATE DATABASE  IF NOT EXISTS `staffnet` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `staffnet`;
 -- MySQL dump 10.13  Distrib 8.0.32, for Win64 (x86_64)
 --
--- Host: 172.16.0.115    Database: StaffNet
+-- Host: 172.16.0.115    Database: staffnet
 -- ------------------------------------------------------
 -- Server version	8.0.33-0ubuntu0.22.04.2
 
@@ -88,21 +88,24 @@ CREATE TABLE `employment_information` (
   `cedula` int NOT NULL,
   `fecha_afiliacion_eps` date DEFAULT NULL,
   `eps` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `pension` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `caja_compensacion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cesantias` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cambio_eps_pension_fecha` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cuenta_nomina` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cambio_eps_legado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pension` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `caja_compensacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cesantias` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cuenta_nomina` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sede` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cargo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fecha_nombramiento` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fecha_nombramiento_legado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gerencia` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `campana_general` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `area_negocio` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_contrato` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_ingreso` date DEFAULT NULL,
-  `sede` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cargo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `gerencia` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `campana_general` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `area_negocio` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tipo_contrato` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `salario` int DEFAULT NULL,
   `subsidio_transporte` int DEFAULT NULL,
-  `fecha_cambio_campana_periodo_prueba` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cambio_campaña_legado` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observaciones` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`cedula`),
   CONSTRAINT `employment_information_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `personal_information` (`cedula`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -120,91 +123,91 @@ DELIMITER ;;
     DECLARE current_trx_id VARCHAR(18);
     IF (old.fecha_afiliacion_eps IS NOT NULL AND NEW.fecha_afiliacion_eps <> OLD.fecha_afiliacion_eps) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Fecha de afiliacion de la EPS', OLD.fecha_afiliacion_eps, NEW.fecha_afiliacion_eps);
     END IF;
 
     IF (old.eps IS NOT NULL AND NEW.eps <> OLD.eps) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'EPS', OLD.eps, NEW.eps);
     END IF;
 
     IF (old.pension IS NOT NULL AND NEW.pension <> OLD.pension) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Pension', OLD.pension, NEW.pension);
     END IF;
 
     IF (old.caja_compensacion IS NOT NULL AND NEW.caja_compensacion <> OLD.caja_compensacion) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Caja de compensacion', OLD.caja_compensacion, NEW.caja_compensacion);
     END IF;
     
     IF (old.cesantias IS NOT NULL AND  NEW.cesantias <> OLD.cesantias) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Cesantias', OLD.cesantias, NEW.cesantias);
     END IF;
 
     IF (old.cuenta_nomina IS NOT NULL AND NEW.cuenta_nomina <> OLD.cuenta_nomina) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Cuenta de nomina', OLD.cuenta_nomina, NEW.cuenta_nomina);
     END IF;
 
     IF (old.fecha_ingreso IS NOT NULL AND NEW.fecha_ingreso <> OLD.fecha_ingreso) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Fecha de ingreso', OLD.fecha_ingreso, NEW.fecha_ingreso);
     END IF;
 
     IF (old.sede IS NOT NULL AND NEW.sede <> OLD.sede) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Sede', OLD.sede, NEW.sede);
     END IF;
 
     IF (old.cargo IS NOT NULL AND NEW.cargo <> OLD.cargo) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Cargo', OLD.cargo, NEW.cargo);
     END IF;
 
     IF (old.gerencia IS NOT NULL AND NEW.gerencia <> OLD.gerencia) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Gerencia', OLD.gerencia, NEW.gerencia);
     END IF;
 
     IF (old.campana_general IS NOT NULL AND NEW.campana_general <> OLD.campana_general) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Campaña general', OLD.campana_general, NEW.campana_general);
     END IF;
 
     IF (old.tipo_contrato IS NOT NULL AND NEW.tipo_contrato <> OLD.tipo_contrato) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Tipo de contrato', OLD.tipo_contrato, NEW.tipo_contrato);
     END IF;
 
     IF (old.salario IS NOT NULL AND NEW.salario <> OLD.salario) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Salario', OLD.salario, NEW.salario);
     END IF;
 
     IF (old.subsidio_transporte IS NOT NULL AND NEW.subsidio_transporte <> OLD.subsidio_transporte) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Subsidio de transporte', OLD.subsidio_transporte, NEW.subsidio_transporte);
     END IF;
 
     IF (old.fecha_ingreso IS NOT NULL AND NEW.fecha_ingreso <> OLD.fecha_ingreso) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Fecha de ingreso', OLD.fecha_ingreso, NEW.fecha_ingreso);
     END IF;
 END */;;
@@ -230,7 +233,7 @@ CREATE TABLE `historical` (
   `valor_nuevo` varchar(255) NOT NULL,
   `fecha_cambio` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3973 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2448 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -263,19 +266,19 @@ DELIMITER ;;
     DECLARE current_trx_id VARCHAR(18);
     IF (old.fecha_retiro IS NOT NULL AND NEW.fecha_retiro <> OLD.fecha_retiro) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Fecha de retiro', OLD.fecha_retiro, NEW.fecha_retiro);
     END IF;
 
     IF (old.tipo_retiro IS NOT NULL AND NEW.tipo_retiro <> OLD.tipo_retiro) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Tipo de retiro', OLD.tipo_retiro, NEW.tipo_retiro);
     END IF;
 
     IF (old.motivo_retiro IS NOT NULL AND NEW.motivo_retiro <> OLD.motivo_retiro) THEN
         SELECT TRX_ID INTO current_trx_id FROM INFORMATION_SCHEMA.INNODB_TRX WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID();
-        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, nuevo_valor)
+        INSERT INTO historical (id_transaccion, cedula, columna, valor_antiguo, valor_nuevo)
         VALUES (current_trx_id, OLD.cedula, 'Motivo de retiro', OLD.motivo_retiro, NEW.motivo_retiro);
     END IF;
     
@@ -339,6 +342,7 @@ CREATE TABLE `personal_information` (
   `cedula` int NOT NULL,
   `nombre` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tipo_documento` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'CC',
+  `fecha_expedicion` datetime DEFAULT NULL,
   `fecha_nacimiento` date NOT NULL,
   `genero` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `rh` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -350,12 +354,12 @@ CREATE TABLE `personal_information` (
   `celular` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `correo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `correo_corporativo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `direccion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `barrio` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `contacto_emergencia` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `parentesco` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tel_contacto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fecha_expedicion` datetime DEFAULT NULL,
+  `localidad` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `barrio` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `direccion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contacto_emergencia` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parentesco` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tel_contacto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`cedula`),
   KEY `cedula` (`cedula`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -418,7 +422,7 @@ CREATE TABLE `users` (
   `permission_create_admins` tinyint(1) NOT NULL DEFAULT '0',
   `session_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -480,11 +484,11 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
--- Dumping events for database 'StaffNet'
+-- Dumping events for database 'staffnet'
 --
 
 --
--- Dumping routines for database 'StaffNet'
+-- Dumping routines for database 'staffnet'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -496,4 +500,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-06-14  9:01:04
+-- Dump completed on 2023-07-27 12:11:56

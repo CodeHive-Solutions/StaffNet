@@ -62,7 +62,7 @@ info_tables = {
         "salario": " SALARIO 2023 ",
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
         'cambio_campaña_legado': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
-        'fecha_nombramiento': 'FECHA NOMBRAMIENTO CARGO',
+        'fecha_nombramiento_legado': 'FECHA NOMBRAMIENTO CARGO',
         # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
     # "performance_evaluation": {
@@ -75,13 +75,12 @@ info_tables = {
     #     "desempeno_2020": "E. DESEMPEÑO 2020",
     #     "desempeno_2021": "E. DESEMPEÑO 2021"
     # },
-    # "disciplinary_actions": {
-    #     "cedula": "CEDULA",
-    #     "falta": "LLAMADO DE ATENCIÓN",
-    #     "tipo_sancion": "MEMORANDO 1",
-    #     "sancion": "MEMORANDO 2",
-    #     # "memorando_3": "MEMORANDO 3"
-    # },
+    "disciplinary_actions": {
+        "cedula": "CEDULA",
+        "memorando_1": "MEMORANDO 1",
+        "memorando_2": "MEMORANDO 2",
+        "memorando_3": "MEMORANDO 3"
+    },
     # "vacation_information": {
     #     "cedula": "CEDULA",
     #     "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",

@@ -1,7 +1,7 @@
 import logging
-from io import StringIO
-import csv
-from flask import Flask,Response, request, session, g
+from io import BytesIO, TextIOWrapper, StringIO
+import re
+from flask import Flask, Response, request, session, g
 from flask_session import Session
 from insert import insert
 from login import consulta_login
@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import datetime
 import mysql.connector
 import redis
+import pandas as pd
 import os
 
 # Evitar logs innecesarios
@@ -54,67 +55,71 @@ app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
 sess = Session()
 sess.init_app(app)
 
+
 def get_request_body():
     if request.content_type == 'application/json':
         return request.get_json()
     else:
         return {}
 
+
 def bd_info():
     body = get_request_body()
-    logging.info(f"Request: {body}")
-    info_tables = {}
-    try:
-        info_tables = {
-                    "personal_information": {
-                        "cedula": body.get("cedula"), "nombre": body.get("nombre"),"tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
-                        "genero": body.get("genero"), "rh": body.get("rh"),
-                        "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
-                        "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
-                        "correo": body.get("correo"),"correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
-                        'localidad':body.get('localidad'),"contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
-                    "educational_information": {
-                        "cedula": body.get("cedula"),
-                        "nivel_escolaridad": body.get("nivel_escolaridad"),
-                        "profesion": body.get("profesion"),
-                        "estudios_en_curso": body.get("estudios_en_curso")
-                    },
-                    "employment_information": {
-                        "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
-                        "pension": body.get("pension"),"caja_compensacion":body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
-                        "cuenta_nomina": body.get("cuenta_nomina"), "fecha_ingreso": body.get("fecha_ingreso"),"sede": body.get("sede"), "cargo": body.get("cargo"),
-                        "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
-                        "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
-                        'observaciones': body.get('observaciones')
-                    },
-                    # "performance_evaluation": {
-                        # "cedula": body.get("cedula"),
-                        # "calificacion": body.get("desempeno"),
-                    # },
-                    # "disciplinary_actions": {
-                    #     "cedula": body.get("cedula"),
-                    #     "falta": body.get("falta"),
-                    #     "tipo_sancion": body.get("tipo_sancion"),
-                    #     "sancion": body.get("sancion"),
-                    # },
-                    # "vacation_information": {
-                    #     "cedula": body.get("cedula"),
-                    #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
-                    #     "dias_utilizados": "0",
-                    #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
-                    #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
-                    # },
-                    "leave_information": {
-                        "cedula": body.get("cedula"),
-                        "fecha_retiro": body.get("fecha_retiro"),
-                        "tipo_retiro": body.get("tipo_retiro"),
-                        "motivo_retiro": body.get("motivo_retiro"),
-                        "estado": body.get("estado")
-                    }
+    if body != str:
+        logging.info(f"Request: {body}")
+        info_tables = {}
+        try:
+            info_tables = {
+                "personal_information": {
+                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
+                    "genero": body.get("genero"), "rh": body.get("rh"),
+                    "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
+                    "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
+                    "correo": body.get("correo"), "correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
+                    'localidad': body.get('localidad'), "contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
+                "educational_information": {
+                    "cedula": body.get("cedula"),
+                    "nivel_escolaridad": body.get("nivel_escolaridad"),
+                    "profesion": body.get("profesion"),
+                    "estudios_en_curso": body.get("estudios_en_curso")
+                },
+                "employment_information": {
+                    "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
+                    "pension": body.get("pension"), "caja_compensacion": body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
+                    "cuenta_nomina": body.get("cuenta_nomina"),"fecha_nombramiento": body.get("fecha_nombramiento"), "fecha_ingreso": body.get("fecha_ingreso"), "sede": body.get("sede"), "cargo": body.get("cargo"),
+                    "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
+                    "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
+                    'observaciones': body.get('observaciones')
+                },
+                # "performance_evaluation": {
+                # "cedula": body.get("cedula"),
+                # "calificacion": body.get("desempeno"),
+                # },
+                "disciplinary_actions": {
+                    "cedula": body.get("cedula"),
+                    "memorando_1": body.get("memorando_1"),
+                    "memorando_2": body.get("memorando_2"),
+                    "memorando_3": body.get("memorando_3"),
+                },
+                # "vacation_information": {
+                #     "cedula": body.get("cedula"),
+                #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
+                #     "dias_utilizados": "0",
+                #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
+                #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
+                # },
+                "leave_information": {
+                    "cedula": body.get("cedula"),
+                    "fecha_retiro": body.get("fecha_retiro"),
+                    "tipo_retiro": body.get("tipo_retiro"),
+                    "motivo_retiro": body.get("motivo_retiro"),
+                    "estado": body.get("estado")
                 }
-    except Exception as error:
-        logging.error(f"Campo no encontrado: {error}")
-    return info_tables
+            }
+        except Exception as error:
+            logging.error(f"Campo no encontrado: {error}")
+        return info_tables
+
 
 @ app.route('/login', methods=['POST'])
 def login():
@@ -138,6 +143,7 @@ def login():
         response = {"status": 'success',
                     'create_admins': response["create_admins"]}
     return response
+
 
 def conexionMySQL():
     if "conexion" not in g:
@@ -175,8 +181,8 @@ def logs():
             print("Peticion: ", petition)
             if 'username' in session:
                 logging.info({"User": session["username"], "Peticion": petition,
-                                "Valores": request.json})
-    elif request.content_type == 'text/csv': 
+                              "Valores": request.json})
+    elif request.content_type == 'text/csv':
         logging.info({"User": session["username"], "Peticion": "download"})
     else:
         petition = request.url.split("/")[3]
@@ -212,7 +218,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
-                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173","http://localhost:3000", "http://172.16.5.11:3000"]
+                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173", "http://localhost:3000", "http://172.16.5.11:3000"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)
@@ -346,11 +352,12 @@ def search_employees():
         conexion = conexionMySQL()
         table_info = {
             "personal_information": "*",
+            "disciplinary_actions": "*",
             'educational_information': '*',
             "employment_information": "*",
             "leave_information": "*"
         }
-        where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula"
+        where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula AND disciplinary_actions.cedula = personal_information.cedula"
         response = search_transaction(
             conexion, table_info, where=where)
         response = {"info": response, "permissions": {
@@ -377,17 +384,19 @@ def get_join_info():
                     'error': 'No tienes permisos'}
     return response
 
+
 @ app.route('/employee_history', methods=['POST'])
 def get_historico():
     conexion = conexionMySQL()
     body = get_request_body()
     if session["consult"] == True:
-        response = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
+        response = search(["columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'],
+                          "historical", "WHERE cedula = %s", (body["cedula"],), conexion)
     else:
         response = {'status': 'False',
                     'error': 'No tienes permisos'}
-    logging.info(f"response4: {response}")
     return response
+
 
 @ app.route('/change_state', methods=['POST'])
 def change_state():
@@ -428,34 +437,68 @@ def insert_in_tables():
                     'error': 'No tienes permisos'}
     return response
 
-@ app.route('/download', methods=['POST']) #type: ignore
+@app.route('/download', methods=['POST'])  # type: ignore
 def download():
     if session["consult"] == True:
-        body = get_request_body()
-        conexion = conexionMySQL()
-        history = search(["columna","valor_antiguo","valor_nuevo",'fecha_cambio'], "historical", None,None, conexion)
-        rows = body.strip().split("\n")
-        csv_buffer = StringIO()
-        writer = csv.writer(csv_buffer, delimiter=";")
-        for row in rows:
-            writer.writerow(row.split(";"))
+        try:
+            body = request.get_data(as_text=True)
+            logging.info("BODY %s", body)
+            conexion = conexionMySQL()
 
-        # Create a response object with CSV content
-        response = Response(csv_buffer.getvalue(), content_type="text/csv")
-        response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.csv"'
-        response.headers["Cache-Control"] = "no-cache"
-        return response
+            # Parse the CSV data from the request body
+            csv_df = pd.read_csv(StringIO(body), delimiter=";")  # Use StringIO from the io module
 
-# json_data = '[{"name": "Alice", "age": 30, "city": "New York"},{"name": "Bob", "age": 25, "city": "Los Angeles"},{"name": "Charlie", "age": 35, "city": "Chicago"}]'
-# data = json.loads(json_data)
-# # Specify the CSV file name
-# csv_file = "output.csv"
+            # Extract "Cedula" values from the first column of the DataFrame
+            cedula_values = csv_df.iloc[:, 0].tolist()
 
-# # Write JSON data to the CSV file
-# with open(csv_file, "w", newline="") as f:
-#     fieldnames = data[0].keys()  # Assuming all dictionaries have the same keys
-#     writer = csv.DictWriter(f, fieldnames=fieldnames)
+            # Build the WHERE clause for MySQL
+            where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
+            logging.info("WHERE %s", where)
+            # Fetch history data from MySQL based on the WHERE clause
+            history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
+            if "error" in history and history['error'] == "Registro no encontrado":
+                history = {"info": []}
+            else:
+                logging.info("HISTORY %s", history)
+            # Use the csv module to parse the CSV data
+            csv_data = TextIOWrapper(BytesIO(body.encode()), encoding='utf-8', newline='')
+            # Use Pandas to read the CSV data into a DataFrame
+            csv_df = pd.read_csv(csv_data, delimiter=";")
 
-#     writer.writeheader()  # Write the CSV header (field names)
-#     writer.writerows(data)  # Write the data rows
+            # Create a DataFrame from the history list
+            history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
 
+            # Save CSV data to one sheet and history data to another sheet in the same Excel file
+            excel_data = BytesIO()  # Use BytesIO for Excel data
+            with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:  # Use excel_data as the file-like object
+                csv_df.to_excel(writer, sheet_name='CSV Data', index=False)
+                history_data.to_excel(writer, sheet_name='History Info', index=False)
+
+                # Get the XlsxWriter workbook and worksheet objects
+                workbook = writer.book
+                csv_sheet = writer.sheets['CSV Data']
+                history_sheet = writer.sheets['History Info']
+
+                # Function to calculate the column width based on content
+                def get_column_width(data):
+                    values = [len(str(value)) for value in data if str(value).strip()]
+                    return max(values) if values else 10  # Set a minimum width if column is empty
+
+                # Set column width for CSV Data sheet
+                for i, column in enumerate(csv_df.columns):
+                    column_width = get_column_width(csv_df[column])
+                    csv_sheet.set_column(i, i, column_width + 2)
+
+                # Set column width for History Info sheet
+                for i, column in enumerate(history_data.columns):
+                    column_width = get_column_width(history_data[column])
+                    history_sheet.set_column(i, i, column_width + 2)
+
+            # Create a response object with the Excel content
+            response = Response(excel_data.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.xlsx"'
+            response.headers["Cache-Control"] = "no-cache"
+            return response
+        except Exception as e:
+            logging.exception(e)
+            return Response(status=500)

@@ -11,7 +11,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     useEffect(() => {
         const getEmployeeHistory = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//employee_history", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//employee_history", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -23,7 +23,6 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 const data = await response.json();
                 if (data.status === "success") {
                     setRenderHistory(true);
-                    console.log(data.info);
 
                     // Define a function to format the date
                     function formatDate(dateString) {
@@ -62,6 +61,11 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     Historial del empleado
                 </Typography>
                 <DataGrid
+                    initialState={{
+                        sorting: {
+                            sortModel: [{ field: "changeDate", sort: "desc" }],
+                        },
+                    }}
                     rows={employeeHistory}
                     columns={[
                         { field: "editedField", headerName: "Campo Editado", width: 250 },

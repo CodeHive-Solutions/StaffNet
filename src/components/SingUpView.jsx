@@ -353,7 +353,7 @@ const SingUpView = ({ handleViewChange }) => {
         formData.request = "insert_transaction";
         formData.token = Cookies.get("token");
 
-        fetch("https://staffnet-api-dev.cyc-bpo.com//App", {
+        fetch("https://staffnet-api.cyc-bpo.com//App", {
             method: "POST",
             body: JSON.stringify(formData),
         })
