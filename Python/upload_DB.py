@@ -1,6 +1,5 @@
 import csv
 from dotenv import load_dotenv
-from dateutil.parser import parse
 import os
 import re
 import mysql.connector
@@ -55,6 +54,7 @@ info_tables = {
         "fecha_ingreso": "FECHA INGRESO",
         # "sede": "CIUDAD DE TRABAJO",
         "cargo": "CARGO",
+        'fecha_nombramiento_legado': 'FECHA NOMBRAMIENTO CARGO',
         "gerencia": "GERENCIA",
         "campana_general": "CAMPAÑA GENERAL",
         "area_negocio": "ÁREA DE NEGOCIO",
@@ -62,7 +62,6 @@ info_tables = {
         "salario": " SALARIO 2023 ",
         "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
         'cambio_campaña_legado': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
-        'fecha_nombramiento_legado': 'FECHA NOMBRAMIENTO CARGO',
         # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     },
     # "performance_evaluation": {
@@ -75,12 +74,13 @@ info_tables = {
     #     "desempeno_2020": "E. DESEMPEÑO 2020",
     #     "desempeno_2021": "E. DESEMPEÑO 2021"
     # },
-    "disciplinary_actions": {
-        "cedula": "CEDULA",
-        "memorando_1": "MEMORANDO 1",
-        "memorando_2": "MEMORANDO 2",
-        "memorando_3": "MEMORANDO 3"
-    },
+    # "disciplinary_actions": {
+    #     "cedula": "CEDULA",
+    #     "falta": "LLAMADO DE ATENCIÓN",
+    #     "tipo_sancion": "MEMORANDO 1",
+    #     "sancion": "MEMORANDO 2",
+    #     # "memorando_3": "MEMORANDO 3"
+    # },
     # "vacation_information": {
     #     "cedula": "CEDULA",
     #     "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
@@ -99,9 +99,9 @@ info_tables = {
 
 
 connection = mysql.connector.connect(
-    host='172.16.0.115',
-    user='root',
-    password=os.environ['MYSQL_115'],
+    host='172.16.0.118',
+    user='StaffNetuser',
+    password=os.environ['StaffNetmysql'],
     database='staffnet'
 )
 
@@ -188,6 +188,11 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                 elif column == 'MEMORANDO 3':
                     query = "INSERT INTO disciplinary_actions (cedula, falta, tipo_sancion, sancion,fecha_faltas) VALUES (%s, %s, %s, %s, %s)"
                     cursor.execute(query, (row["cedula"], row["MEMORANDO 3"],None, None, None))
+                elif column == 'tipo_retiro':
+                    texto = row[mapping]
+                    if texto in ['','SIN INFORMACIÓN','0']:
+                        texto = None
+                    column_values[column] = texto
                 elif column == 'motivo_retiro':
                     texto = row[mapping]
                     if texto.find('-') != -1:
@@ -242,8 +247,7 @@ with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
                         texto = "TERMINACIÓN DE CONTRATO POR PERIODO DE PRUEBA"
                     elif texto in ['NO HAY OPORTUNIDAD DE ESTUDIAR','FORMACIÓN ACADÉMICA','PRACTICAS','PROYECTOS EN LA CARRERA','POR ESTUDIOS','OPORTUNIDAD DE ESTUDIO','NO HAY POSIBILIDADES DE ESTUDIAR','NO HAY OPORTUNIDADES DE ESTUDIAR','POR MOTIVOS DE ESTUDIO','POR ESTUDIO','ESTUDIOS FUERA DEL PAIS','ESTUDIOS','ESTUDIO','NO HAY OPORTUNIDADES DE ESTUDIAR']:
                         texto = 'MOTIVOS DE ESTUDIO'
-                    
-                    elif texto in ["",'SIN INFORMACION','VOLUNTARIO']:
+                    elif texto in ["",'SIN INFORMACION','VOLUNTARIO',"0"]:
                         texto = None
                     column_values[column] = texto
                 else:
