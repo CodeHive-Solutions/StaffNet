@@ -1,8 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Divider } from "@mui/material";
-import { render } from "react-dom";
 
 const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     const [employeeHistory, setEmployeeHistory] = useState([]);
@@ -24,19 +22,12 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                 if (data.status === "success") {
                     setRenderHistory(true);
 
-                    // Define a function to format the date
-                    function formatDate(dateString) {
-                        let date = new Date(dateString);
-                        let options = { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
-                        return date.toLocaleString("es-ES", options);
-                    }
-
                     const rows = data.info.map((row, index) => ({
                         id: index,
                         editedField: row[0],
                         previousValue: row[1],
                         newValue: row[2],
-                        changeDate: formatDate(row[3]),
+                        changeDate: row[3],
                     }));
 
                     setEmployeeHistory(rows);
@@ -71,7 +62,20 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                         { field: "editedField", headerName: "Campo Editado", width: 250 },
                         { field: "previousValue", headerName: "Valor Pasado", width: 250 },
                         { field: "newValue", headerName: "Valor Nuevo", width: 280 },
-                        { field: "changeDate", headerName: "Fecha del Cambio", width: 280 },
+                        {
+                            field: "changeDate",
+                            headerName: "Fecha del Cambio",
+                            width: 280,
+                            valueFormatter: (params) => {
+                                if (params.value === null) {
+                                    return "";
+                                } else {
+                                    let date = new Date(params.value);
+                                    let options = { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
+                                    return date.toLocaleString("es-ES", options);
+                                }
+                            },
+                        },
                     ]}
                     getRowId={(row) => row.id}
                 />

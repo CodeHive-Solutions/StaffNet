@@ -1029,13 +1029,6 @@ const HomeView = () => {
                     type: "text",
                 },
                 {
-                    id: "desempeño",
-                    label: "Desempeño",
-                    name: "desempeño",
-                    type: "text",
-                    shrink: true,
-                },
-                {
                     id: "observaciones",
                     label: "Observaciones",
                     name: "observaciones",
@@ -1088,6 +1081,7 @@ const HomeView = () => {
                         { value: "MOTIVOS PERSONALES", label: "Motivos personales" },
                         { value: "NO HAY OPORTUNIDADES DE CRECIMIENTO LABORAL", label: "No hay oportunidades de crecimiento laboral" },
                         { value: "NO HAY OPORTUNIDADES DE ESTUDIAR", label: "No hay oportunidades de estudiar" },
+                        { value: "OTRA OFERTA LABORAL", label: "Otra oferta laboral" },
                         { value: "OTRO", label: "Otro" },
                         { value: "PROBLEMAS PERSONALES", label: "Problemas personales" },
                         { value: "TERMINACIÓN DE CONTRATO APRENDIZAJE", label: "Terminación de contrato aprendizaje" },
@@ -1117,39 +1111,57 @@ const HomeView = () => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
             .map((input) => {
+                if (input.name == "cedula") {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 125,
+                        valueFormatter: (params) => {
+                            let value = params.value;
+                            if (value === "" || value === null || value === undefined) {
+                                return "-";
+                            } else {
+                                return value;
+                            }
+                        },
+                    };
+                }
+
                 if (input.name == "fecha_nacimiento" || input.name == "fecha_afiliacion_eps" || input.name == "fecha_ingreso" || input.name == "fecha_retiro") {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 145,
+                        width: 130,
                         valueFormatter: (params) => {
                             let date = params.value;
                             if (date === null) {
                                 return "";
+                            } else {
+                                let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+                                return date.toLocaleString("es-ES", options);
                             }
-                            let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
-                            return date.toLocaleString("es-ES", options);
                         },
                     };
                 } else if (input.name == "salario" || input.name == "subsidio_transporte") {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 145,
+                        width: 150,
                         valueFormatter: (params) => {
                             let salary = params.value;
                             if (salary === null) {
                                 return "";
+                            } else {
+                                let options = { style: "currency", currency: "COP" };
+                                return salary.toLocaleString("es-CO", options);
                             }
-                            let options = { style: "currency", currency: "COP" };
-                            return salary.toLocaleString("es-CO", options);
                         },
                     };
                 } else {
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 145,
+                        width: 210,
                         valueFormatter: (params) => {
                             let value = params.value;
                             if (value === "" || value === null || value === undefined) {
@@ -1169,7 +1181,6 @@ const HomeView = () => {
         ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
         cedula: true,
         nombre: true,
-        correo: true,
         campana: true,
         cargo: true,
         fecha_ingreso: true,
@@ -1625,7 +1636,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "188px",
+                                                                            width: "330px",
                                                                         }}
                                                                         value={seniority || ""}
                                                                         InputLabelProps={{
@@ -1643,7 +1654,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "188px",
+                                                                            width: "330px",
                                                                         }}
                                                                         value={dataCalculateAge}
                                                                         InputLabelProps={{
@@ -1666,7 +1677,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "188px",
+                                                                            width: "330px",
                                                                         }}
                                                                         value={
                                                                             inputValues[input.name] !== undefined &&
@@ -1690,7 +1701,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "188px",
+                                                                            width: "330px",
                                                                         }}
                                                                         value={
                                                                             inputValues[input.name] !== undefined && inputValues[input.name] !== ""
@@ -1719,7 +1730,7 @@ const HomeView = () => {
                                                                         disabled={edit}
                                                                         key={input.id}
                                                                         sx={{
-                                                                            width: "188px",
+                                                                            width: "330px",
                                                                         }}
                                                                         name={input.name}
                                                                         autoComplete="off"
@@ -1750,7 +1761,7 @@ const HomeView = () => {
                                                                     disabled={edit}
                                                                     key={input.id}
                                                                     sx={{
-                                                                        width: "188px",
+                                                                        width: "330px",
                                                                     }}
                                                                     type={input.type}
                                                                     name={input.name}
@@ -1848,7 +1859,7 @@ const HomeView = () => {
                                                             <TextField
                                                                 select
                                                                 label="Parentesco"
-                                                                sx={{ width: "188px" }}
+                                                                sx={{ width: "330px" }}
                                                                 variant="outlined"
                                                                 autoComplete="off"
                                                                 name={input.name}
@@ -1867,7 +1878,7 @@ const HomeView = () => {
                                                             select
                                                             required
                                                             sx={{
-                                                                width: "188px",
+                                                                width: "330px",
                                                             }}
                                                             key={input.id}
                                                             name={input.name}
@@ -1896,7 +1907,7 @@ const HomeView = () => {
                                                         return (
                                                             <TextField
                                                                 sx={{
-                                                                    width: "188px",
+                                                                    width: "330px",
                                                                 }}
                                                                 key={input.id}
                                                                 name={input.name}
@@ -1934,7 +1945,7 @@ const HomeView = () => {
                                                         return (
                                                             <TextField
                                                                 sx={{
-                                                                    width: "188px",
+                                                                    width: "330px",
                                                                 }}
                                                                 key={input.id}
                                                                 required

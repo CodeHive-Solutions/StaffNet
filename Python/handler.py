@@ -494,6 +494,20 @@ def download():
                     column_width = get_column_width(history_data[column])
                     history_sheet.set_column(i, i, column_width + 2)
 
+                cedula_values = history_data["cedula"].tolist()
+                start_color = "#FFFFFF"  # No cell color
+                alternate_color = "#D3D3D3"  # Light grey color
+                current_color = start_color
+
+                for row_number, cedula in enumerate(cedula_values):
+                    if row_number > 0 and cedula != cedula_values[row_number - 1]:
+                        # Change color when the cedula changes
+                        current_color = alternate_color if current_color == start_color else start_color
+
+                    # Set the row color for all columns in the row
+                    row_format = workbook.add_format({'bg_color': current_color})
+                    history_sheet.set_row(row_number + 1, None, row_format)
+
             # Create a response object with the Excel content
             response = Response(excel_data.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.xlsx"'
