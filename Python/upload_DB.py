@@ -18,90 +18,93 @@ else:
 
 info_tables = {
     "personal_information": {
-        "cedula": "CEDULA",
-        "nombre": "NOMBRE",
-        "fecha_nacimiento": "FECHA DE NACIMIENTO",
+        # "cedula": "CEDULA",
+        # "nombre": "NOMBRE",
+        # "fecha_nacimiento": "FECHA DE NACIMIENTO",
         "lugar_expedicion": "LUGAR EXPEDICION C.C.",
-        "genero": "GENERO",
-        "rh": "RH",
-        "estado_civil": "ESTADO CIVIL",
-        "hijos": "# HIJOS",
-        "personas_a_cargo": "# PERSONAS A CARGO",
-        "estrato": "ESTRATO ",
-        "tel_fijo": "TEL FIJO",
-        "celular": "CELULAR",
-        "correo": "CORREO",
-        "direccion": "DIRECCION",
-        "barrio": "BARRIO",
-        "contacto_emergencia": "CONTACTO CASO EMERGENCIA",
-        "parentesco": "PARENTESCO",
-        "tel_contacto": "TEL CONTACTO"
+    #     "genero": "GENERO",
+    #     "rh": "RH",
+    #     "estado_civil": "ESTADO CIVIL",
+    #     "hijos": "# HIJOS",
+    #     "personas_a_cargo": "# PERSONAS A CARGO",
+    #     "estrato": "ESTRATO ",
+    #     "tel_fijo": "TEL FIJO",
+    #     "celular": "CELULAR",
+    #     "correo": "CORREO",
+    #     "direccion": "DIRECCION",
+    #     "barrio": "BARRIO",
+    #     "contacto_emergencia": "CONTACTO CASO EMERGENCIA",
+    #     "parentesco": "PARENTESCO",
+    #     "tel_contacto": "TEL CONTACTO"
     },
-    "educational_information": {
-        "cedula": "CEDULA",
-        "nivel_escolaridad": "NIVEL ESCOLARIDAD",
-        "profesion": "PROFESION ",
-        "estudios_en_curso": "ESTUDIOS EN CURSO"
-    },
-    "employment_information": {
-        "cedula": "CEDULA",
-        "fecha_afiliacion_eps": "FECHA AFILIACION",
-        "eps": "EPS",
-        "pension": "PENSION",
-        "cesantias": "CESANTIAS",
-        "cambio_eps_legado": "CAMBIO EPS - PENSION FECHA",
-        "cuenta_nomina": "CUENTA NOMINA",
-        "fecha_ingreso": "FECHA INGRESO",
-        # "sede": "CIUDAD DE TRABAJO",
-        "cargo": "CARGO",
-        'fecha_nombramiento_legado': 'FECHA NOMBRAMIENTO CARGO',
-        "gerencia": "GERENCIA",
-        "campana_general": "CAMPAÑA GENERAL",
-        "area_negocio": "ÁREA DE NEGOCIO",
-        "tipo_contrato": "TIPO DE CONTRATO",
-        "salario": " SALARIO 2023 ",
-        "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
-        'cambio_campaña_legado': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
-        # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
-    },
-    # "performance_evaluation": {
+    # "educational_information": {
     #     "cedula": "CEDULA",
-    #     "desempeno_1_sem_2016": "E. DESEMPEÑO I SEM 2016",
-    #     "desempeno_2_sem_2016": "E. DESEMPEÑO II SEM 2016",
-    #     "desempeno_2017": "E. DESEMPEÑO 2017",
-    #     "desempeno_2018": "E. DESEMPEÑO 2018",
-    #     "desempeno_2019": "E. DESEMPEÑO 2019",
-    #     "desempeno_2020": "E. DESEMPEÑO 2020",
-    #     "desempeno_2021": "E. DESEMPEÑO 2021"
+    #     "nivel_escolaridad": "NIVEL ESCOLARIDAD",
+    #     "profesion": "PROFESION ",
+    #     "estudios_en_curso": "ESTUDIOS EN CURSO"
     # },
-    # "disciplinary_actions": {
+    # "employment_information": {
     #     "cedula": "CEDULA",
-    #     "falta": "LLAMADO DE ATENCIÓN",
-    #     "tipo_sancion": "MEMORANDO 1",
-    #     "sancion": "MEMORANDO 2",
-    #     # "memorando_3": "MEMORANDO 3"
+    #     "fecha_afiliacion_eps": "FECHA AFILIACION",
+    #     "eps": "EPS",
+    #     "pension": "PENSION",
+    #     "cesantias": "CESANTIAS",
+    #     "cambio_eps_legado": "CAMBIO EPS - PENSION FECHA",
+    #     "cuenta_nomina": "CUENTA NOMINA",
+    #     "fecha_ingreso": "FECHA INGRESO",
+    #     # "sede": "CIUDAD DE TRABAJO",
+    #     "cargo": "CARGO",
+    #     'fecha_nombramiento_legado': 'FECHA NOMBRAMIENTO CARGO',
+    #     "gerencia": "GERENCIA",
+    #     "campana_general": "CAMPAÑA GENERAL",
+    #     "area_negocio": "ÁREA DE NEGOCIO",
+    #     "tipo_contrato": "TIPO DE CONTRATO",
+    #     "salario": " SALARIO 2023 ",
+    #     "subsidio_transporte": " SUBSIDIO TRANSPORTE 2023 ",
+    #     'cambio_campaña_legado': "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA",
+    #     # "fecha_cambio_campana_periodo_prueba": "FECHA CAMBIO CAMPAÑA PERIODO DE PRUEBA"
     # },
-    # "vacation_information": {
+    # # "performance_evaluation": {
+    # #     "cedula": "CEDULA",
+    # #     "desempeno_1_sem_2016": "E. DESEMPEÑO I SEM 2016",
+    # #     "desempeno_2_sem_2016": "E. DESEMPEÑO II SEM 2016",
+    # #     "desempeno_2017": "E. DESEMPEÑO 2017",
+    # #     "desempeno_2018": "E. DESEMPEÑO 2018",
+    # #     "desempeno_2019": "E. DESEMPEÑO 2019",
+    # #     "desempeno_2020": "E. DESEMPEÑO 2020",
+    # #     "desempeno_2021": "E. DESEMPEÑO 2021"
+    # # },
+    # # "disciplinary_actions": {
+    # #     "cedula": "CEDULA",
+    # #     "falta": "LLAMADO DE ATENCIÓN",
+    # #     "tipo_sancion": "MEMORANDO 1",
+    # #     "sancion": "MEMORANDO 2",
+    # #     # "memorando_3": "MEMORANDO 3"
+    # # },
+    # # "vacation_information": {
+    # #     "cedula": "CEDULA",
+    # #     "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
+    # #     "dias_utilizados": "# PERIODO TOMADOS VACACIONES",
+    # #     "fecha_salida_vacaciones": "FECHA SALIDA VACACIONES",
+    # #     "fecha_ingreso_vacaciones": "FECHA INGRESO VACACIONES"
+    # # },
+    # "leave_information": {
     #     "cedula": "CEDULA",
-    #     "licencia_no_remunerada": "LICENCIA NO REMUNERADOS",
-    #     "dias_utilizados": "# PERIODO TOMADOS VACACIONES",
-    #     "fecha_salida_vacaciones": "FECHA SALIDA VACACIONES",
-    #     "fecha_ingreso_vacaciones": "FECHA INGRESO VACACIONES"
-    # },
-    "leave_information": {
-        "cedula": "CEDULA",
-        "fecha_retiro": "FECHA RETIRO",
-        "tipo_retiro": "Tipo de Retiro",
-        "motivo_retiro": "MOTIVO DE RETIRO",
-        "estado": "ESTADO"
-    }
+    #     "fecha_retiro": "FECHA RETIRO",
+    #     "tipo_retiro": "Tipo de Retiro",
+    #     "motivo_retiro": "MOTIVO DE RETIRO",
+    #     "estado": "ESTADO"
+    # }
 }
 
 
 connection = mysql.connector.connect(
-    host='172.16.0.118',
-    user='StaffNetuser',
-    password=os.environ['StaffNetmysql'],
+    # host='172.16.0.118',
+    # user='StaffNetuser',
+    # password=os.environ['StaffNetmysql'],
+    host='172.16.0.115',
+    user='root',
+    password=os.environ['MYSQL_115'],
     database='staffnet'
 )
 

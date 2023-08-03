@@ -7,7 +7,7 @@ import HomeView from "./Components/HomeView";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import LoginView from "./Components/LoginView";
-import SingUpView from "./Components/SingUpView";
+
 const theme = createTheme({
     typography: {
         fontFamily: '"Inter", sans-serif',
@@ -27,19 +27,17 @@ const router = createBrowserRouter([
         path: "permissions",
         element: <PermissionsView />,
     },
-    {
-        path: "singUp",
-        element: <SingUpView />,
-    },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-    <ThemeProvider theme={theme}>
-        <CssBaseline>
-            <RouterProvider router={router} />
-        </CssBaseline>
-    </ThemeProvider>
+    <React.StrictMode>
+        <ThemeProvider theme={theme}>
+            <CssBaseline>
+                <RouterProvider router={router} />
+            </CssBaseline>
+        </ThemeProvider>
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

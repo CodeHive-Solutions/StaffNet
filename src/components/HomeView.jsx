@@ -66,7 +66,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -158,7 +158,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -223,7 +223,12 @@ const HomeView = () => {
                     type: "date",
                     shrink: true,
                 },
-
+                {
+                    id: "lugar_expedicion",
+                    label: "Lugar Expedicíon",
+                    name: "lugar_expedicion",
+                    type: "text",
+                },
                 {
                     id: "3",
                     label: "Fecha de nacimiento",
@@ -251,7 +256,8 @@ const HomeView = () => {
                     options: [
                         { value: "O+", label: "O+" },
                         { value: "O-", label: "O-" },
-                        { value: "A+", label: "A-" },
+                        { value: "A+", label: "A+" },
+                        { value: "A-", label: "A-" },
                         { value: "B+", label: "B+" },
                         { value: "B-", label: "B-" },
                         { value: "AB+", label: "AB+" },
@@ -330,7 +336,7 @@ const HomeView = () => {
                 },
                 {
                     id: "localidad",
-                    label: "Localidad",
+                    label: "Localidad/Region",
                     name: "localidad",
                     type: "select",
                     options: [
@@ -354,6 +360,16 @@ const HomeView = () => {
                         { value: "Rafael Uribe Uribe", label: "Rafael Uribe Uribe" },
                         { value: "Ciudad Bolívar", label: "Ciudad Bolívar" },
                         { value: "Sumapaz", label: "Sumapaz" },
+                        { value: "Soacha", label: "Soacha" },
+                        { value: "Funza", label: "Funza" },
+                        { value: "Cajica", label: "Cajica" },
+                        { value: "Chia", label: "Chia" },
+                        { value: "Mosquera", label: "Mosquera" },
+                        { value: "Madrid", label: "Madrid" },
+                        { value: "Aledaño", label: "Aledaño" },
+                        { value: "Medellin", label: "Medellin" },
+                        { value: "Villavicencio", label: "Villavicencio" },
+                        { value: "Bucaramanga", label: "Bucaramanga" },
                     ],
                 },
                 { id: "15", label: "Barrio", name: "barrio", type: "text" },
@@ -969,9 +985,7 @@ const HomeView = () => {
                     name: "area_negocio",
                     type: "select",
                     options: [
-                        { value: "DIRECCIÓN", label: "Dirección" },
-                        { value: "NEGOCIO", label: "Negocio" },
-                        { value: "OPARATIVOS", label: "Operativos" },
+                        { value: "OPERATIVOS", label: "Operativos" },
                         { value: "ADMINISTRATIVOS", label: "Administrativos" },
                     ],
                 },
@@ -1249,7 +1263,8 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![21, 25, 29, 50].includes(index)));
+            console.log(array)
+            return array.map((register) => register.filter((_, index) => ![22, 26, 30, 51].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -1276,7 +1291,7 @@ const HomeView = () => {
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1305,7 +1320,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1332,7 +1347,7 @@ const HomeView = () => {
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1402,7 +1417,7 @@ const HomeView = () => {
             setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//download", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1484,14 +1499,30 @@ const HomeView = () => {
         );
     };
 
-    function CustomExportButton(props) {
-        return (
-            <GridToolbarExportContainer {...props}>
-                <GridCsvExportMenuItem options={csvOptions} />
-            </GridToolbarExportContainer>
-        );
-    }
-    const csvOptions = { delimiter: ";", utf8WithBom: true };
+    const slots = { toolbar: CustomToolbar };
+
+    const initialState = React.useMemo(
+        () => ({
+            sorting: {
+                sortModel: [{ field: "fecha_ingreso", sort: "desc" }],
+            },
+            filter: {
+                filterModel: {
+                    items: [],
+                    quickFilterExcludeHiddenColumns: true,
+                },
+            },
+            pagination: {
+                paginationModel: {
+                    pageSize: 8,
+                },
+            },
+            columns: {
+                columnVisibilityModel: columnVisibilityModel,
+            },
+        }),
+        []
+    );
 
     if (access) {
         return (
@@ -1872,7 +1903,30 @@ const HomeView = () => {
                                                                 ))}
                                                             />
                                                         );
+                                                    } else if (input.name == "eps" || input.name == "pension" || input.name == "caja_compensacion" || input.name == "cesantias") {
+                                                        return (
+                                                            <TextField
+                                                                select
+                                                                sx={{
+                                                                    width: "330px",
+                                                                }}
+                                                                key={input.id}
+                                                                name={input.name}
+                                                                onChange={handleFormChange}
+                                                                value={formData[input.name] || ""}
+                                                                variant="outlined"
+                                                                autoComplete="off"
+                                                                label={input.label}
+                                                            >
+                                                                {input.options.map((option, index) => (
+                                                                    <MenuItem key={index} value={option.value}>
+                                                                        {option.label}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </TextField>
+                                                        );
                                                     }
+
                                                     return (
                                                         <TextField
                                                             select
@@ -1902,7 +1956,13 @@ const HomeView = () => {
                                                         input.name === "profesion" ||
                                                         input.name === "correo_corporativo" ||
                                                         input.name === "estudios_en_curso" ||
-                                                        input.name === "tel_fijo"
+                                                        input.name === "tel_fijo" ||
+                                                        input.name === "contacto_emergencia" ||
+                                                        input.name === "tel_contacto" ||
+                                                        input.name === "tel_fijo" ||
+                                                        input.name === "caja_compensacion" ||
+                                                        input.name === "subsidio_transporte" ||
+                                                        input.name === "barrio"
                                                     ) {
                                                         return (
                                                             <TextField
@@ -2007,7 +2067,7 @@ const HomeView = () => {
                                                     return section.inputs.map((input) => renderInput(input, formData, handleFormChange));
                                                 }
 
-                                                const excludedTitles = ["Información de Vacaciones", "Información de Retiro"];
+                                                const excludedTitles = ["Información de Vacaciones", "Información de Retiro", "Acciones Disciplinarias"];
                                                 if (excludedTitles.includes(section.title)) {
                                                     return null;
                                                 }
@@ -2109,35 +2169,12 @@ const HomeView = () => {
                                         zIndex: -1,
                                     },
                                 }}
-                                slots={{ toolbar: CustomToolbar }}
+                                slots={slots}
                                 columns={columns}
                                 getRowId={(row) => row.cedula}
                                 rows={rows}
                                 checkboxSelection
-                                // filterModel={filterModel}
-                                // onFilterModelChange={(model) => setFilterModel(model)}
-                                // filterModel={{
-                                //     items: [{ field: "cedula", operator: "contains", value: "1001185389" }],
-                                // }}
-                                initialState={{
-                                    sorting: {
-                                        sortModel: [{ field: "fecha_ingreso", sort: "desc" }],
-                                    },
-                                    filter: {
-                                        filterModel: {
-                                            items: [],
-                                            quickFilterExcludeHiddenColumns: true,
-                                        },
-                                    },
-                                    pagination: {
-                                        paginationModel: {
-                                            pageSize: 8,
-                                        },
-                                    },
-                                    columns: {
-                                        columnVisibilityModel: columnVisibilityModel,
-                                    },
-                                }}
+                                initialState={initialState}
                                 pageSizeOptions={[8]}
                             />
                         </Box>

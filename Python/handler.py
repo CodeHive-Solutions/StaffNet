@@ -71,8 +71,8 @@ def bd_info():
         try:
             info_tables = {
                 "personal_information": {
-                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
-                    "genero": body.get("genero"), "rh": body.get("rh"),
+                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_expedicion": body.get("fecha_expedicion"), "lugar_expedicion": body.get("lugar_expedicion"),
+                    "fecha_nacimiento": body.get("fecha_nacimiento"), "genero": body.get("genero"), "rh": body.get("rh"),
                     "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
                     "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
                     "correo": body.get("correo"), "correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
@@ -113,7 +113,7 @@ def bd_info():
                     "fecha_retiro": body.get("fecha_retiro"),
                     "tipo_retiro": body.get("tipo_retiro"),
                     "motivo_retiro": body.get("motivo_retiro"),
-                    "estado": body.get("estado")
+                    "estado": body.get("estado", True)
                 }
             }
         except Exception as error:
