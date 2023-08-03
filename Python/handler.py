@@ -71,8 +71,8 @@ def bd_info():
         try:
             info_tables = {
                 "personal_information": {
-                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_nacimiento": body.get("fecha_nacimiento"),
-                    "genero": body.get("genero"), "rh": body.get("rh"),
+                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_expedicion": body.get("fecha_expedicion"), "lugar_expedicion": body.get("lugar_expedicion"),
+                    "fecha_nacimiento": body.get("fecha_nacimiento"), "genero": body.get("genero"), "rh": body.get("rh"),
                     "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
                     "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
                     "correo": body.get("correo"), "correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
@@ -113,7 +113,7 @@ def bd_info():
                     "fecha_retiro": body.get("fecha_retiro"),
                     "tipo_retiro": body.get("tipo_retiro"),
                     "motivo_retiro": body.get("motivo_retiro"),
-                    "estado": body.get("estado")
+                    "estado": body.get("estado", True)
                 }
             }
         except Exception as error:
@@ -493,6 +493,20 @@ def download():
                 for i, column in enumerate(history_data.columns):
                     column_width = get_column_width(history_data[column])
                     history_sheet.set_column(i, i, column_width + 2)
+
+                cedula_values = history_data["cedula"].tolist()
+                start_color = "#FFFFFF"  # No cell color
+                alternate_color = "#D3D3D3"  # Light grey color
+                current_color = start_color
+
+                for row_number, cedula in enumerate(cedula_values):
+                    if row_number > 0 and cedula != cedula_values[row_number - 1]:
+                        # Change color when the cedula changes
+                        current_color = alternate_color if current_color == start_color else start_color
+
+                    # Set the row color for all columns in the row
+                    row_format = workbook.add_format({'bg_color': current_color})
+                    history_sheet.set_row(row_number + 1, None, row_format)
 
             # Create a response object with the Excel content
             response = Response(excel_data.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

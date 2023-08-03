@@ -1,10 +1,5 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button"
-
-const reload = () => {
-
-}
 
 const LogoST = ({ styles }) => {
     return (
