@@ -21,7 +21,7 @@ import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import teams from "../images/teams.png";
+import cycLogo from "../images/cyc-logo.webp";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 import {
@@ -66,7 +66,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -158,7 +158,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -1263,7 +1263,6 @@ const HomeView = () => {
         }
 
         const deleteIndices = (array) => {
-            console.log(array)
             return array.map((register) => register.filter((_, index) => ![22, 26, 30, 51].includes(index)));
         };
 
@@ -1287,11 +1286,10 @@ const HomeView = () => {
     // Edit functionality
     const submitEdit = (event) => {
         setProgressBar(true);
-        console.log(inputValues);
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1320,7 +1318,7 @@ const HomeView = () => {
     };
     const searchEmployeesEdit = async () => {
         try {
-            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -1347,7 +1345,7 @@ const HomeView = () => {
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1417,7 +1415,7 @@ const HomeView = () => {
             setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -1885,25 +1883,13 @@ const HomeView = () => {
                                                 function renderSelectInput(input, formData, handleFormChange) {
                                                     if (input.id === "59" || input.id === "60" || input.id === "61") {
                                                         return null;
-                                                    } else if (input.name === "parentesco") {
-                                                        return (
-                                                            <TextField
-                                                                select
-                                                                label="Parentesco"
-                                                                sx={{ width: "330px" }}
-                                                                variant="outlined"
-                                                                autoComplete="off"
-                                                                name={input.name}
-                                                                key={input.id}
-                                                                defaultValue={input.defaultValue}
-                                                                children={input.options.map((option, index) => (
-                                                                    <MenuItem key={index} value={option.value}>
-                                                                        {option.label}
-                                                                    </MenuItem>
-                                                                ))}
-                                                            />
-                                                        );
-                                                    } else if (input.name == "eps" || input.name == "pension" || input.name == "caja_compensacion" || input.name == "cesantias") {
+                                                    } else if (
+                                                        input.name == "eps" ||
+                                                        input.name == "pension" ||
+                                                        input.name == "caja_compensacion" ||
+                                                        input.name == "cesantias" ||
+                                                        input.name === "parentesco"
+                                                    ) {
                                                         return (
                                                             <TextField
                                                                 select
@@ -2160,7 +2146,7 @@ const HomeView = () => {
                                         right: 0,
                                         bottom: 0,
                                         left: 0,
-                                        backgroundImage: `url(${teams})`,
+                                        backgroundImage: `url(${cycLogo})`,
                                         backgroundSize: "cover",
                                         backgroundRepeat: "no-repeat",
                                         backgroundPosition: "center",

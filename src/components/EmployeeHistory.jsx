@@ -9,7 +9,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     useEffect(() => {
         const getEmployeeHistory = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//employee_history", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//employee_history", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
