@@ -19,11 +19,22 @@ import LoginIcon from "@mui/icons-material/Login";
 import Fade from "@mui/material/Fade";
 import LinearProgress from "@mui/material/LinearProgress";
 
+// Import images
+import image0 from "../images/image0.webp";
+import image1 from "../images/image1.webp";
+import image2 from "../images/image2.webp";
+import image3 from "../images/image3.webp";
+import image4 from "../images/image4.webp";
+import image5 from "../images/image5.webp";
+import image6 from "../images/image6.webp";
+import image7 from "../images/image7.webp";
+import image8 from "../images/image8.webp";
+import image9 from "../images/image9.webp";
+
 const LoginView = () => {
     // State variables for keeping track of the checkbox state, username, date, and collapse state
     const [rememberUsername, setRememberUsername] = useState(true);
     const [username, setUsername] = useState("");
-    const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
     const [openSnack, setOpenSnack] = React.useState(false);
     const [error, setError] = React.useState("");
@@ -54,10 +65,9 @@ const LoginView = () => {
     useEffect(() => {
         const newIndex = Math.floor(Math.random() * images.length);
         setCurrentIndex(newIndex);
-        // fetch("http://staffnet.cyc-bpo.com/loged", {
         const checkLogin = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//loged", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//loged", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -103,7 +113,7 @@ const LoginView = () => {
 
         const login = async (dataP) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//login", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//login", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -150,18 +160,7 @@ const LoginView = () => {
         }
     }, []);
 
-    const images = [
-        "https://github.com/S-e-b-a-s/images/blob/main/image1.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image2.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image3.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image4.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image5.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image6.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image7.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image8.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image9.avif?raw=true",
-        "https://github.com/S-e-b-a-s/images/blob/main/image0.avif?raw=true",
-    ];
+    const images = [image0, image1, image2, image3, image4, image5, image6, image7, image8, image9];
 
     // Function to handle toggling the collapse state
     const handleClick = () => {

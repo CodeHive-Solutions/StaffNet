@@ -30,7 +30,7 @@ try:
             for row in csv_reader:
                 cedula_str = row['CEDULA'].replace(',', '')  # Remove comma
                 cedula = float(cedula_str)  # Convert to float first
-                lugar = row['LUGAR EXPEDICION C.C.']
+                lugar = row['LUGAR EXPEDICION C.C.'].upper()
                 
                 # SQL query to update data
                 sql = f"UPDATE personal_information SET `lugar_expedicion` = %s WHERE `cedula` = %s"

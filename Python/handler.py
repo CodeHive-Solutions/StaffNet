@@ -71,48 +71,49 @@ def bd_info():
         try:
             info_tables = {
                 "personal_information": {
-                    "cedula": body.get("cedula"), "nombre": body.get("nombre"), "tipo_documento": body.get("tipo_documento"), "fecha_expedicion": body.get("fecha_expedicion"), "lugar_expedicion": body.get("lugar_expedicion"),
-                    "fecha_nacimiento": body.get("fecha_nacimiento"), "genero": body.get("genero"), "rh": body.get("rh"),
-                    "estado_civil": body.get("estado_civil"), "hijos": body.get("hijos"), "personas_a_cargo": body.get("personas_a_cargo"),
-                    "estrato": body.get("estrato"), "tel_fijo": body.get("tel_fijo"), "celular": body.get("celular"),
-                    "correo": body.get("correo"), "correo_corporativo": body.get("correo_corporativo"), "direccion": body.get("direccion"), "barrio": body.get("barrio"),
-                    'localidad': body.get('localidad'), "contacto_emergencia": body.get("contacto_emergencia"), "parentesco": body.get("parentesco"), "tel_contacto": body.get("tel_contacto")},
+                    "cedula": body.get("cedula").upper(), "nombre": body.get("nombre").upper(), "tipo_documento": body.get("tipo_documento").upper(), "fecha_expedicion": body.get("fecha_expedicion").upper(), "lugar_expedicion": body.get("lugar_expedicion").upper(),
+                    "fecha_nacimiento": body.get("fecha_nacimiento").upper(), "genero": body.get("genero").upper(), "rh": body.get("rh").upper(),
+                    "estado_civil": body.get("estado_civil").upper(), "hijos": body.get("hijos").upper(), "personas_a_cargo": body.get("personas_a_cargo").upper(),
+                    "estrato": body.get("estrato").upper(), "tel_fijo": body.get("tel_fijo").upper(), "celular": body.get("celular").upper(),
+                    "correo": body.get("correo").upper(), "correo_corporativo": body.get("correo_corporativo").upper(), "direccion": body.get("direccion").upper(), "barrio": body.get("barrio").upper(),
+                    'localidad': body.get('localidad').upper(), "contacto_emergencia": body.get("contacto_emergencia").upper(), "parentesco": body.get("parentesco").upper(), "tel_contacto": body.get("tel_contacto").upper()
+                },
                 "educational_information": {
-                    "cedula": body.get("cedula"),
-                    "nivel_escolaridad": body.get("nivel_escolaridad"),
-                    "profesion": body.get("profesion"),
-                    "estudios_en_curso": body.get("estudios_en_curso")
+                    "cedula": body.get("cedula").upper(),
+                    "nivel_escolaridad": body.get("nivel_escolaridad").upper(),
+                    "profesion": body.get("profesion").upper(),
+                    "estudios_en_curso": body.get("estudios_en_curso").upper()
                 },
                 "employment_information": {
-                    "cedula": body.get("cedula"), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps"), "eps": body.get("eps"),
-                    "pension": body.get("pension"), "caja_compensacion": body.get("caja_compensacion"), "cesantias": body.get("cesantias"),
-                    "cuenta_nomina": body.get("cuenta_nomina"),"fecha_nombramiento": body.get("fecha_nombramiento"), "fecha_ingreso": body.get("fecha_ingreso"), "sede": body.get("sede"), "cargo": body.get("cargo"),
-                    "gerencia": body.get("gerencia"), "campana_general": body.get("campana_general"), "area_negocio": body.get("area_negocio"),
-                    "tipo_contrato": body.get("tipo_contrato"), "salario": body.get("salario"), "subsidio_transporte": body.get("subsidio_transporte"),
-                    'observaciones': body.get('observaciones')
+                    "cedula": body.get("cedula").upper(), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps").upper(), "eps": body.get("eps").upper(),
+                    "pension": body.get("pension").upper(), "caja_compensacion": body.get("caja_compensacion").upper(), "cesantias": body.get("cesantias").upper(),
+                    "cuenta_nomina": body.get("cuenta_nomina").upper(),"fecha_nombramiento": body.get("fecha_nombramiento").upper(), "fecha_ingreso": body.get("fecha_ingreso").upper(), "sede": body.get("sede").upper(), "cargo": body.get("cargo").upper(),
+                    "gerencia": body.get("gerencia").upper(), "campana_general": body.get("campana_general").upper(), "area_negocio": body.get("area_negocio").upper(),
+                    "tipo_contrato": body.get("tipo_contrato").upper(), "salario": body.get("salario").upper(), "subsidio_transporte": body.get("subsidio_transporte").upper(),
+                    'observaciones': body.get('observaciones').upper()
                 },
                 # "performance_evaluation": {
-                # "cedula": body.get("cedula"),
-                # "calificacion": body.get("desempeno"),
+                # "cedula": body.get("cedula").upper(),
+                # "calificacion": body.get("desempeno").upper(),
                 # },
                 "disciplinary_actions": {
-                    "cedula": body.get("cedula"),
-                    "memorando_1": body.get("memorando_1"),
-                    "memorando_2": body.get("memorando_2"),
-                    "memorando_3": body.get("memorando_3"),
+                    "cedula": body.get("cedula").upper(),
+                    "memorando_1": body.get("memorando_1").upper(),
+                    "memorando_2": body.get("memorando_2").upper(),
+                    "memorando_3": body.get("memorando_3").upper(),
                 },
                 # "vacation_information": {
-                #     "cedula": body.get("cedula"),
-                #     "licencia_no_remunerada": body.get("licencia_no_remunerada"),
+                #     "cedula": body.get("cedula").upper(),
+                #     "licencia_no_remunerada": body.get("licencia_no_remunerada").upper(),
                 #     "dias_utilizados": "0",
-                #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones"),
-                #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones")
+                #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones").upper(),
+                #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones".upper())
                 # },
                 "leave_information": {
-                    "cedula": body.get("cedula"),
-                    "fecha_retiro": body.get("fecha_retiro"),
-                    "tipo_retiro": body.get("tipo_retiro"),
-                    "motivo_retiro": body.get("motivo_retiro"),
+                    "cedula": body.get("cedula").upper(),
+                    "fecha_retiro": body.get("fecha_retiro").upper(),
+                    "tipo_retiro": body.get("tipo_retiro").upper(),
+                    "motivo_retiro": body.get("motivo_retiro").upper(),
                     "estado": body.get("estado", True)
                 }
             }
@@ -442,72 +443,64 @@ def download():
     if session["consult"] == True:
         try:
             body = request.get_data(as_text=True)
-            logging.info("BODY %s", body)
+            logging.info("Request: %s", body)
             conexion = conexionMySQL()
-
             # Parse the CSV data from the request body
-            csv_df = pd.read_csv(StringIO(body), delimiter=";")  # Use StringIO from the io module
-
-            # Extract "Cedula" values from the first column of the DataFrame
-            cedula_values = csv_df.iloc[:, 0].tolist()
-
-            # Build the WHERE clause for MySQL
-            where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
-            logging.info("WHERE %s", where)
-            # Fetch history data from MySQL based on the WHERE clause
-            history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
-            if "error" in history and history['error'] == "Registro no encontrado":
-                history = {"info": []}
-            else:
-                logging.info("HISTORY %s", history)
-            # Use the csv module to parse the CSV data
-            csv_data = TextIOWrapper(BytesIO(body.encode()), encoding='utf-8', newline='')
-            # Use Pandas to read the CSV data into a DataFrame
-            csv_df = pd.read_csv(csv_data, delimiter=";")
-
-            # Create a DataFrame from the history list
-            history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
-
+            csv_df = pd.read_csv(StringIO(body), delimiter=";", keep_default_na=False, na_values=[""])
+            logging.info("CSV DataFrame: %s", csv_df)
+            all_columns = csv_df.columns.tolist()
+            
+            salario = csv_df.iloc[:, 0].tolist()
+            history_data = None
+            if "Cedula" in all_columns:
+                # Extract "Cedula" values from the first column of the DataFrame
+                cedula_values = csv_df.iloc[:, 0].tolist()
+                logging.info("Cedula values: %s", cedula_values)
+                # Build the WHERE clause for MySQL
+                where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
+                logging.info("WHERE %s", where)
+                # Fetch history data from MySQL based on the WHERE clause
+                history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
+                if "error" in history and history['error'] == "Registro no encontrado":
+                    history = {"info": []}
+                history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
             # Save CSV data to one sheet and history data to another sheet in the same Excel file
             excel_data = BytesIO()  # Use BytesIO for Excel data
+            def get_column_width(data):
+                values = [len(str(value)) for value in data if str(value).strip()]
+                return max(values) if values else 15  # Set a minimum width if column is empty
             with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:  # Use excel_data as the file-like object
-                csv_df.to_excel(writer, sheet_name='CSV Data', index=False)
-                history_data.to_excel(writer, sheet_name='History Info', index=False)
-
+                csv_df.to_excel(writer, sheet_name='Exporte', index=False)
                 # Get the XlsxWriter workbook and worksheet objects
                 workbook = writer.book
-                csv_sheet = writer.sheets['CSV Data']
-                history_sheet = writer.sheets['History Info']
+                csv_sheet = writer.sheets['Exporte']
+                # Only save history data if it exists
+                if history_data is not None: 
+                    history_data.to_excel(writer, sheet_name='Historial', index=False)
+                    history_sheet = writer.sheets['Historial']
+                    for i, column in enumerate(history_data.columns):
+                        column_width = get_column_width(history_data[column])
+                        history_sheet.set_column(i, i, column_width + 2)
+                        # Set column width for History Info sheet
 
+                        cedula_values = history_data["cedula"].tolist() # type: ignore
+                        start_color = "#FFFFFF"  # No cell color
+                        alternate_color = "#D3D3D3"  # Light grey color
+                        current_color = start_color
+
+                        for row_number, cedula in enumerate(cedula_values):
+                            if row_number > 0 and cedula != cedula_values[row_number - 1]:
+                                # Change color when the cedula changes
+                                current_color = alternate_color if current_color == start_color else start_color
+
+                            # Set the row color for all columns in the row
+                            row_format = workbook.add_format({'bg_color': current_color}) # type: ignore
+                            history_sheet.set_row(row_number + 1, None, row_format)
                 # Function to calculate the column width based on content
-                def get_column_width(data):
-                    values = [len(str(value)) for value in data if str(value).strip()]
-                    return max(values) if values else 10  # Set a minimum width if column is empty
-
                 # Set column width for CSV Data sheet
                 for i, column in enumerate(csv_df.columns):
                     column_width = get_column_width(csv_df[column])
                     csv_sheet.set_column(i, i, column_width + 2)
-
-                # Set column width for History Info sheet
-                for i, column in enumerate(history_data.columns):
-                    column_width = get_column_width(history_data[column])
-                    history_sheet.set_column(i, i, column_width + 2)
-
-                cedula_values = history_data["cedula"].tolist()
-                start_color = "#FFFFFF"  # No cell color
-                alternate_color = "#D3D3D3"  # Light grey color
-                current_color = start_color
-
-                for row_number, cedula in enumerate(cedula_values):
-                    if row_number > 0 and cedula != cedula_values[row_number - 1]:
-                        # Change color when the cedula changes
-                        current_color = alternate_color if current_color == start_color else start_color
-
-                    # Set the row color for all columns in the row
-                    row_format = workbook.add_format({'bg_color': current_color})
-                    history_sheet.set_row(row_number + 1, None, row_format)
-
             # Create a response object with the Excel content
             response = Response(excel_data.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.xlsx"'
