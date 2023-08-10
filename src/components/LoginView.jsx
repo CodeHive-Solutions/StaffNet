@@ -67,7 +67,7 @@ const LoginView = () => {
         setCurrentIndex(newIndex);
         const checkLogin = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//loged", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//loged", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -113,7 +113,7 @@ const LoginView = () => {
 
         const login = async (dataP) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//login", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//login", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },

@@ -333,7 +333,15 @@ export const arrayData = [
                     id: "caja_compensacion",
                     label: "Caja de Compensación",
                     name: "caja_compensacion",
-                    type: "text",
+                    type: "select",
+                    options: [
+                        {value: "COMPENSAR", label: "COMPENSAR"},
+                        {value: "COMFENALCO ANTIOQUIA", label: "COMFENALCO ANTIOQUIA"},
+                        {value: "COMFENALCO TOLIMA", label: "COMFENALCO TOLIMA"},
+                        {value: "COMFENALCO SANTANDER", label: "COMFENALCO SANTANDER"},
+                        {value: "COFREM", label: "COFREM"},
+                        {value: "N/A", label: "N/A"},
+                    ]
                 },
                 {
                     id: "cesantias",

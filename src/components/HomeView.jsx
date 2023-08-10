@@ -53,7 +53,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -145,7 +145,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//get_join_info", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -206,7 +206,7 @@ const HomeView = () => {
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//update_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -236,7 +236,7 @@ const HomeView = () => {
 
     const searchEmployeesUpdate = async () => {
         try {
-            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+            const response = await fetch("https://staffnet-api.cyc-bpo.com//search_employees", {
                 method: "POST",
                 credentials: "include",
             });
@@ -432,7 +432,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "330px",
+                                                                            width: "20rem",
                                                                         }}
                                                                         value={seniority || ""}
                                                                         InputLabelProps={{
@@ -450,7 +450,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "330px",
+                                                                            width: "20rem",
                                                                         }}
                                                                         value={dataCalculateAge}
                                                                         InputLabelProps={{
@@ -473,7 +473,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "330px",
+                                                                            width: "20rem",
                                                                         }}
                                                                         value={
                                                                             inputValues[input.name] !== undefined &&
@@ -497,7 +497,7 @@ const HomeView = () => {
                                                                         label={input.label}
                                                                         type={input.type}
                                                                         sx={{
-                                                                            width: "330px",
+                                                                            width: "20rem",
                                                                         }}
                                                                         value={
                                                                             inputValues[input.name] !== undefined && inputValues[input.name] !== ""
@@ -526,7 +526,7 @@ const HomeView = () => {
                                                                         disabled={edit}
                                                                         key={input.id}
                                                                         sx={{
-                                                                            width: "330px",
+                                                                            width: "20rem",
                                                                         }}
                                                                         name={input.name}
                                                                         autoComplete="off"
@@ -557,7 +557,7 @@ const HomeView = () => {
                                                                     disabled={edit}
                                                                     key={input.id}
                                                                     sx={{
-                                                                        width: "330px",
+                                                                        width: "20rem",
                                                                     }}
                                                                     type={input.type}
                                                                     name={input.name}
@@ -587,7 +587,6 @@ const HomeView = () => {
                                 </Box>
                             </Fade>
                         </Modal>
-                        
                         <AddModal
                             arrayData={arrayData}
                             openModalAdd={openModalAdd}

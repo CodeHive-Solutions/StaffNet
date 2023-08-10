@@ -13,13 +13,13 @@ import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 
-const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModalAdd,setProgressBar, searchEmployeesUpdate, stylesModal, setShowSnackAlert }) => {
+const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModalAdd, setProgressBar, searchEmployeesUpdate, stylesModal, setShowSnackAlert }) => {
     const submitAdd = (event) => {
         event.preventDefault();
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -122,6 +122,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name == "pension" ||
                                         input.name == "cesantias" ||
                                         input.name == "fecha_nombramiento" ||
+                                        input.name == "caja_compensacion" ||
                                         input.name == "fecha_afiliacion_eps" ||
                                         input.name === "parentesco"
                                     ) {
@@ -129,7 +130,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                             <TextField
                                                 select
                                                 sx={{
-                                                    width: "330px",
+                                                    width: "20rem",
                                                 }}
                                                 key={input.id}
                                                 name={input.name}
@@ -153,7 +154,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                             select
                                             required
                                             sx={{
-                                                width: "330px",
+                                                width: "20rem",
                                             }}
                                             key={input.id}
                                             name={input.name}
@@ -181,7 +182,6 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name === "contacto_emergencia" ||
                                         input.name === "tel_contacto" ||
                                         input.name === "tel_fijo" ||
-                                        input.name === "caja_compensacion" ||
                                         input.name === "subsidio_transporte" ||
                                         input.name === "fecha_nombramiento" ||
                                         input.name === "fecha_afiliacion_eps" ||
@@ -190,7 +190,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         return (
                                             <TextField
                                                 sx={{
-                                                    width: "330px",
+                                                    width: "20rem",
                                                 }}
                                                 key={input.id}
                                                 name={input.name}
@@ -228,7 +228,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         return (
                                             <TextField
                                                 sx={{
-                                                    width: "330px",
+                                                    width: "20rem",
                                                 }}
                                                 key={input.id}
                                                 required

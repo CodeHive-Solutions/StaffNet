@@ -64,6 +64,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                         field: input.name,
                         headerName: input.label,
                         width: 140,
+                        type: "number",
                         valueFormatter: (params) => {
                             let salary = params.value;
                             if (salary === null) {
@@ -152,7 +153,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             const csvOptions = { delimiter: ";", utf8WithBom: true };
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                const response = await fetch("https://staffnet-api.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -271,6 +272,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             checkboxSelection
             initialState={initialState}
             pageSizeOptions={[12]}
+            disableRowSelectionOnClick
         />
     );
 };

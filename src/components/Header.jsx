@@ -18,7 +18,7 @@ const Header = () => {
     };
 
     const closeSesion = () => {
-        fetch("https://staffnet-api-dev.cyc-bpo.com//logout", {
+        fetch("https://staffnet-api.cyc-bpo.com//logout", {
             method: "POST",
             credentials: "include",
         })

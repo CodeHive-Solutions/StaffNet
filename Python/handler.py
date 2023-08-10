@@ -443,72 +443,64 @@ def download():
     if session["consult"] == True:
         try:
             body = request.get_data(as_text=True)
-            logging.info("BODY %s", body)
+            logging.info("Request: %s", body)
             conexion = conexionMySQL()
-
             # Parse the CSV data from the request body
-            csv_df = pd.read_csv(StringIO(body), delimiter=";")  # Use StringIO from the io module
-
-            # Extract "Cedula" values from the first column of the DataFrame
-            cedula_values = csv_df.iloc[:, 0].tolist()
-
-            # Build the WHERE clause for MySQL
-            where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
-            logging.info("WHERE %s", where)
-            # Fetch history data from MySQL based on the WHERE clause
-            history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
-            if "error" in history and history['error'] == "Registro no encontrado":
-                history = {"info": []}
-            else:
-                logging.info("HISTORY %s", history)
-            # Use the csv module to parse the CSV data
-            csv_data = TextIOWrapper(BytesIO(body.encode()), encoding='utf-8', newline='')
-            # Use Pandas to read the CSV data into a DataFrame
-            csv_df = pd.read_csv(csv_data, delimiter=";")
-
-            # Create a DataFrame from the history list
-            history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
-
+            csv_df = pd.read_csv(StringIO(body), delimiter=";", keep_default_na=False, na_values=[""])
+            logging.info("CSV DataFrame: %s", csv_df)
+            all_columns = csv_df.columns.tolist()
+            
+            salario = csv_df.iloc[:, 0].tolist()
+            history_data = None
+            if "Cedula" in all_columns:
+                # Extract "Cedula" values from the first column of the DataFrame
+                cedula_values = csv_df.iloc[:, 0].tolist()
+                logging.info("Cedula values: %s", cedula_values)
+                # Build the WHERE clause for MySQL
+                where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
+                logging.info("WHERE %s", where)
+                # Fetch history data from MySQL based on the WHERE clause
+                history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
+                if "error" in history and history['error'] == "Registro no encontrado":
+                    history = {"info": []}
+                history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
             # Save CSV data to one sheet and history data to another sheet in the same Excel file
             excel_data = BytesIO()  # Use BytesIO for Excel data
+            def get_column_width(data):
+                values = [len(str(value)) for value in data if str(value).strip()]
+                return max(values) if values else 15  # Set a minimum width if column is empty
             with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:  # Use excel_data as the file-like object
-                csv_df.to_excel(writer, sheet_name='CSV Data', index=False)
-                history_data.to_excel(writer, sheet_name='History Info', index=False)
-
+                csv_df.to_excel(writer, sheet_name='Exporte', index=False)
                 # Get the XlsxWriter workbook and worksheet objects
                 workbook = writer.book
-                csv_sheet = writer.sheets['CSV Data']
-                history_sheet = writer.sheets['History Info']
+                csv_sheet = writer.sheets['Exporte']
+                # Only save history data if it exists
+                if history_data is not None: 
+                    history_data.to_excel(writer, sheet_name='Historial', index=False)
+                    history_sheet = writer.sheets['Historial']
+                    for i, column in enumerate(history_data.columns):
+                        column_width = get_column_width(history_data[column])
+                        history_sheet.set_column(i, i, column_width + 2)
+                        # Set column width for History Info sheet
 
+                        cedula_values = history_data["cedula"].tolist() # type: ignore
+                        start_color = "#FFFFFF"  # No cell color
+                        alternate_color = "#D3D3D3"  # Light grey color
+                        current_color = start_color
+
+                        for row_number, cedula in enumerate(cedula_values):
+                            if row_number > 0 and cedula != cedula_values[row_number - 1]:
+                                # Change color when the cedula changes
+                                current_color = alternate_color if current_color == start_color else start_color
+
+                            # Set the row color for all columns in the row
+                            row_format = workbook.add_format({'bg_color': current_color}) # type: ignore
+                            history_sheet.set_row(row_number + 1, None, row_format)
                 # Function to calculate the column width based on content
-                def get_column_width(data):
-                    values = [len(str(value)) for value in data if str(value).strip()]
-                    return max(values) if values else 10  # Set a minimum width if column is empty
-
                 # Set column width for CSV Data sheet
                 for i, column in enumerate(csv_df.columns):
                     column_width = get_column_width(csv_df[column])
                     csv_sheet.set_column(i, i, column_width + 2)
-
-                # Set column width for History Info sheet
-                for i, column in enumerate(history_data.columns):
-                    column_width = get_column_width(history_data[column])
-                    history_sheet.set_column(i, i, column_width + 2)
-
-                cedula_values = history_data["cedula"].tolist()
-                start_color = "#FFFFFF"  # No cell color
-                alternate_color = "#D3D3D3"  # Light grey color
-                current_color = start_color
-
-                for row_number, cedula in enumerate(cedula_values):
-                    if row_number > 0 and cedula != cedula_values[row_number - 1]:
-                        # Change color when the cedula changes
-                        current_color = alternate_color if current_color == start_color else start_color
-
-                    # Set the row color for all columns in the row
-                    row_format = workbook.add_format({'bg_color': current_color})
-                    history_sheet.set_row(row_number + 1, None, row_format)
-
             # Create a response object with the Excel content
             response = Response(excel_data.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             response.headers["Content-Disposition"] = 'attachment; filename="Exporte_StaffNet.xlsx"'
