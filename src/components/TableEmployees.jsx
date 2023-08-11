@@ -70,7 +70,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                             if (salary === null) {
                                 return "";
                             } else {
-                                let options = { style: "currency", currency: "COP" };
+                                let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
                                 return salary.toLocaleString("es-CO", options);
                             }
                         },
@@ -153,7 +153,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             const csvOptions = { delimiter: ";", utf8WithBom: true };
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//download", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
                     method: "POST",
                     credentials: "include",
                     headers: {

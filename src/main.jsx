@@ -2,11 +2,11 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import PermissionsView from "./Components/PermissionsView";
-import HomeView from "./Components/HomeView";
+import PermissionsView from "./components/PermissionsView";
+import HomeView from "./components/HomeView";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import LoginView from "./Components/LoginView";
+import LoginView from "./components/LoginView";
 
 const theme = createTheme({
     typography: {

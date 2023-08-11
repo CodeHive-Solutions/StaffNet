@@ -30,7 +30,7 @@ else:
 
 try:
     redis_client = redis.Redis(
-        host='172.16.0.128', port=6379, password=os.getenv('Redis'))
+        host='172.16.0.128', port=6379, password=os.environ['Redis'])
     logging.info(f"Connection to redis success")
     redis_client.ping()
 except:
@@ -47,8 +47,8 @@ app.config['SESSION_REDIS'] = redis_client
 app.config['SESSION_COOKIE_NAME'] = 'StaffNet'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-# app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
-app.config['SESSION_COOKIE_SAMESITE'] = "None"
+app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+# app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_DOMAIN'] = '.cyc-bpo.com'
 app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
 
@@ -63,6 +63,13 @@ def get_request_body():
         return {}
 
 
+def clean_value(value):
+    if value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    return str(value).upper()
+
 def bd_info():
     body = get_request_body()
     if body != str:
@@ -71,36 +78,60 @@ def bd_info():
         try:
             info_tables = {
                 "personal_information": {
-                    "cedula": body.get("cedula").upper(), "nombre": body.get("nombre").upper(), "tipo_documento": body.get("tipo_documento").upper(), "fecha_expedicion": body.get("fecha_expedicion").upper(), "lugar_expedicion": body.get("lugar_expedicion").upper(),
-                    "fecha_nacimiento": body.get("fecha_nacimiento").upper(), "genero": body.get("genero").upper(), "rh": body.get("rh").upper(),
-                    "estado_civil": body.get("estado_civil").upper(), "hijos": body.get("hijos").upper(), "personas_a_cargo": body.get("personas_a_cargo").upper(),
-                    "estrato": body.get("estrato").upper(), "tel_fijo": body.get("tel_fijo").upper(), "celular": body.get("celular").upper(),
-                    "correo": body.get("correo").upper(), "correo_corporativo": body.get("correo_corporativo").upper(), "direccion": body.get("direccion").upper(), "barrio": body.get("barrio").upper(),
-                    'localidad': body.get('localidad').upper(), "contacto_emergencia": body.get("contacto_emergencia").upper(), "parentesco": body.get("parentesco").upper(), "tel_contacto": body.get("tel_contacto").upper()
+                    "cedula": clean_value(body.get("cedula")),
+                    "nombre": clean_value(body.get("nombre")),
+                    "tipo_documento": clean_value(body.get("tipo_documento")),
+                    "fecha_expedicion": clean_value(body.get("fecha_expedicion")),
+                    "lugar_expedicion": clean_value(body.get("lugar_expedicion")),
+                    "fecha_nacimiento": clean_value(body.get("fecha_nacimiento")),
+                    "genero": clean_value(body.get("genero")),
+                    "rh": clean_value(body.get("rh")),
+                    "estado_civil": clean_value(body.get("estado_civil")),
+                    "hijos": clean_value(body.get("hijos")),
+                    "personas_a_cargo": clean_value(body.get("personas_a_cargo")),
+                    "estrato": clean_value(body.get("estrato")),
+                    "tel_fijo": clean_value(body.get("tel_fijo")),
+                    "celular": clean_value(body.get("celular")),
+                    "correo": clean_value(body.get("correo")),
+                    "correo_corporativo": clean_value(body.get("correo_corporativo")),
+                    "direccion": clean_value(body.get("direccion")),
+                    "barrio": clean_value(body.get("barrio")),
+                    'localidad': clean_value(body.get('localidad')),
+                    "contacto_emergencia": clean_value(body.get("contacto_emergencia")),
+                    "parentesco": clean_value(body.get("parentesco")),
+                    "tel_contacto": clean_value(body.get("tel_contacto"))
                 },
                 "educational_information": {
-                    "cedula": body.get("cedula").upper(),
-                    "nivel_escolaridad": body.get("nivel_escolaridad").upper(),
-                    "profesion": body.get("profesion").upper(),
-                    "estudios_en_curso": body.get("estudios_en_curso").upper()
+                    "cedula": clean_value(body.get("cedula")),
+                    "nivel_escolaridad": clean_value(body.get("nivel_escolaridad")),
+                    "profesion": clean_value(body.get("profesion")),
+                    "estudios_en_curso": clean_value(body.get("estudios_en_curso"))
                 },
                 "employment_information": {
-                    "cedula": body.get("cedula").upper(), "fecha_afiliacion_eps": body.get("fecha_afiliacion_eps").upper(), "eps": body.get("eps").upper(),
-                    "pension": body.get("pension").upper(), "caja_compensacion": body.get("caja_compensacion").upper(), "cesantias": body.get("cesantias").upper(),
-                    "cuenta_nomina": body.get("cuenta_nomina").upper(),"fecha_nombramiento": body.get("fecha_nombramiento").upper(), "fecha_ingreso": body.get("fecha_ingreso").upper(), "sede": body.get("sede").upper(), "cargo": body.get("cargo").upper(),
-                    "gerencia": body.get("gerencia").upper(), "campana_general": body.get("campana_general").upper(), "area_negocio": body.get("area_negocio").upper(),
-                    "tipo_contrato": body.get("tipo_contrato").upper(), "salario": body.get("salario").upper(), "subsidio_transporte": body.get("subsidio_transporte").upper(),
-                    'observaciones': body.get('observaciones').upper()
+                    "cedula": clean_value(body.get("cedula")),
+                    "fecha_afiliacion_eps": clean_value(body.get("fecha_afiliacion_eps")),
+                    "eps": clean_value(body.get("eps")),
+                    "pension": clean_value(body.get("pension")),
+                    "caja_compensacion": clean_value(body.get("caja_compensacion")),
+                    "cesantias": clean_value(body.get("cesantias")),
+                    "cuenta_nomina": clean_value(body.get("cuenta_nomina")),
+                    "fecha_nombramiento": clean_value(body.get("fecha_nombramiento")),
+                    "fecha_ingreso": clean_value(body.get("fecha_ingreso")),
+                    "sede": clean_value(body.get("sede")),
+                    "cargo": clean_value(body.get("cargo")),
+                    "gerencia": clean_value(body.get("gerencia")),
+                    "campana_general": clean_value(body.get("campana_general")),
+                    "area_negocio": clean_value(body.get("area_negocio")),
+                    "tipo_contrato": clean_value(body.get("tipo_contrato")),
+                    "salario": clean_value(body.get("salario")),
+                    "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
+                    'observaciones': clean_value(body.get('observaciones'))
                 },
-                # "performance_evaluation": {
-                # "cedula": body.get("cedula").upper(),
-                # "calificacion": body.get("desempeno").upper(),
-                # },
                 "disciplinary_actions": {
-                    "cedula": body.get("cedula").upper(),
-                    "memorando_1": body.get("memorando_1").upper(),
-                    "memorando_2": body.get("memorando_2").upper(),
-                    "memorando_3": body.get("memorando_3").upper(),
+                    "cedula": clean_value(body.get("cedula")),
+                    "memorando_1": clean_value(body.get("memorando_1")),
+                    "memorando_2": clean_value(body.get("memorando_2")),
+                    "memorando_3": clean_value(body.get("memorando_3"))
                 },
                 # "vacation_information": {
                 #     "cedula": body.get("cedula").upper(),
@@ -110,17 +141,16 @@ def bd_info():
                 #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones".upper())
                 # },
                 "leave_information": {
-                    "cedula": body.get("cedula").upper(),
-                    "fecha_retiro": body.get("fecha_retiro").upper(),
-                    "tipo_retiro": body.get("tipo_retiro").upper(),
-                    "motivo_retiro": body.get("motivo_retiro").upper(),
+                    "cedula": clean_value(body.get("cedula")),
+                    "fecha_retiro": clean_value(body.get("fecha_retiro")),
+                    "tipo_retiro": clean_value(body.get("tipo_retiro")),
+                    "motivo_retiro": clean_value(body.get("motivo_retiro")),
                     "estado": body.get("estado", True)
                 }
             }
         except Exception as error:
-            logging.error(f"Campo no encontrado: {error}")
+            logging.exception(f"Campo no encontrado: {error}")
         return info_tables
-
 
 @ app.route('/login', methods=['POST'])
 def login():
@@ -151,8 +181,9 @@ def conexionMySQL():
         try:
             g.conexion = mysql.connector.connect(
                 host="172.16.0.115",
+                # host='172.16.0.118',
                 user="StaffNetuser",
-                password=os.getenv('StaffNetmysql'),
+                password=os.environ['StaffNetmysql'],
                 database='staffnet'
             )
             logging.info("Connection to MYSQL success")
@@ -417,7 +448,6 @@ def update_transaction():
     if session["edit"] == True:
         body = get_request_body()
         info_tables = bd_info()
-        logging.info(info_tables["personal_information"])
         conexion = conexionMySQL()
         response = update_data(
             conexion, info_tables, "cedula = "+str(body["cedula"]))
@@ -449,8 +479,6 @@ def download():
             csv_df = pd.read_csv(StringIO(body), delimiter=";", keep_default_na=False, na_values=[""])
             logging.info("CSV DataFrame: %s", csv_df)
             all_columns = csv_df.columns.tolist()
-            
-            salario = csv_df.iloc[:, 0].tolist()
             history_data = None
             if "Cedula" in all_columns:
                 # Extract "Cedula" values from the first column of the DataFrame
@@ -464,6 +492,21 @@ def download():
                 if "error" in history and history['error'] == "Registro no encontrado":
                     history = {"info": []}
                 history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
+            def clean_and_convert_to_int(values):
+                cleaned_values = []
+                for value in values:
+                    cleaned_value = re.sub(r'[^0-9]', '', value)
+                    if cleaned_value:
+                        cleaned_values.append(int(cleaned_value))
+                return cleaned_values
+            if "Salario" in all_columns:
+                salario_index = csv_df.columns.get_loc("Salario")
+                salario_list = csv_df.iloc[:, salario_index].tolist()
+                salario = []
+                for value in salario_list:
+                    cleaned_value = re.sub(r'[^0-9]', '', value)
+                    salario.append(int(cleaned_value))
+                csv_df.iloc[:, salario_index] = salario # type: ignore
             # Save CSV data to one sheet and history data to another sheet in the same Excel file
             excel_data = BytesIO()  # Use BytesIO for Excel data
             def get_column_width(data):

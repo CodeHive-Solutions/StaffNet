@@ -20,16 +20,26 @@ import Fade from "@mui/material/Fade";
 import LinearProgress from "@mui/material/LinearProgress";
 
 // Import images
-import image0 from "../images/image0.webp";
-import image1 from "../images/image1.webp";
-import image2 from "../images/image2.webp";
-import image3 from "../images/image3.webp";
-import image4 from "../images/image4.webp";
-import image5 from "../images/image5.webp";
-import image6 from "../images/image6.webp";
-import image7 from "../images/image7.webp";
-import image8 from "../images/image8.webp";
-import image9 from "../images/image9.webp";
+import image0 from "../images/ALE02947.webp";
+import image1 from "../images/ALE02974.webp";
+import image2 from "../images/ALE02976.webp";
+import image3 from "../images/ALE03000.webp";
+import image4 from "../images/ALE03010.webp";
+import image5 from "../images/ALE03017.webp";
+import image6 from "../images/ALE03025.webp";
+import image7 from "../images/ALE03027.webp";
+import image8 from "../images/ALE03043.webp";
+import image9 from "../images/ALE03072.webp";
+import image10 from "../images/ALE03167.webp";
+import image11 from "../images/ALE03195.webp";
+import image12 from "../images/ALE03213.webp";
+import image13 from "../images/ALE03233.webp";
+import image14 from "../images/ALE03281.webp";
+import image15 from "../images/ALE03289.webp";
+import image16 from "../images/ALE03298.webp";
+import image17 from "../images/ALE03313.webp";
+import image18 from "../images/ALE03324.webp";
+import image19 from "../images/ALE03375.webp";
 
 const LoginView = () => {
     // State variables for keeping track of the checkbox state, username, date, and collapse state
@@ -67,7 +77,7 @@ const LoginView = () => {
         setCurrentIndex(newIndex);
         const checkLogin = async () => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//loged", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//loged", {
                     method: "POST",
                     credentials: "include",
                 });
@@ -113,7 +123,7 @@ const LoginView = () => {
 
         const login = async (dataP) => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//login", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//login", {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -160,7 +170,28 @@ const LoginView = () => {
         }
     }, []);
 
-    const images = [image0, image1, image2, image3, image4, image5, image6, image7, image8, image9];
+    const images = [
+        // image0,
+        // image1,
+        // image2,
+        // image3,
+        // image4,
+        // image5,
+        // image6,
+        // image7,
+        // image8,
+        // image9,
+        // image10,
+        // image11,
+        // image12,
+        // image13,
+        // image14,
+        // image15,
+        image16,
+        image17,
+        image18,
+        image19,
+    ];
 
     // Function to handle toggling the collapse state
     const handleClick = () => {

@@ -19,7 +19,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api.cyc-bpo.com//insert_transaction", {
+                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
                     method: "POST",
                     credentials: "include",
                     headers: {
