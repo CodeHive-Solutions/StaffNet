@@ -10,34 +10,32 @@ else:
     load_dotenv("/var/env/StaffNet.env")
 
 connection = mysql.connector.connect(
+    # host='172.16.0.115',
     host='172.16.0.118',
     user='StaffNetuser',
     password=os.environ['StaffNetmysql'],
-    # host='172.16.0.115',
-    # user='root',
-    # password=os.environ['MYSQL_115'],
     database='staffnet'
 )
 
 # Read the CSV file
-file_path = "StaffNeto.csv"
+file_path = "Actualizacion_StaffNet.xlsx"
 
-try:
-    with connection.cursor() as cursor:
-        with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=";")
-            
-            for row in csv_reader:
-                cedula_str = row['CEDULA'].replace(',', '')  # Remove comma
-                cedula = float(cedula_str)  # Convert to float first
-                lugar = row['LUGAR EXPEDICION C.C.'].upper()
-                
-                # SQL query to update data
-                sql = f"UPDATE personal_information SET `lugar_expedicion` = %s WHERE `cedula` = %s"
-                cursor.execute(sql, (lugar, cedula))
-            
-        # Commit the changes
-        connection.commit()
-        
-finally:
-    connection.close()
+df = pd.read_excel(file_path)
+cursor = connection.cursor()
+
+# Iterate through the rows of the Excel data
+for index, row in df.iterrows():
+    cedula = row["Cedula"]
+    new_value = row["Sede"]  # Replace with the actual column name you want to update
+    
+    # Perform the MySQL update
+    update_query = f"UPDATE employment_information SET sede = '{new_value}' WHERE cedula = '{cedula}'"
+    cursor.execute(update_query)
+    print(f"Updated {cedula} to {new_value}")
+connection.commit()
+
+# Close the database connection
+cursor.close()
+connection.close()
+
+print("Updates complete!")
