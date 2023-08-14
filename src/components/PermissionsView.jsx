@@ -21,6 +21,7 @@ import Header from "./Header";
 import Container from "@mui/material/Container";
 import SnackAlert from "./SnackAlert";
 import { useNavigate } from "react-router-dom";
+import { getApiUrl } from "../assets/getApi.js";
 
 const PermissionsView = () => {
     const navigate = useNavigate();
@@ -46,7 +47,7 @@ const PermissionsView = () => {
 
         const validateCreateAdmins = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//validate_create_admins", {
+                const response = await fetch(`${getApiUrl()}/validate_create_admins`, {
                     method: "POST",
                     credentials: "include",
                 });
@@ -113,7 +114,7 @@ const PermissionsView = () => {
         // Fetch search the windows user
         const searchAd = async (dataSearch) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_ad", {
+                const response = await fetch(`${getApiUrl()}search_ad`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -192,7 +193,7 @@ const PermissionsView = () => {
             };
             const createData = async () => {
                 try {
-                    const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//create", {
+                    const response = await fetch(`${getApiUrl()}/create`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -223,7 +224,7 @@ const PermissionsView = () => {
             };
             const editAdmin = async () => {
                 try {
-                    const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//edit_admin", {
+                    const response = await fetch(`${getApiUrl()}/edit_admin`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",

@@ -8,6 +8,7 @@ import Link from "@mui/material/Link";
 import Snackbar from "@mui/material/Snackbar";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { getApiUrl } from "../assets/getApi.js";
 
 const Header = () => {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Header = () => {
     };
 
     const closeSesion = () => {
-        fetch("https://staffnet-api-dev.cyc-bpo.com//logout", {
+        fetch(`${getApiUrl()}/logout`, {
             method: "POST",
             credentials: "include",
         })

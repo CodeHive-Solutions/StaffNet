@@ -10,6 +10,7 @@ v-wsgi
 node_modules
 dist
 dist-ssr
+dist-bu
 *.local
 *.bat
 

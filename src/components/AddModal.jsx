@@ -12,6 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
+import { getApiUrl } from "../assets/getApi.js";
 
 const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModalAdd, setProgressBar, searchEmployeesUpdate, stylesModal, setShowSnackAlert }) => {
     const submitAdd = (event) => {
@@ -19,7 +20,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
         setProgressBar(true);
         const insertTransaction = async (formData) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//insert_transaction", {
+                const response = await fetch(`${getApiUrl()}/insert_transaction`, {
                     method: "POST",
                     credentials: "include",
                     headers: {

@@ -47,8 +47,8 @@ app.config['SESSION_REDIS'] = redis_client
 app.config['SESSION_COOKIE_NAME'] = 'StaffNet'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
-# app.config['SESSION_COOKIE_SAMESITE'] = "None"
+# app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_DOMAIN'] = '.cyc-bpo.com'
 app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
 
@@ -125,6 +125,7 @@ def bd_info():
                     "tipo_contrato": clean_value(body.get("tipo_contrato")),
                     "salario": clean_value(body.get("salario")),
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
+                    'aplica_teletrabajo': body.get('aplica_teletrabajo',False),
                     'observaciones': clean_value(body.get('observaciones'))
                 },
                 "disciplinary_actions": {
@@ -145,6 +146,7 @@ def bd_info():
                     "fecha_retiro": clean_value(body.get("fecha_retiro")),
                     "tipo_retiro": clean_value(body.get("tipo_retiro")),
                     "motivo_retiro": clean_value(body.get("motivo_retiro")),
+                    "aplica_recontratacion": body.get("aplica_recontratacion"),
                     "estado": body.get("estado", True)
                 }
             }
@@ -250,7 +252,7 @@ def after_request(response):
                 {"Respuesta: ": {"status": response.json["status"]}})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
-                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173", "http://localhost:3000", "http://172.16.5.11:3000"]
+                      "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173", "http://localhost:3000", "http://172.16.5.11:3000","http://172.16.0.115:3000"]
     if request.origin in url_permitidas:
         response.headers.add('Access-Control-Allow-Origin',
                              request.origin)

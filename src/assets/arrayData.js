@@ -213,9 +213,9 @@ export const arrayData = [
                         { value: "FAMILIAR", label: "Familiar" },
                         { value: "HERMANO(A)", label: "Hermano(a)" },
                         { value: "HIJO(A)", label: "Hijo(a)" },
-                        { value: "MADRE", label: "Madre(a)" },
-                        { value: "PADRE", label: "Padre(a)" },
-                        { value: "PAREJA", label: "Pareja(a)" },
+                        { value: "MADRE", label: "Madre" },
+                        { value: "PADRE", label: "Padre" },
+                        { value: "PAREJA", label: "Pareja" },
                         { value: "PRIMO(A)", label: "Primo(a)" },
                         { value: "TIO(A)", label: "Tio(a)" },
                     ].filter((option) => option.value !== ""),
@@ -321,6 +321,7 @@ export const arrayData = [
                     name: "pension",
                     type: "select",
                     options: [
+                        { value: "COLPENSIONES", label: "COLPENSIONES" },
                         { value: "COLFONDOS", label: "COLFONDOS" },
                         { value: "N/A", label: "N/A" },
                         { value: "OLD MUTUAL", label: "OLD MUTUAL" },
@@ -582,6 +583,10 @@ export const arrayData = [
                             label: "MetLife",
                         },
                         {
+                            value: "MI BANCO",
+                            label: "Mi Banco",
+                        },
+                        {
                             value: "NUEVA EPS",
                             label: "Nueva EPS",
                         },
@@ -592,6 +597,10 @@ export const arrayData = [
                         {
                             value: "PRESIDENCIAL",
                             label: "Presidencial",
+                        },
+                        {
+                            value: "BANCO PICHINCHA",
+                            label: "Banco Pichincha",
                         },
                         {
                             value: "GERENCIA DE RECURSOS FÍSICOS ",
@@ -758,12 +767,20 @@ export const arrayData = [
                             label: "MetLife",
                         },
                         {
+                            value: "MI BANCO",
+                            label: "Mi Banco",
+                        },
+                        {
                             value: "NUEVA EPS",
                             label: "Nueva EPS",
                         },
                         {
                             value: "PAY U",
                             label: "Pay-U",
+                        },
+                        {
+                            value: "BANCO PICHINCHA",
+                            label: "Banco Pichincha",
                         },
                         {
                             value: "PRESIDENCIAL",
@@ -867,6 +884,16 @@ export const arrayData = [
                     type: "text",
                 },
                 {
+                    id: "aplica_teletrabajo",
+                    label: "Aplica para teletrabajo",
+                    name: "aplica_teletrabajo",
+                    type: "select",
+                    options: [
+                        { value: 1, label: "Si" },
+                        { value: 0, label: "No" },
+                    ]
+                },
+                {
                     id: "observaciones",
                     label: "Observaciones",
                     name: "observaciones",
@@ -928,6 +955,16 @@ export const arrayData = [
                         { value: "TERMINACIÓN DE CONTRATO SIN JUSTA CAUSA", label: "Terminación de contrato sin justa causa" },
                         { value: "TERMINACIÓN POR ABANDONO DE PUESTO", label: "Terminación por abandono de puesto" },
                         { value: "TERMINACIÓN POR OBRA O LABOR CONTRATADA ", label: "Terminación por obra o labor contratada " },
+                    ],
+                },
+                {
+                    id: "aplica_recontratacion",
+                    label: "Aplica para recontratacion",
+                    name: "aplica_recontratacion",
+                    type: "select",
+                    options: [
+                        { value: 1, label: "Si" },
+                        { value: 0, label: "No" },
                     ],
                 },
                 {
