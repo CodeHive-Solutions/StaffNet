@@ -16,6 +16,7 @@ import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import MoreIcon from "@mui/icons-material/More";
+import { getApiUrl } from "../assets/getApi.js";
 
 const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, handleOpenModal, setShowSnackAlert, setProgressBar, checked }) => {
     const columns = arrayData.flatMap((page) => {
@@ -153,7 +154,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             const csvOptions = { delimiter: ";", utf8WithBom: true };
             const result = apiRef.current.getDataAsCsv(csvOptions);
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//download", {
+                const response = await fetch(`${getApiUrl()}/download`, {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -217,7 +218,8 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
         }
 
         const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![22, 26, 30, 51].includes(index)));
+            console.log(array);
+            return array.map((register) => register.filter((_, index) => ![22, 26, 30, 52].includes(index)));
         };
 
         const arrayCleaned = deleteIndices(tableData);
@@ -226,6 +228,14 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             columns.reduce((newRow, column, index) => {
                 if (index === row.length - 1) {
                     newRow[column.field] = row[index] ? "ACTIVO" : "RETIRADO";
+                } else if (index === 47) {
+                    newRow[column.field] = row[index] ? "Si" : "No";
+                } else if (index === 52) {
+                    if (index === false) {
+                        newRow[column.field] = "No";
+                    } else if (index === true) {
+                        newRow[column.field] = "Si";
+                    }
                 } else {
                     newRow[column.field] = row[index];
                 }

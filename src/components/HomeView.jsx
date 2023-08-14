@@ -25,6 +25,7 @@ import EmployeeHistory from "./EmployeeHistory";
 import Switch from "@mui/material/Switch";
 import { arrayData } from "../assets/arrayData";
 import AddModal from "./AddModal";
+import { getApiUrl } from "../assets/getApi.js";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -53,7 +54,7 @@ const HomeView = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+                const response = await fetch(`${getApiUrl()}/search_employees`, {
                     method: "POST",
                     credentials: "include",
                 });
@@ -145,7 +146,7 @@ const HomeView = () => {
 
         const getJoinInfo = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//get_join_info", {
+                const response = await fetch(`${getApiUrl()}/get_join_info`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -206,7 +207,7 @@ const HomeView = () => {
         event.preventDefault();
         const updateTransaction = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//update_transaction", {
+                const response = await fetch(`${getApiUrl()}/update_transaction`, {
                     method: "POST",
                     credentials: "include",
                     headers: {
@@ -236,7 +237,7 @@ const HomeView = () => {
 
     const searchEmployeesUpdate = async () => {
         try {
-            const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//search_employees", {
+            const response = await fetch(`${getApiUrl()}/search_employees`, {
                 method: "POST",
                 credentials: "include",
             });

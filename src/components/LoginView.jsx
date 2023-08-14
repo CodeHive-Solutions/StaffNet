@@ -18,6 +18,7 @@ import CustomLogoST from "./LogoST";
 import LoginIcon from "@mui/icons-material/Login";
 import Fade from "@mui/material/Fade";
 import LinearProgress from "@mui/material/LinearProgress";
+import { getApiUrl } from "../assets/getApi.js";
 
 // Import images
 import image0 from "../images/ALE02947.webp";
@@ -77,7 +78,7 @@ const LoginView = () => {
         setCurrentIndex(newIndex);
         const checkLogin = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//loged", {
+                const response = await fetch(`${getApiUrl()}/loged`, {
                     method: "POST",
                     credentials: "include",
                 });
@@ -123,7 +124,7 @@ const LoginView = () => {
 
         const login = async (dataP) => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//login", {
+                const response = await fetch(`${getApiUrl()}/login`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },

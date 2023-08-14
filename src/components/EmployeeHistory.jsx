@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import { getApiUrl } from "../assets/getApi.js";
 
 const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     const [employeeHistory, setEmployeeHistory] = useState([]);
@@ -9,7 +10,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     useEffect(() => {
         const getEmployeeHistory = async () => {
             try {
-                const response = await fetch("https://staffnet-api-dev.cyc-bpo.com//employee_history", {
+                const response = await fetch(`${getApiUrl()}/employee_history`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
