@@ -44,7 +44,8 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                     input.name == "fecha_afiliacion_eps" ||
                     input.name == "fecha_ingreso" ||
                     input.name == "fecha_retiro" ||
-                    input.name == "fecha_expedicion"
+                    input.name == "fecha_expedicion" ||
+                    input.name == "fecha_nombramiento"
                 ) {
                     return {
                         field: input.name,
@@ -53,14 +54,16 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                         valueFormatter: (params) => {
                             let date = params.value;
                             if (date === null) {
-                                return "";
+                                return "-";
                             } else {
                                 let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
                                 return date.toLocaleString("es-ES", options);
                             }
                         },
                     };
-                } else if (input.name == "salario" || input.name == "subsidio_transporte") {
+                }
+
+                if (input.name == "salario" || input.name == "subsidio_transporte") {
                     return {
                         field: input.name,
                         headerName: input.label,
@@ -69,7 +72,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                         valueFormatter: (params) => {
                             let salary = params.value;
                             if (salary === null) {
-                                return "";
+                                return "-";
                             } else {
                                 let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
                                 return salary.toLocaleString("es-CO", options);
@@ -218,7 +221,6 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
         }
 
         const deleteIndices = (array) => {
-            console.log(array);
             return array.map((register) => register.filter((_, index) => ![22, 26, 30, 52].includes(index)));
         };
 

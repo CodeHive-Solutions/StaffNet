@@ -122,7 +122,6 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name == "eps" ||
                                         input.name == "pension" ||
                                         input.name == "cesantias" ||
-                                        input.name == "fecha_nombramiento" ||
                                         input.name == "caja_compensacion" ||
                                         input.name == "fecha_afiliacion_eps" ||
                                         input.name === "parentesco"
@@ -186,7 +185,8 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name === "subsidio_transporte" ||
                                         input.name === "fecha_nombramiento" ||
                                         input.name === "fecha_afiliacion_eps" ||
-                                        input.name === "barrio"
+                                        input.name === "barrio" ||
+                                        input.name === "fecha_aplica_teletrabajo"
                                     ) {
                                         return (
                                             <TextField

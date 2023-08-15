@@ -894,6 +894,13 @@ export const arrayData = [
                     ]
                 },
                 {
+                    id: "fecha_aplica_teletrabajo",
+                    label: "Fecha de aplicacion de teletrabajo",
+                    name: "fecha_aplica_teletrabajo",
+                    type: "date",
+                    shrink: true,
+                },
+                {
                     id: "observaciones",
                     label: "Observaciones",
                     name: "observaciones",
