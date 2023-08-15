@@ -126,6 +126,7 @@ def bd_info():
                     "salario": clean_value(body.get("salario")),
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
                     'aplica_teletrabajo': body.get('aplica_teletrabajo',False),
+                    'fecha_aplica_teletrabajo': body.get('fecha_aplica_teletrabajo'),
                     'observaciones': clean_value(body.get('observaciones'))
                 },
                 "disciplinary_actions": {
@@ -479,6 +480,7 @@ def download():
             conexion = conexionMySQL()
             # Parse the CSV data from the request body
             csv_df = pd.read_csv(StringIO(body), delimiter=";", keep_default_na=False, na_values=[""])
+            
             logging.info("CSV DataFrame: %s", csv_df)
             all_columns = csv_df.columns.tolist()
             history_data = None
@@ -506,8 +508,13 @@ def download():
                 salario_list = csv_df.iloc[:, salario_index].tolist()
                 salario = []
                 for value in salario_list:
-                    cleaned_value = re.sub(r'[^0-9]', '', value)
-                    salario.append(int(cleaned_value))
+                    # Check if value is NaN
+                    if pd.isna(value):
+                        salario.append(None)
+                        continue
+                    else:
+                        cleaned_value = re.sub(r'[^0-9]', '', value)
+                        salario.append(int(cleaned_value))
                 csv_df.iloc[:, salario_index] = salario # type: ignore
             # Save CSV data to one sheet and history data to another sheet in the same Excel file
             excel_data = BytesIO()  # Use BytesIO for Excel data
@@ -515,6 +522,26 @@ def download():
                 values = [len(str(value)) for value in data if str(value).strip()]
                 return max(values) if values else 15  # Set a minimum width if column is empty
             with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:  # Use excel_data as the file-like object
+                # Convert date columns to datetime objects
+                date_columns = {
+                    'Fecha de ingreso': '%d/%m/%Y',
+                    'Fecha de nacimiento': '%d/%m/%Y',
+                    'Fecha de expedición': '%d/%m/%Y',
+                    'Fecha de afiliación': '%d/%m/%Y',
+                    'Fecha de nombramiento': '%d/%m/%Y',
+                    'Fecha de retiro': '%d/%m/%Y'
+                }
+
+                def format_date(x, date_format):
+                    if pd.notna(x) and x != '-':
+                        return pd.to_datetime(x, format=date_format).date()
+                    else:
+                        return x
+
+                for column, date_format in date_columns.items():
+                    if column in csv_df:
+                        csv_df[column] = csv_df[column].apply(format_date, args=(date_format,))
+
                 csv_df.to_excel(writer, sheet_name='Exporte', index=False)
                 # Get the XlsxWriter workbook and worksheet objects
                 workbook = writer.book
