@@ -64,6 +64,8 @@ const HomeView = () => {
                 const data = await response.json();
                 if ("info" in data) {
                     setAccess(true);
+                    // console.log of the id 1000125954
+                    console.log(data.info.data.filter((record) => record[0] === 1000125954));
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
                 } else if (data.error === "conexion") {

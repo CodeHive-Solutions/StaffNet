@@ -19,6 +19,30 @@ import MoreIcon from "@mui/icons-material/More";
 import { getApiUrl } from "../assets/getApi.js";
 
 const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, handleOpenModal, setShowSnackAlert, setProgressBar, checked }) => {
+    function customDateComparator(dateString1, dateString2) {
+        // Split the date strings into [day, month, year]
+        let dateParts1 = dateString1.split("/");
+        let dateParts2 = dateString2.split("/");
+
+        // Create new Date objects in 'mm/dd/yyyy' format
+        let date1 = new Date(`${dateParts1[1]}/${dateParts1[0]}/${dateParts1[2]}`);
+        let date2 = new Date(`${dateParts2[1]}/${dateParts2[0]}/${dateParts2[2]}`);
+
+        if (isNaN(date1) || isNaN(date2)) {
+            console.error("Invalid date string:", dateString1, dateString2);
+            return 0;
+        }
+
+        // compare the dates using the getTime method
+        if (date1.getTime() < date2.getTime()) {
+            return -1; // date1 is before date2
+        } else if (date1.getTime() > date2.getTime()) {
+            return 1; // date1 is after date2
+        } else {
+            return 0; // date1 is equal to date2
+        }
+    }
+
     const columns = arrayData.flatMap((page) => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
@@ -27,7 +51,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 120,
+                        width: 110,
                         valueFormatter: (params) => {
                             let value = params.value;
                             if (value === "" || value === null || value === undefined) {
@@ -50,16 +74,8 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 130,
-                        valueFormatter: (params) => {
-                            let date = params.value;
-                            if (date === null) {
-                                return "-";
-                            } else {
-                                let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
-                                return date.toLocaleString("es-ES", options);
-                            }
-                        },
+                        width: 100,
+                        sortComparator: customDateComparator,
                     };
                 }
 
@@ -67,7 +83,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                     return {
                         field: input.name,
                         headerName: input.label,
-                        width: 140,
+                        width: 105,
                         type: "number",
                         valueFormatter: (params) => {
                             let salary = params.value;
@@ -76,6 +92,20 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                             } else {
                                 let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
                                 return salary.toLocaleString("es-CO", options);
+                            }
+                        },
+                    };
+                } else if (input.name == "nombre") {
+                    return {
+                        field: input.name,
+                        headerName: input.label,
+                        width: 270,
+                        valueFormatter: (params) => {
+                            let value = params.value;
+                            if (value === "" || value === null || value === undefined) {
+                                return "-";
+                            } else {
+                                return value;
                             }
                         },
                     };
@@ -208,7 +238,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
         // Define a function to format the date
         function formatDate(dateString) {
             let date = new Date(dateString);
-            return date;
+            return date.toLocaleDateString();
         }
 
         // Loop through the tableData and format the dates
