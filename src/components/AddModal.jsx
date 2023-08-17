@@ -116,6 +116,29 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                         <Box sx={{ p: 2 }}>
                             {arrayData.map((section) => {
                                 const renderSelectInput = (input, formData, handleFormChange) => {
+                                    if (input.name === "aplica_teletrabajo") {
+                                        return (
+                                            <TextField
+                                                select
+                                                sx={{
+                                                    width: "20rem",
+                                                }}
+                                                key={input.id}
+                                                name={input.name}
+                                                onChange={handleFormChange}
+                                                value={formData[input.name] !== undefined ? formData[input.name] : ""}
+                                                variant="outlined"
+                                                autoComplete="off"
+                                                label={input.label}
+                                            >
+                                                {input.options.map((option, index) => (
+                                                    <MenuItem key={index} value={option.value}>
+                                                        {option.label}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        );
+                                    }
                                     if (input.id === "59" || input.id === "60" || input.id === "61") {
                                         return null;
                                     } else if (
@@ -174,14 +197,48 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                 };
 
                                 const renderTextInput = (input, formData, handleFormChange) => {
-                                    if (
+                                    if (input.name == "salario" || input.name == "cuenta_nomina" || input.name == "subsidio_transporte" || input.name === "celular") {
+                                        return (
+                                            <TextField
+                                                inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                sx={{
+                                                    width: "20rem",
+                                                }}
+                                                key={input.id}
+                                                required
+                                                name={input.name}
+                                                InputLabelProps={{
+                                                    shrink: input.shrink,
+                                                }}
+                                                onChange={handleFormChange}
+                                                value={formData[input.name] || ""}
+                                                autoComplete="off"
+                                                label={input.label}
+                                            />
+                                        );
+                                    } else if (input.name === "tel_fijo" || input.name === "tel_contacto") {
+                                        return (
+                                            <TextField
+                                                inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                sx={{
+                                                    width: "20rem",
+                                                }}
+                                                key={input.id}
+                                                name={input.name}
+                                                InputLabelProps={{
+                                                    shrink: input.shrink,
+                                                }}
+                                                onChange={handleFormChange}
+                                                value={formData[input.name] || ""}
+                                                autoComplete="off"
+                                                label={input.label}
+                                            />
+                                        );
+                                    } else if (
                                         input.name === "profesion" ||
                                         input.name === "correo_corporativo" ||
                                         input.name === "estudios_en_curso" ||
-                                        input.name === "tel_fijo" ||
                                         input.name === "contacto_emergencia" ||
-                                        input.name === "tel_contacto" ||
-                                        input.name === "tel_fijo" ||
                                         input.name === "subsidio_transporte" ||
                                         input.name === "fecha_nombramiento" ||
                                         input.name === "fecha_afiliacion_eps" ||

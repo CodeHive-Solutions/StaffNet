@@ -64,8 +64,6 @@ const HomeView = () => {
                 const data = await response.json();
                 if ("info" in data) {
                     setAccess(true);
-                    // console.log of the id 1000125954
-                    console.log(data.info.data.filter((record) => record[0] === 1000125954));
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
                 } else if (data.error === "conexion") {
@@ -400,6 +398,39 @@ const HomeView = () => {
                                                     </Typography>
                                                     {section.inputs.map((input) => {
                                                         const getInputComponent = () => {
+                                                            if (
+                                                                input.name === "salario" ||
+                                                                input.name === "cuenta_nomina" ||
+                                                                input.name === "subsidio_transporte" ||
+                                                                input.name === "tel_fijo" ||
+                                                                input.name === "tel_contacto" ||
+                                                                input.name === "celular"
+                                                            ) {
+                                                                return (
+                                                                    <TextField
+                                                                        disabled={edit}
+                                                                        key={input.id}
+                                                                        sx={{
+                                                                            width: "20rem",
+                                                                        }}
+                                                                        name={input.name}
+                                                                        autoComplete="off"
+                                                                        label={input.label}
+                                                                        value={
+                                                                            inputValues[input.name] !== undefined &&
+                                                                            inputValues[input.name] !== null &&
+                                                                            inputValues[input.name] !== ""
+                                                                                ? inputValues[input.name]
+                                                                                : ""
+                                                                        }
+                                                                        InputLabelProps={{
+                                                                            shrink: true,
+                                                                        }}
+                                                                        onChange={(event) => handleChange(event, input)}
+                                                                        inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                                    />
+                                                                );
+                                                            }
                                                             if (input.id === "observaciones") {
                                                                 return (
                                                                     <TextField

@@ -19,30 +19,6 @@ import MoreIcon from "@mui/icons-material/More";
 import { getApiUrl } from "../assets/getApi.js";
 
 const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, handleOpenModal, setShowSnackAlert, setProgressBar, checked }) => {
-    function customDateComparator(dateString1, dateString2) {
-        // Split the date strings into [day, month, year]
-        let dateParts1 = dateString1.split("/");
-        let dateParts2 = dateString2.split("/");
-
-        // Create new Date objects in 'mm/dd/yyyy' format
-        let date1 = new Date(`${dateParts1[1]}/${dateParts1[0]}/${dateParts1[2]}`);
-        let date2 = new Date(`${dateParts2[1]}/${dateParts2[0]}/${dateParts2[2]}`);
-
-        if (isNaN(date1) || isNaN(date2)) {
-            console.error("Invalid date string:", dateString1, dateString2);
-            return 0;
-        }
-
-        // compare the dates using the getTime method
-        if (date1.getTime() < date2.getTime()) {
-            return -1; // date1 is before date2
-        } else if (date1.getTime() > date2.getTime()) {
-            return 1; // date1 is after date2
-        } else {
-            return 0; // date1 is equal to date2
-        }
-    }
-
     const columns = arrayData.flatMap((page) => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
@@ -75,7 +51,15 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                         field: input.name,
                         headerName: input.label,
                         width: 100,
-                        sortComparator: customDateComparator,
+                        valueFormatter: (params) => {
+                            let date = params.value;
+                            if (date === null) {
+                                return "-";
+                            } else {
+                                let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+                                return date.toLocaleString("es-ES", options);
+                            }
+                        },
                     };
                 }
 
@@ -238,7 +222,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
         // Define a function to format the date
         function formatDate(dateString) {
             let date = new Date(dateString);
-            return date.toLocaleDateString();
+            return date;
         }
 
         // Loop through the tableData and format the dates
