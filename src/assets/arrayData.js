@@ -410,6 +410,7 @@ export const arrayData = [
                         { value: "COORDINADOR(A) DE PROYECTO", label: "Coordinador(a) de Proyecto" },
                         { value: "DATA MARSHALL", label: "Data Marshall" },
                         { value: "DIRECTOR(A) ANALITYCS", label: "Director(a) Analitycs" },
+                        { value: "DIRECTOR(A) FINANCIERO", label: "Director(a) Financiero" },
                         { value: "DIRECTOR(A) DE INVESTIGACIONES", label: "Director(a) de Investigaciones" },
                         { value: "DIRECTOR(A) DE PROYECTO", label: "Director(a) de Proyecto" },
                         { value: "DIRECTOR(A) DE RECURSOS FÍSICOS", label: "Director(a) de Recursos Físicos" },
