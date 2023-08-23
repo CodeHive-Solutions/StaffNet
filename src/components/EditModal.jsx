@@ -31,6 +31,8 @@ const EditModal = ({
     seniority,
     cedulaDetails,
     handleChange,
+    setEdit,
+    setDetalles,
 }) => {
     const submitEdit = (event) => {
         setProgressBar(true);
@@ -65,7 +67,11 @@ const EditModal = ({
         updateTransaction();
     };
 
-    const handleCloseModal = () => setOpenModal(false);
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setEdit(true);
+        setDetalles({});
+    };
 
     return (
         <Modal

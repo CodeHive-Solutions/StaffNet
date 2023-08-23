@@ -7,6 +7,7 @@ import HomeView from "./components/HomeView";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import LoginView from "./components/LoginView";
+import DirectionField from "./components/DirectionField";
 
 const theme = createTheme({
     typography: {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
     {
         path: "permissions",
         element: <PermissionsView />,
+    },
+    {
+        path: "test",
+        element: <DirectionField />,
     },
 ]);
 

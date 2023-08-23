@@ -275,6 +275,8 @@ const HomeView = () => {
                             edit={edit}
                             cedulaDetails={cedulaDetails}
                             handleChange={handleChange}
+                            setDetalles={setDetalles}
+                            setEdit={setEdit}
                         />
 
                         <AddModal
