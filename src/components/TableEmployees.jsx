@@ -17,8 +17,23 @@ import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import MoreIcon from "@mui/icons-material/More";
 import { getApiUrl } from "../assets/getApi.js";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import LastPageIcon from "@mui/icons-material/LastPage";
 
 const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, handleOpenModal, setShowSnackAlert, setProgressBar, checked }) => {
+    const [paginationModel, setPaginationModel] = React.useState({
+        page: 0,
+        pageSize: 12,
+    });
+
+    const handleFirstPage = () => {
+        setPaginationModel((prev) => ({ ...prev, page: 0 }));
+    };
+
+    const handleLastPage = () => {
+        setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
+    };
+
     const columns = arrayData.flatMap((page) => {
         return page.inputs
             .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
@@ -211,6 +226,12 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                 <Button size="small" startIcon={<FileDownloadIcon />} onClick={() => handleExport()}>
                     Export
                 </Button>
+                <Button size="small" startIcon={<FirstPageIcon />} onClick={() => handleFirstPage()}>
+                    First Page
+                </Button>
+                <Button size="small" startIcon={<LastPageIcon />} onClick={() => handleLastPage()}>
+                    Last Page
+                </Button>
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />
                 </Box>
@@ -293,7 +314,12 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             }}
             slots={slots}
             columns={columns}
+            pagination
             getRowId={(row) => row.cedula}
+            paginationModel={paginationModel}
+            onPaginationModelChange={(model) => {
+                setPaginationModel(model);
+            }}
             rows={rows}
             checkboxSelection
             initialState={initialState}

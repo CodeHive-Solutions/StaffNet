@@ -1,11 +1,16 @@
 // Importa los componentes necesarios de React y MUI
-import React from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
 import Autocomplete from "@mui/material/Autocomplete";
 // Define tu componente de dirección
-const AddressForm = ({ onChange, address }) => {
+const AddressForm = ({ handleFormChange }) => {
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [option1Value, setOption1Value] = useState("");
+    const [option2Value, setOption2Value] = useState("");
+    const [option3Value, setOption3Value] = useState("");
+
     const options = [
         { value: "AD", label: "Administración" },
         { value: "AG", label: "Agencia" },
@@ -99,21 +104,42 @@ const AddressForm = ({ onChange, address }) => {
         { value: "#", label: "#" },
         { value: "-", label: "-" },
     ];
+
+    const handleOptionChange = (event, newValue) => {
+        setSelectedOption(newValue);
+    };
+
+    const handleOption1Change = (event) => {
+        setOption1Value(event.target.value);
+    };
+
+    const handleOption2Change = (event) => {
+        setOption2Value(event.target.value);
+    };
+
+    const handleOption3Change = (event) => {
+        setOption3Value(event.target.value);
+    };
+
+    const concatenatedValue = `${selectedOption ? selectedOption.value : ""} ${option1Value} ${option2Value} ${option3Value}`;
+
     return (
         <>
             <Box sx={{ width: "100%", display: "flex", gap: "2rem", justifyContent: "center", alignItems: "center", flexWrap: "wrap", padding: "2rem" }}>
                 <Autocomplete
+                    isOptionEqualToValue={(option, value) => option.value === value.value}
                     disablePortal
                     id="directions-textfield"
                     options={options}
                     sx={{ width: "100%" }}
+                    onChange={handleOptionChange}
                     renderInput={(params) => <TextField {...params} label="Dirección" />}
                 />
-                <TextField label={"Opcion 1"} sx={{ width: "350px" }} />
-                <TextField label={"Opcion 2"} sx={{ width: "350px" }} />
-                <TextField label={"Opcion 3"} sx={{ width: "350px" }} />
+                <TextField onChange={handleOption1Change} label={"Opcion 1"} sx={{ width: "350px" }} />
+                <TextField onChange={handleOption2Change} label={"Opcion 2"} sx={{ width: "350px" }} />
+                <TextField onChange={handleOption3Change} label={"Opcion 3"} sx={{ width: "350px" }} />
                 <Box>
-                    <TextField label={"Dirección Formato Dian"} value={"#"} />
+                    <TextField name="direccion" value={concatenatedValue} onChange={handleFormChange} label={"Dirección Formato Dian"} />
                 </Box>
             </Box>
         </>

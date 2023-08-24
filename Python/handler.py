@@ -514,7 +514,10 @@ def download():
                         continue
                     else:
                         cleaned_value = re.sub(r'[^0-9]', '', value)
-                        salario.append(int(cleaned_value))
+                        if cleaned_value:
+                            salario.append(int(cleaned_value))
+                        else:
+                            salario.append(None)
                 csv_df.iloc[:, salario_index] = salario # type: ignore
             # Save CSV data to one sheet and history data to another sheet in the same Excel file
             excel_data = BytesIO()  # Use BytesIO for Excel data
@@ -533,7 +536,7 @@ def download():
                 }
 
                 def format_date(x, date_format):
-                    if pd.notna(x) and x != '-':
+                    if pd.notna(x) and x != '-' and x != '1/1/1000':
                         return pd.to_datetime(x, format=date_format).date()
                     else:
                         return x

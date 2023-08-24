@@ -12,6 +12,7 @@ import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 import { getApiUrl } from "../assets/getApi.js";
+import DirectionField from "../components/DirectionField.jsx";
 
 const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModalAdd, setProgressBar, searchEmployeesUpdate, stylesModal, setShowSnackAlert }) => {
     const submitAdd = (event) => {
@@ -52,6 +53,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
     const handleFormChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+        console.log(formData);
     };
 
     return (
@@ -196,6 +198,10 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                 };
 
                                 const renderTextInput = (input, formData, handleFormChange) => {
+                                    if (input.name == "direccion") {
+                                        return <DirectionField key={input.id} handleFormChange={handleFormChange}></DirectionField>;
+                                    }
+
                                     if (input.name == "salario" || input.name == "cuenta_nomina" || input.name == "subsidio_transporte" || input.name === "celular") {
                                         return (
                                             <TextField
