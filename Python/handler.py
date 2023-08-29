@@ -532,7 +532,8 @@ def download():
                     'Fecha de expedición': '%d/%m/%Y',
                     'Fecha de afiliación': '%d/%m/%Y',
                     'Fecha de nombramiento': '%d/%m/%Y',
-                    'Fecha de retiro': '%d/%m/%Y'
+                    'Fecha de retiro': '%d/%m/%Y',
+                    'Fecha de aplicacion de teletrabajo': '%d/%m/%Y'
                 }
 
                 def format_date(x, date_format):

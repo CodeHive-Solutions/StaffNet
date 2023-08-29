@@ -56,11 +56,12 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
 
                 if (
                     input.name == "fecha_nacimiento" ||
-                    input.name == "fecha_afiliacion_eps" ||
-                    input.name == "fecha_ingreso" ||
-                    input.name == "fecha_retiro" ||
                     input.name == "fecha_expedicion" ||
-                    input.name == "fecha_nombramiento"
+                    input.name == "fecha_afiliacion_eps" ||
+                    input.name == "fecha_nombramiento" ||
+                    input.name == "fecha_ingreso" ||
+                    input.name == "fecha_aplica_teletrabajo" ||
+                    input.name == "fecha_retiro"
                 ) {
                     return {
                         field: input.name,
