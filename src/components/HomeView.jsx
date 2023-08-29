@@ -1,31 +1,22 @@
 import React from "react";
-import SaveIcon from "@mui/icons-material/Save";
 import { useEffect, useState, useCallback } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
-import EditIcon from "@mui/icons-material/Edit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Fade from "@mui/material/Fade";
 import Header from "./Header";
-import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
-import List from "@mui/material/List";
 import SnackAlert from "./SnackAlert";
-import MenuItem from "@mui/material/MenuItem";
 import { useNavigate } from "react-router-dom";
 import LinearProgress from "@mui/material/LinearProgress";
-import Tooltip from "@mui/material/Tooltip";
-import CloseIcon from "@mui/icons-material/Close";
-import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import TableEmployees from "./TableEmployees";
-import EmployeeHistory from "./EmployeeHistory";
 import Switch from "@mui/material/Switch";
 import { arrayData } from "../assets/arrayData";
 import AddModal from "./AddModal";
 import { getApiUrl } from "../assets/getApi.js";
+import EditModal from "./EditModal";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -201,40 +192,6 @@ const HomeView = () => {
         setSeniority(calculateSeniority(affiliationDate));
     }, [openModal]);
 
-    // Edit functionality
-    const submitEdit = (event) => {
-        setProgressBar(true);
-        event.preventDefault();
-        const updateTransaction = async () => {
-            try {
-                const response = await fetch(`${getApiUrl()}/update_transaction`, {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(inputValues),
-                });
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                const data = await response.json();
-                setProgressBar(false);
-                if (data.status === "success") {
-                    searchEmployeesUpdate();
-                    handleCloseModal();
-                    setShowSnackAlert("success", "Edición realizada correctamente");
-                }
-                if (data.error === "No hubo ningun cambio") {
-                    setShowSnackAlert("info", "No se ha realizo ningun cambio");
-                }
-            } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-            }
-        };
-        updateTransaction();
-    };
-
     const searchEmployeesUpdate = async () => {
         try {
             const response = await fetch(`${getApiUrl()}/search_employees`, {
@@ -301,293 +258,27 @@ const HomeView = () => {
                             close={handleCloseSnack}
                             setShowSnackAlert={setShowSnackAlert}
                         ></SnackAlert>
-                        {/* Edit Modal */}
-                        <Modal
-                            open={openModal}
-                            onClose={handleCloseModal}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                            sx={{ display: "flex", borderRadius: "30px" }}
-                        >
-                            <Fade in={openModal}>
-                                <Box sx={stylesModal} component="form" onSubmit={submitEdit}>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            mx: "10px",
-                                        }}
-                                    >
-                                        {permissions.edit == 1 ? (
-                                            <Tooltip title="Editar">
-                                                <IconButton color="primary" onClick={() => handleEdit()}>
-                                                    <EditIcon></EditIcon>
-                                                </IconButton>
-                                            </Tooltip>
-                                        ) : (
-                                            <IconButton disabled>
-                                                <EditIcon></EditIcon>
-                                            </IconButton>
-                                        )}
-                                        <Box sx={{ display: "flex", gap: "15px" }}>
-                                            <Button disabled={edit} type="submit">
-                                                <Box
-                                                    sx={{
-                                                        display: "flex",
-                                                        paddingRight: ".5em",
-                                                    }}
-                                                >
-                                                    <SaveIcon />
-                                                </Box>
-                                                Guardar
-                                            </Button>
+                        <EditModal
+                            arrayData={arrayData}
+                            openModal={openModal}
+                            inputValues={inputValues}
+                            handleEdit={handleEdit}
+                            dataCalculateAge={dataCalculateAge}
+                            seniority={seniority}
+                            setOpenModal={setOpenModal}
+                            setProgressBar={setProgressBar}
+                            searchEmployeesUpdate={searchEmployeesUpdate}
+                            stylesModal={stylesModal}
+                            handleOpenModal={handleOpenModal}
+                            setShowSnackAlert={setShowSnackAlert}
+                            permissions={permissions}
+                            edit={edit}
+                            cedulaDetails={cedulaDetails}
+                            handleChange={handleChange}
+                            setDetalles={setDetalles}
+                            setEdit={setEdit}
+                        />
 
-                                            <Tooltip title="Cancelar">
-                                                <IconButton
-                                                    onClick={handleCloseModal}
-                                                    sx={{
-                                                        "&:hover": {
-                                                            color: "#d32f2f",
-                                                        },
-                                                    }}
-                                                >
-                                                    <CloseIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Box>
-                                    </Box>
-                                    <List
-                                        sx={{
-                                            overflow: "auto",
-                                            maxHeight: "515px",
-                                        }}
-                                    >
-                                        <Typography
-                                            sx={{
-                                                display: "flex",
-                                                justifyContent: "center",
-                                            }}
-                                            id="modal-modal-title"
-                                            variant="h5"
-                                            component="h3"
-                                        >
-                                            Detalles del empleado
-                                        </Typography>
-                                        <Box sx={{ p: 2 }}>
-                                            {arrayData.map((section) => (
-                                                <Box
-                                                    key={section.title}
-                                                    sx={{
-                                                        mb: 2,
-                                                        display: "flex",
-                                                        flexWrap: "wrap",
-                                                        width: "100%",
-                                                        gap: "30px",
-                                                    }}
-                                                >
-                                                    <Typography
-                                                        sx={{
-                                                            display: "flex",
-                                                            justifyContent: "center",
-                                                            width: "100%",
-                                                        }}
-                                                        variant="h6"
-                                                        component="h3"
-                                                    >
-                                                        {section.title}
-                                                    </Typography>
-                                                    {section.inputs.map((input) => {
-                                                        const getInputComponent = () => {
-                                                            if (input.id === "observaciones") {
-                                                                return (
-                                                                    <TextField
-                                                                        disabled={edit}
-                                                                        key={input.id}
-                                                                        name={input.name}
-                                                                        label={input.label}
-                                                                        type={input.type}
-                                                                        multiline
-                                                                        rows={4}
-                                                                        sx={{
-                                                                            width: "100%",
-                                                                        }}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined &&
-                                                                            inputValues[input.name] !== null &&
-                                                                            inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
-                                                                        onChange={(event) => handleChange(event, input)}
-                                                                        InputLabelProps={{
-                                                                            shrink: true,
-                                                                        }}
-                                                                    />
-                                                                );
-                                                            } else if (input.id === "antiguedad") {
-                                                                return (
-                                                                    <TextField
-                                                                        disabled
-                                                                        key={input.id}
-                                                                        name={input.name}
-                                                                        label={input.label}
-                                                                        type={input.type}
-                                                                        sx={{
-                                                                            width: "20rem",
-                                                                        }}
-                                                                        value={seniority || ""}
-                                                                        InputLabelProps={{
-                                                                            shrink: true,
-                                                                        }}
-                                                                    />
-                                                                );
-                                                            }
-                                                            if (input.id === "5") {
-                                                                return (
-                                                                    <TextField
-                                                                        disabled
-                                                                        key={input.id}
-                                                                        name={input.name}
-                                                                        label={input.label}
-                                                                        type={input.type}
-                                                                        sx={{
-                                                                            width: "20rem",
-                                                                        }}
-                                                                        value={dataCalculateAge}
-                                                                        InputLabelProps={{
-                                                                            shrink: true,
-                                                                        }}
-                                                                    />
-                                                                );
-                                                            }
-                                                            if (
-                                                                input.id === "1" ||
-                                                                input.id === "fecha_nombramiento_legado" ||
-                                                                input.id === "cambio_campaña_legado" ||
-                                                                input.id === "cambio_eps_legado"
-                                                            ) {
-                                                                return (
-                                                                    <TextField
-                                                                        disabled
-                                                                        key={input.id}
-                                                                        name={input.name}
-                                                                        label={input.label}
-                                                                        type={input.type}
-                                                                        sx={{
-                                                                            width: "20rem",
-                                                                        }}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined &&
-                                                                            inputValues[input.name] !== null &&
-                                                                            inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
-                                                                        InputLabelProps={{
-                                                                            shrink: true,
-                                                                        }}
-                                                                    />
-                                                                );
-                                                            }
-                                                            if (input.id === 61 && permissions.disable === 0) {
-                                                                return (
-                                                                    <TextField
-                                                                        disabled
-                                                                        key={input.id}
-                                                                        name={input.name}
-                                                                        label={input.label}
-                                                                        type={input.type}
-                                                                        sx={{
-                                                                            width: "20rem",
-                                                                        }}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined && inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
-                                                                        InputLabelProps={{
-                                                                            shrink: true,
-                                                                        }}
-                                                                    />
-                                                                );
-                                                            }
-                                                            if (input.type === "select") {
-                                                                const optionExists = input.options.some((option) => option.value === inputValues[input.name]);
-
-                                                                if (!optionExists) {
-                                                                    input.options.push({
-                                                                        value: inputValues[input.name],
-                                                                        label: inputValues[input.name],
-                                                                    });
-                                                                }
-
-                                                                return (
-                                                                    <TextField
-                                                                        select
-                                                                        disabled={edit}
-                                                                        key={input.id}
-                                                                        sx={{
-                                                                            width: "20rem",
-                                                                        }}
-                                                                        name={input.name}
-                                                                        autoComplete="off"
-                                                                        variant="outlined"
-                                                                        label={input.label}
-                                                                        onChange={(event) => handleChange(event, input)}
-                                                                        value={
-                                                                            inputValues[input.name] !== undefined &&
-                                                                            inputValues[input.name] !== null &&
-                                                                            inputValues[input.name] !== ""
-                                                                                ? inputValues[input.name]
-                                                                                : ""
-                                                                        }
-                                                                        InputLabelProps={{
-                                                                            shrink: true,
-                                                                        }}
-                                                                    >
-                                                                        {input.options.map((option, index) => (
-                                                                            <MenuItem key={index} value={option.value}>
-                                                                                {option.label}
-                                                                            </MenuItem>
-                                                                        ))}
-                                                                    </TextField>
-                                                                );
-                                                            }
-                                                            return (
-                                                                <TextField
-                                                                    disabled={edit}
-                                                                    key={input.id}
-                                                                    sx={{
-                                                                        width: "20rem",
-                                                                    }}
-                                                                    type={input.type}
-                                                                    name={input.name}
-                                                                    autoComplete="off"
-                                                                    label={input.label}
-                                                                    value={
-                                                                        inputValues[input.name] !== undefined &&
-                                                                        inputValues[input.name] !== null &&
-                                                                        inputValues[input.name] !== ""
-                                                                            ? inputValues[input.name]
-                                                                            : ""
-                                                                    }
-                                                                    InputLabelProps={{
-                                                                        shrink: true,
-                                                                    }}
-                                                                    onChange={(event) => handleChange(event, input)}
-                                                                />
-                                                            );
-                                                        };
-                                                        return getInputComponent();
-                                                    })}
-                                                </Box>
-                                            ))}
-                                            <EmployeeHistory setShowSnackAlert={setShowSnackAlert} cedulaDetails={cedulaDetails} />
-                                        </Box>
-                                    </List>
-                                </Box>
-                            </Fade>
-                        </Modal>
                         <AddModal
                             arrayData={arrayData}
                             openModalAdd={openModalAdd}

@@ -410,6 +410,7 @@ export const arrayData = [
                         { value: "COORDINADOR(A) DE PROYECTO", label: "Coordinador(a) de Proyecto" },
                         { value: "DATA MARSHALL", label: "Data Marshall" },
                         { value: "DIRECTOR(A) ANALITYCS", label: "Director(a) Analitycs" },
+                        { value: "DIRECTOR(A) FINANCIERO", label: "Director(a) Financiero" },
                         { value: "DIRECTOR(A) DE INVESTIGACIONES", label: "Director(a) de Investigaciones" },
                         { value: "DIRECTOR(A) DE PROYECTO", label: "Director(a) de Proyecto" },
                         { value: "DIRECTOR(A) DE RECURSOS FÍSICOS", label: "Director(a) de Recursos Físicos" },
@@ -458,26 +459,6 @@ export const arrayData = [
                     name: "gerencia",
                     type: "select",
                     options: [
-                        {
-                            value: "PLANEACIÓN",
-                            label: "Planeación",
-                        },
-                        {
-                            value: "ADMINISTRATIVA",
-                            label: "Administrativa",
-                        },
-                        {
-                            value: "LEGAL RIESGO",
-                            label: "Legal y Riesgo",
-                        },
-                        {
-                            value: "TECNOLOGÍA",
-                            label: "Tecnología",
-                        },
-                        {
-                            value: "GESTIÓN HUMANA",
-                            label: "Gestión Humana",
-                        },
                         {
                             value: "AZTECA",
                             label: "Azteca",
@@ -552,7 +533,7 @@ export const arrayData = [
                         },
                         {
                             value: "GERENCIA DE OPERACIONES",
-                            label: "Gerencia de peraciones",
+                            label: "Gerencia de Operaciones",
                         },
                         {
                             value: "GERENCIA DE PLANEACIÓN",
@@ -643,26 +624,6 @@ export const arrayData = [
                     type: "select",
                     options: [
                         {
-                            value: "PLANEACIÓN",
-                            label: "Planeación",
-                        },
-                        {
-                            value: "ADMINISTRATIVA",
-                            label: "Administrativa",
-                        },
-                        {
-                            value: "LEGAL RIESGO",
-                            label: "Legal y Riesgo",
-                        },
-                        {
-                            value: "TECNOLOGÍA",
-                            label: "Tecnología",
-                        },
-                        {
-                            value: "GESTIÓN HUMANA",
-                            label: "Gestión Humana",
-                        },
-                        {
                             value: "AZTECA",
                             label: "Azteca",
                         },
@@ -736,7 +697,7 @@ export const arrayData = [
                         },
                         {
                             value: "GERENCIA DE OPERACIONES",
-                            label: "Gerencia de peraciones",
+                            label: "Gerencia de Operaciones",
                         },
                         {
                             value: "GERENCIA DE PLANEACIÓN",
