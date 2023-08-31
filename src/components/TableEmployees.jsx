@@ -145,6 +145,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
         field: "detalles",
         headerName: "Detalles",
         width: 65,
+        disableExport: true,
         renderCell: (params) => {
             const { row } = params;
             return (
