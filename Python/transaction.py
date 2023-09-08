@@ -35,42 +35,51 @@ def update_data(conexion, info_tables, where):
         mycursor.close()
 
 
-def search_transaction(conexion, table_info, where):
-    """The "table_content" is a dictionary that contains the name of the table
-    and her columns is maded in this format:
-    {
-        "table_name": {
-            "column1": "value1",
-            "column2": "value2",
-            ...
-        }
-        "table_2: {
-            "column1": "value1",
-            "column2": "value2",
-            ...
-        }
-    }
-    """
+def search_transaction(conexion, table_info):
     # Create a cursor
     mycursor = conexion.cursor()
-
     try:
         response = {"status": "success"}
         # Start a transaction
         mycursor.execute("START TRANSACTION")
-        # Loop through each table in the table_info dictionary
-        table_names = ", ".join(table_info.keys())
-        column_names = []
-        for table_name, columns in table_info.items():
-            column_names.extend(
-                [f"{table_name}.{column}" for column in columns.split(",")])
-        column_names = ", ".join(column_names)
-        sql = f"SELECT {column_names} FROM {table_names} WHERE {where}"
-        # Execute the SQL statement with search_value as parameter
+        # Initialize the response dictionary
+        response = {"status": "success", "data": {}}
+        # Get the table names and columns
+        table_names = [table[0] for table in table_info]
+        columns = {table[0]: table[1] for table in table_info}
+        # Construct the SELECT statement dynamically
+        select_columns = []
+        join_conditions = []
+        for table_name in table_names:
+            table_columns = columns[table_name]
+            valid_columns = [f"{table_name}.{column}" for column, search_value in table_columns.items()]
+            if valid_columns:
+                select_columns.extend(valid_columns)
+                join_conditions.append(f"{table_name}.cedula = {table_names[0]}.cedula")
+        select_columns = ", ".join(select_columns)
+        join_conditions = " AND ".join(join_conditions)
+        sql = f"SELECT {select_columns} FROM {table_names[0]}"
+        for i in range(1, len(table_names)):
+            sql += f" LEFT JOIN {table_names[i]} ON {table_names[i-1]}.cedula = {table_names[i]}.cedula"
+        sql += f" WHERE {join_conditions}"
+        logging.info(f"SQL: {sql}")
+        # Execute the SQL statement
         mycursor.execute(sql)
+        # Fetch the results for the current table
         result = mycursor.fetchall()
-        response = {"status": "success", "data": result}
+        # Commit the transaction
+        conexion.commit()
+        key_value_results = []
+        for row in result:
+            row_dict = {}
+            for i, column in enumerate(mycursor.description):
+                # Remove the table name prefix to get the column name
+                column_name = column[0].split('.')[-1]
+                row_dict[column_name] = row[i]
+            key_value_results.append(row_dict)
+        response["data"] = key_value_results
         return response
+
     except mysql.connector.Error as error:
         # Roll back the transaction if there's an error
         print(f"Error: {error}")

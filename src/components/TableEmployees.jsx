@@ -8,7 +8,7 @@ import {
     GridToolbarQuickFilter,
     useGridApiContext,
 } from "@mui/x-data-grid";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import cycLogo from "../images/cyc-logo.webp";
 import Button from "@mui/material/Button";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -19,8 +19,57 @@ import MoreIcon from "@mui/icons-material/More";
 import { getApiUrl } from "../assets/getApi.js";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
+import { useNavigate } from "react-router-dom";
 
-const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, handleOpenModal, setShowSnackAlert, setProgressBar, checked }) => {
+const TableEmployees = ({
+    arrayData,
+    setTransition,
+    transition,
+    setPermissions,
+    rows,
+    setRows,
+    setOriginalData,
+    handleOpenModal,
+    setShowSnackAlert,
+    setProgressBar,
+    checked,
+}) => {
+    const [tableData, setTableData] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const response = await fetch(`${getApiUrl()}/search_employees`, {
+                    method: "POST",
+                    credentials: "include",
+                });
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                const data = await response.json();
+                console.log(data);
+                if (data.error === "Usuario no ha iniciado sesion.") {
+                    navigate("/");
+                    console.error("error:" + data + data.error);
+                } else if ("info" in data) {
+                    setTableData(data.info.data);
+                    setPermissions(data.permissions);
+                    setTransition(!transition);
+                }
+            } catch (error) {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                setTransition(!transition);
+            }
+        };
+        fetchEmployees();
+
+        const intervalId = setInterval(() => {
+            fetchEmployees();
+        }, 10 * 30 * 1000);
+        return () => clearTimeout(intervalId);
+    }, []);
+
     const [paginationModel, setPaginationModel] = React.useState({
         page: 0,
         pageSize: 12,
@@ -69,7 +118,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                         width: 100,
                         valueFormatter: (params) => {
                             let date = params.value;
-                            if (date === null) {
+                            if (date === null || date === undefined) {
                                 return "-";
                             } else {
                                 let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
@@ -87,7 +136,7 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
                         type: "number",
                         valueFormatter: (params) => {
                             let salary = params.value;
-                            if (salary === null) {
+                            if (salary === null || salary === undefined || salary === "") {
                                 return "-";
                             } else {
                                 let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
@@ -248,47 +297,91 @@ const TableEmployees = ({ arrayData, tableData, rows, setOriginalData, setRows, 
             return date;
         }
 
-        // Loop through the tableData and format the dates
-        for (let i = 0; i < tableData.length; i++) {
-            for (let j = 0; j < tableData[i].length; j++) {
-                if (typeof tableData[i][j] === "string" && tableData[i][j].includes("GMT")) {
-                    tableData[i][j] = formatDate(tableData[i][j]);
+        // Map over the tableData array and format the dates
+        const formattedData = tableData.map((rowData) => {
+            // Create a new object to store the formatted data
+            const formattedRow = {};
+
+            // Iterate through each property in the rowData object
+            for (const [key, value] of Object.entries(rowData)) {
+                if (
+                    key === "fech   a_nacimiento" ||
+                    key === "fecha_expedicion" ||
+                    key === "fecha_ingreso" ||
+                    key === "fecha_retiro" ||
+                    key === "fecha_aplica_teletrabajo" ||
+                    key === "fecha_afiliacion_eps" ||
+                    key === "fecha_nombramiento"
+                ) {
+                    // Format the date property
+                    formattedRow[key] = formatDate(value);
+                } else if (key === "estado") {
+                    // Convert the "estado" property to "ACTIVO" or "RETIRADO"
+                    formattedRow[key] = value ? "ACTIVO" : "RETIRADO";
+                } else if (key === "otra_propiedad") {
+                    // Add additional formatting logic for specific properties if needed
+                    // Example: formattedRow[key] = someFormattingFunction(value);
+                } else {
+                    // For other properties, simply copy the value as is
+                    formattedRow[key] = value;
                 }
             }
-        }
 
-        const deleteIndices = (array) => {
-            return array.map((register) => register.filter((_, index) => ![22, 26, 30, 52].includes(index)));
-        };
+            return formattedRow;
+        });
 
-        const arrayCleaned = deleteIndices(tableData);
+        setOriginalData(formattedData);
 
-        const newRows = arrayCleaned.map((row) =>
-            columns.reduce((newRow, column, index) => {
-                if (index === row.length - 1) {
-                    newRow[column.field] = row[index] ? "ACTIVO" : "RETIRADO";
-                } else if (index === 47) {
-                    newRow[column.field] = row[index] ? "Si" : "No";
-                } else if (index === 52) {
-                    if (index === false) {
-                        newRow[column.field] = "No";
-                    } else if (index === true) {
-                        newRow[column.field] = "Si";
-                    }
-                } else {
-                    newRow[column.field] = row[index];
-                }
-                return newRow;
-            }, {})
-        );
-
-        setOriginalData(newRows);
+        // Depending on your checked variable, you can filter the rows as before
         if (checked === true) {
-            setRows(newRows.filter((record) => record.estado !== "RETIRADO"));
+            setRows(formattedData.filter((record) => record.estado !== "RETIRADO"));
         } else {
-            setRows(newRows);
+            setRows(formattedData);
         }
     }, [tableData]);
+
+    // useEffect(() => {
+    //     // Define a function to format the date
+    //     function formatDate(dateString) {
+    //         let date = new Date(dateString);
+    //         return date;
+    //     }
+
+    //     // Loop through the tableData and format the dates
+    //     for (let i = 0; i < tableData.length; i++) {
+    //         for (let j = 0; j < tableData[i].length; j++) {
+    //             if (typeof tableData[i][j] === "string" && tableData[i][j].includes("GMT")) {
+    //                 tableData[i][j] = formatDate(tableData[i][j]);
+    //             }
+    //         }
+    //     }
+
+    //     // const newRows = tableData.map((row) =>
+    //     //     columns.reduce((newRow, column, index) => {
+    //     //         if (index === row.length - 1) {
+    //     //             newRow[column.field] = row[index] ? "ACTIVO" : "RETIRADO";
+    //     //         } else if (index === 47) {
+    //     //             newRow[column.field] = row[index] ? "Si" : "No";
+    //     //         } else if (index === 52) {
+    //     //             if (index === false) {
+    //     //                 newRow[column.field] = "No";
+    //     //             } else if (index === true) {
+    //     //                 newRow[column.field] = "Si";
+    //     //             }
+    //     //         } else {
+    //     //             newRow[column.field] = row[index];
+    //     //         }
+    //     //         return newRow;
+    //     //     }, {})
+    //     // );
+
+    //     setOriginalData(tableData);
+    //     if (checked === true) {
+    //         setRows(newRows.filter((record) => record.estado !== "RETIRADO"));
+    //     } else {
+    //         setRows(newRows);
+    //     }
+    // }, [tableData]);
 
     const slots = { toolbar: CustomToolbar };
 
