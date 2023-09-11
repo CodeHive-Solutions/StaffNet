@@ -71,37 +71,38 @@ def get_rol(search_rol):
             "contacto_emergencia": "",
             "parentesco": "",
             "tel_contacto": ""
-        },
+        }
+    },
     "sst": {
         "personal_information": {
-            "cedula": "lady.miranda",
-            "nombre": "lady.miranda",
-            "tipo_documento": "lady.miranda",
-            "fecha_nacimiento": "lady.miranda",
-            "genero": "lady.miranda",
-            "edad": "lady.miranda",
-            "rh": "lady.miranda",
-            "hijos": "lady.miranda",
-            "tel_fijo": "lady.miranda",
-            "celular": "lady.miranda",
-            "correo": "lady.miranda",
-            "correo_corporativo": "lady.miranda",
-            "direccion": "lady.miranda",
-            "barrio": "lady.miranda",
-            "localidad": "lady.miranda",
-            "contacto_emergencia": "lady.miranda",
-            "parentesco": "lady.miranda",
-            "tel_contacto": "lady.miranda",
-            "eps": "lady.miranda",
-            "pension": "lady.miranda",
-            "sede": "lady.miranda",
-            "cargo": "lady.miranda",
-            "gerencia": "lady.miranda",
-            "campana_general": "lady.miranda",
-            "area_negocio": "lady.miranda",
-            "tipo_contrato": "lady.miranda",
-            "aplica_teletrabajo": "lady.miranda",
-            "fecha_aplica_teletrabajo": "lady.miranda"
+            "cedula": "",
+            "nombre": "",
+            "tipo_documento": "",
+            "fecha_nacimiento": "",
+            "genero": "",
+            "edad": "",
+            "rh": "",
+            "hijos": "",
+            "tel_fijo": "",
+            "celular": "",
+            "correo": "",
+            "correo_corporativo": "",
+            "direccion": "",
+            "barrio": "",
+            "localidad": "",
+            "contacto_emergencia": "",
+            "parentesco": "",
+            "tel_contacto": "",
+            "eps": "",
+            "pension": "",
+            "sede": "",
+            "cargo": "",
+            "gerencia": "",
+            "campana_general": "",
+            "area_negocio": "",
+            "tipo_contrato": "",
+            "aplica_teletrabajo": "",
+            "fecha_aplica_teletrabajo": ""
         }
     },
     "gestion":{
@@ -164,14 +165,13 @@ def get_rol(search_rol):
             "motivo_retiro": "",
             "estado": ""
         }
-    }
-}
+    },
 }
     if search_rol in roles:
         return roles[search_rol]
     else:
         return None
 
-rol = get_rol("seleccion")
+rol = get_rol("gestion")
 if rol:
     print(list(rol.items()))

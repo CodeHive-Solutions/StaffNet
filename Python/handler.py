@@ -64,7 +64,7 @@ def get_request_body():
 
 
 def clean_value(value):
-    if value is None:
+    if value is None or value == "":
         return None
     if isinstance(value, int):
         return value
@@ -125,8 +125,8 @@ def bd_info():
                     "tipo_contrato": clean_value(body.get("tipo_contrato")),
                     "salario": clean_value(body.get("salario")),
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
-                    'aplica_teletrabajo': body.get('aplica_teletrabajo',False),
-                    'fecha_aplica_teletrabajo': body.get('fecha_aplica_teletrabajo'),
+                    'aplica_teletrabajo': clean_value(body.get('aplica_teletrabajo',False)),
+                    'fecha_aplica_teletrabajo': clean_value(body.get('fecha_aplica_teletrabajo')),
                     'observaciones': clean_value(body.get('observaciones'))
                 },
                 "disciplinary_actions": {

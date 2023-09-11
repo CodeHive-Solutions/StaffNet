@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
     DataGrid,
     GridToolbarContainer,
@@ -8,7 +8,6 @@ import {
     GridToolbarQuickFilter,
     useGridApiContext,
 } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
 import cycLogo from "../images/cyc-logo.webp";
 import Button from "@mui/material/Button";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -35,6 +34,9 @@ const TableEmployees = ({
     checked,
 }) => {
     const [tableData, setTableData] = useState([]);
+    const [tableData2, setTableData2] = useState([]);
+    const [initialState, setInitialState] = useState({});
+    const [columns, setColumns] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -48,12 +50,13 @@ const TableEmployees = ({
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                console.log(data);
                 if (data.error === "Usuario no ha iniciado sesion.") {
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
                     setTableData(data.info.data);
+                    setTableData2(data.info.data[0]);
+                    // filterColumns(data.info.data[0]);
                     setPermissions(data.permissions);
                     setTransition(!transition);
                 }
@@ -70,7 +73,7 @@ const TableEmployees = ({
         return () => clearTimeout(intervalId);
     }, []);
 
-    const [paginationModel, setPaginationModel] = React.useState({
+    const [paginationModel, setPaginationModel] = useState({
         page: 0,
         pageSize: 12,
     });
@@ -83,132 +86,65 @@ const TableEmployees = ({
         setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
     };
 
-    const columns = arrayData.flatMap((page) => {
-        return page.inputs
-            .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
-            .map((input) => {
-                if (input.name == "cedula") {
-                    return {
-                        field: input.name,
-                        headerName: input.label,
-                        width: 110,
-                        valueFormatter: (params) => {
-                            let value = params.value;
-                            if (value === "" || value === null || value === undefined) {
-                                return "-";
-                            } else {
-                                return value;
-                            }
-                        },
-                    };
-                }
+    useEffect(() => {
+        console.log(tableData2);
+        const backendKeys = Object.keys(tableData2);
+        const filteredKeys = backendKeys.filter((key) => arrayData.some((item) => item.inputs.some((input) => input.name === key)));
 
-                if (
-                    input.name == "fecha_nacimiento" ||
-                    input.name == "fecha_expedicion" ||
-                    input.name == "fecha_afiliacion_eps" ||
-                    input.name == "fecha_nombramiento" ||
-                    input.name == "fecha_ingreso" ||
-                    input.name == "fecha_aplica_teletrabajo" ||
-                    input.name == "fecha_retiro"
-                ) {
-                    return {
-                        field: input.name,
-                        headerName: input.label,
-                        width: 100,
-                        valueFormatter: (params) => {
-                            let date = params.value;
-                            if (date === null || date === undefined) {
-                                return "-";
-                            } else {
-                                let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
-                                return date.toLocaleString("es-ES", options);
-                            }
-                        },
-                    };
-                }
+        // Generate columns based on filtered keys
+        const filteredColumns = filteredKeys.map((key) => {
+            const inputItem = arrayData.find((item) => item.inputs.some((input) => input.name === key));
 
-                if (input.name == "salario" || input.name == "subsidio_transporte") {
-                    return {
-                        field: input.name,
-                        headerName: input.label,
-                        width: 105,
-                        type: "number",
-                        valueFormatter: (params) => {
-                            let salary = params.value;
-                            if (salary === null || salary === undefined || salary === "") {
-                                return "-";
-                            } else {
-                                let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
-                                return salary.toLocaleString("es-CO", options);
-                            }
-                        },
-                    };
-                } else if (input.name == "nombre") {
-                    return {
-                        field: input.name,
-                        headerName: input.label,
-                        width: 270,
-                        valueFormatter: (params) => {
-                            let value = params.value;
-                            if (value === "" || value === null || value === undefined) {
-                                return "-";
-                            } else {
-                                return value;
-                            }
-                        },
-                    };
-                } else {
-                    return {
-                        field: input.name,
-                        headerName: input.label,
-                        width: 210,
-                        valueFormatter: (params) => {
-                            let value = params.value;
-                            if (value === "" || value === null || value === undefined) {
-                                return "-";
-                            } else {
-                                return value;
-                            }
-                        },
-                    };
-                }
-            });
-    });
+            const input = inputItem.inputs.find((input) => input.name === key);
 
-    const hiddenColumns = columns.map((column) => column.field);
+            const column = {
+                field: key,
+                headerName: input.label,
+                width: 200, // Set the desired width here
+                valueFormatter: (params) => {
+                    const value = params.value;
+                    if (value === "" || value === null || value === undefined) {
+                        return "-";
+                    } else {
+                        return value;
+                    }
+                },
+            };
 
-    const columnVisibilityModel = {
-        ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
-        cedula: true,
-        nombre: true,
-        campana: true,
-        cargo: true,
-        fecha_ingreso: true,
-        salario: true,
-        detalles: true,
-        campana_general: true,
-    };
+            return column;
+        });
 
-    columns.push({
-        field: "detalles",
-        headerName: "Detalles",
-        width: 65,
-        disableExport: true,
-        renderCell: (params) => {
-            const { row } = params;
-            return (
-                <Tooltip title="Detalles">
-                    <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
-                        <MoreIcon />
-                    </IconButton>
-                </Tooltip>
-            );
-        },
-    });
+        filteredColumns.push({
+            field: "detalles",
+            headerName: "Detalles",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Detalles">
+                        <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
+                            <MoreIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
 
-    const initialState = React.useMemo(
-        () => ({
+        const hiddenColumns = filteredColumns.map((column) => column.field);
+        const columnVisibilityModel = {
+            ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
+            cedula: true,
+            nombre: true,
+            campana: true,
+            cargo: true,
+            fecha_ingreso: true,
+            salario: true,
+            detalles: true,
+            campana_general: true,
+        };
+
+        const createInitialState = {
             sorting: {
                 sortModel: [{ field: "fecha_ingreso", sort: "desc" }],
             },
@@ -226,9 +162,198 @@ const TableEmployees = ({
             columns: {
                 columnVisibilityModel: columnVisibilityModel,
             },
-        }),
-        []
-    );
+        };
+
+        setColumns(filteredColumns);
+        setInitialState(createInitialState);
+    }, [tableData2]);
+
+    const filterColumns = (data) => {
+        const backendKeys = Object.keys(data);
+        const filteredKeys = backendKeys.filter((key) => arrayData.some((item) => item.inputs.some((input) => input.name === key)));
+
+        // Generate columns based on filtered keys
+        const filteredColumns = filteredKeys.map((key) => {
+            const inputItem = arrayData.find((item) => item.inputs.some((input) => input.name === key));
+
+            const input = inputItem.inputs.find((input) => input.name === key);
+
+            const column = {
+                field: key,
+                headerName: input.label,
+                width: 200, // Set the desired width here
+                valueFormatter: (params) => {
+                    const value = params.value;
+                    if (value === "" || value === null || value === undefined) {
+                        return "-";
+                    } else {
+                        return value;
+                    }
+                },
+            };
+
+            return column;
+        });
+
+        filteredColumns.push({
+            field: "detalles",
+            headerName: "Detalles",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Detalles">
+                        <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
+                            <MoreIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
+
+        const hiddenColumns = filteredColumns.map((column) => column.field);
+        const columnVisibilityModel = {
+            ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
+            cedula: true,
+            nombre: true,
+            campana: true,
+            cargo: true,
+            fecha_ingreso: true,
+            salario: true,
+            detalles: true,
+            campana_general: true,
+        };
+
+        const createInitialState = {
+            sorting: {
+                sortModel: [{ field: "fecha_ingreso", sort: "desc" }],
+            },
+            filter: {
+                filterModel: {
+                    items: [],
+                    quickFilterExcludeHiddenColumns: true,
+                },
+            },
+            pagination: {
+                paginationModel: {
+                    pageSize: 12,
+                },
+            },
+            columns: {
+                columnVisibilityModel: columnVisibilityModel,
+            },
+        };
+
+        setColumns(filteredColumns);
+        setInitialState(createInitialState);
+        // const hiddenColumns = filteredColumns.map((column) => column.field);
+
+        // const columnVisibilityModel = {
+        //     ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
+        //     cedula: true,
+        //     nombre: true,
+        //     campana: true,
+        //     cargo: true,
+        //     fecha_ingreso: true,
+        //     salario: true,
+        //     detalles: true,
+        //     campana_general: true,
+        // };
+
+        // const columns = arrayData.flatMap((page) => {
+        //     return page.inputs
+        //         .filter((input) => input.name !== "antiguedad" && input.name !== "edad" && input.name !== "desempeño")
+        //         .map((input) => {
+        //             if (input.name == "cedula") {
+        //                 return {
+        //                     field: input.name,
+        //                     headerName: input.label,
+        //                     width: 110,
+        //                     valueFormatter: (params) => {
+        //                         let value = params.value;
+        //                         if (value === "" || value === null || value === undefined) {
+        //                             return "-";
+        //                         } else {
+        //                             return value;
+        //                         }
+        //                     },
+        //                 };
+        //             }
+
+        //             if (
+        //                 input.name == "fecha_nacimiento" ||
+        //                 input.name == "fecha_expedicion" ||
+        //                 input.name == "fecha_afiliacion_eps" ||
+        //                 input.name == "fecha_nombramiento" ||
+        //                 input.name == "fecha_ingreso" ||
+        //                 input.name == "fecha_aplica_teletrabajo" ||
+        //                 input.name == "fecha_retiro"
+        //             ) {
+        //                 return {
+        //                     field: input.name,
+        //                     headerName: input.label,
+        //                     width: 100,
+        //                     valueFormatter: (params) => {
+        //                         let date = params.value;
+        //                         if (date === null || date === undefined) {
+        //                             return "-";
+        //                         } else {
+        //                             let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+        //                             return date.toLocaleString("es-ES", options);
+        //                         }
+        //                     },
+        //                 };
+        //             }
+
+        //             if (input.name == "salario" || input.name == "subsidio_transporte") {
+        //                 return {
+        //                     field: input.name,
+        //                     headerName: input.label,
+        //                     width: 105,
+        //                     type: "number",
+        //                     valueFormatter: (params) => {
+        //                         let salary = params.value;
+        //                         if (salary === null || salary === undefined || salary === "") {
+        //                             return "-";
+        //                         } else {
+        //                             let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
+        //                             return salary.toLocaleString("es-CO", options);
+        //                         }
+        //                     },
+        //                 };
+        //             } else if (input.name == "nombre") {
+        //                 return {
+        //                     field: input.name,
+        //                     headerName: input.label,
+        //                     width: 270,
+        //                     valueFormatter: (params) => {
+        //                         let value = params.value;
+        //                         if (value === "" || value === null || value === undefined) {
+        //                             return "-";
+        //                         } else {
+        //                             return value;
+        //                         }
+        //                     },
+        //                 };
+        //             } else {
+        //                 return {
+        //                     field: input.name,
+        //                     headerName: input.label,
+        //                     width: 210,
+        //                     valueFormatter: (params) => {
+        //                         let value = params.value;
+        //                         if (value === "" || value === null || value === undefined) {
+        //                             return "-";
+        //                         } else {
+        //                             return value;
+        //                         }
+        //                     },
+        //                 };
+        //             }
+        //         });
+        // });
+    };
 
     const CustomToolbar = (props) => {
         const apiRef = useGridApiContext();
@@ -291,6 +416,7 @@ const TableEmployees = ({
     };
 
     useEffect(() => {
+        console.log(tableData);
         // Define a function to format the date
         function formatDate(dateString) {
             let date = new Date(dateString);
@@ -305,7 +431,7 @@ const TableEmployees = ({
             // Iterate through each property in the rowData object
             for (const [key, value] of Object.entries(rowData)) {
                 if (
-                    key === "fech   a_nacimiento" ||
+                    key === "fecha_nacimiento" ||
                     key === "fecha_expedicion" ||
                     key === "fecha_ingreso" ||
                     key === "fecha_retiro" ||
