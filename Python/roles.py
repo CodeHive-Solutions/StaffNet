@@ -5,7 +5,7 @@ logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.dateti
                     level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-def get_rol(search_rol):
+def get_rol_tables(search_rol):
     roles = {
     "formacion": {
         "personal_information": {
@@ -54,7 +54,7 @@ def get_rol(search_rol):
         }
     },
     "seleccion" : {
-            "personal_information": {
+        "personal_information": {
             "cedula": "",
             "nombre": "",
             "tipo_documento": "",
@@ -71,6 +71,13 @@ def get_rol(search_rol):
             "contacto_emergencia": "",
             "parentesco": "",
             "tel_contacto": ""
+        },
+        "employment_information": {
+            "campana_general": "",
+            "cargo": "",
+        },
+        "leave_information": {
+            "estado": ""
         }
     },
     "sst": {
@@ -103,6 +110,9 @@ def get_rol(search_rol):
             "tipo_contrato": "",
             "aplica_teletrabajo": "",
             "fecha_aplica_teletrabajo": ""
+        },
+        "leave_information": {
+            "estado": ""
         }
     },
     "gestion":{
@@ -163,6 +173,7 @@ def get_rol(search_rol):
             "fecha_retiro": "",
             "tipo_retiro": "",
             "motivo_retiro": "",
+            "aplica_recontratacion": "",
             "estado": ""
         }
     },
@@ -171,7 +182,3 @@ def get_rol(search_rol):
         return roles[search_rol]
     else:
         return None
-
-rol = get_rol("gestion")
-if rol:
-    print(list(rol.items()))

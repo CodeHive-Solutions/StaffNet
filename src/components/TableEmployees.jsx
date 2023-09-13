@@ -34,6 +34,11 @@ const TableEmployees = ({
     checked,
 }) => {
     const [tableData, setTableData] = useState([]);
+    const [rol, setRole] = useState();
+    const [paginationModel, setPaginationModel] = useState({
+        page: 0,
+        pageSize: 12,
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -51,8 +56,9 @@ const TableEmployees = ({
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
+                    console.log(data);
+                    setRole(data.rol);
                     setTableData(data.info.data);
-                    // filterColumns(data.info.data[0]);
                     setPermissions(data.permissions);
                     setTransition(!transition);
                 }
@@ -69,25 +75,21 @@ const TableEmployees = ({
         return () => clearTimeout(intervalId);
     }, []);
 
-    const [paginationModel, setPaginationModel] = useState({
-        page: 0,
-        pageSize: 12,
-    });
-
-    const handleFirstPage = () => {
-        setPaginationModel((prev) => ({ ...prev, page: 0 }));
-    };
-
-    const handleLastPage = () => {
-        setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
-    };
-
     let backendKeys = [];
     if (tableData[0]) {
         backendKeys = Object.keys(tableData[0]);
     }
 
-    const filteredKeys = backendKeys.filter((key) => arrayData.some((item) => item.inputs.some((input) => input.name === key)));
+    const filteredKeys = [];
+
+    arrayData.forEach((item) => {
+        item.inputs.forEach((input) => {
+            const key = input.name;
+            if (backendKeys.includes(key) && !filteredKeys.includes(key)) {
+                filteredKeys.push(key);
+            }
+        });
+    });
 
     // Generate columns based on filtered keys
     const filteredColumns = filteredKeys.map((key) => {
@@ -95,10 +97,10 @@ const TableEmployees = ({
 
         const input = inputItem.inputs.find((input) => input.name === key);
 
-        const column = {
+        let column = {
             field: key,
             headerName: input.label,
-            width: 200, // Set the desired width here
+            width: 210,
             valueFormatter: (params) => {
                 const value = params.value;
                 if (value === "" || value === null || value === undefined) {
@@ -109,38 +111,81 @@ const TableEmployees = ({
             },
         };
 
+        if (key === "cedula") {
+            column.width = 110;
+        } else if (
+            ["fecha_nacimiento", "fecha_expedicion", "fecha_afiliacion_eps", "fecha_nombramiento", "fecha_ingreso", "fecha_aplica_teletrabajo", "fecha_retiro"].includes(
+                key
+            )
+        ) {
+            column.width = 100;
+            column.valueFormatter = (params) => {
+                let date = params.value;
+                if (date === null || date === undefined) {
+                    return "-";
+                } else {
+                    let options = { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" };
+                    return date.toLocaleString("es-ES", options);
+                }
+            };
+        } else if (key === "salario" || key === "subsidio_transporte") {
+            column.width = 105;
+            column.type = "number";
+            column.valueFormatter = (params) => {
+                let salary = params.value;
+                if (salary === null || salary === undefined || salary === "") {
+                    return "-";
+                } else {
+                    let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
+                    return salary.toLocaleString("es-CO", options);
+                }
+            };
+        } else if (key === "nombre") {
+            column.width = 270;
+        }
+
         return column;
     });
 
     const hiddenColumns = filteredColumns.map((column) => column.field);
 
-    const columnVisibilityModel = {
-        ...hiddenColumns.reduce((acc, field) => ({ ...acc, [field]: false }), {}),
-        cedula: true,
-        nombre: true,
-        cargo: true,
-        fecha_ingreso: true,
-        salario: true,
-        detalles: true,
-        campana_general: true,
-    };
+    if (rol !== undefined && rol === "gestion") {
+        filteredColumns.push({
+            field: "detalles",
+            headerName: "Detalles",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Detalles">
+                        <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
+                            <MoreIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
+    }
 
-    filteredColumns.push({
-        field: "detalles",
-        headerName: "Detalles",
-        width: 65,
-        disableExport: true,
-        renderCell: (params) => {
-            const { row } = params;
-            return (
-                <Tooltip title="Detalles">
-                    <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
-                        <MoreIcon />
-                    </IconButton>
-                </Tooltip>
-            );
-        },
-    });
+    let columnVisibilityModel;
+    if (rol === "gestion") {
+        columnVisibilityModel = {
+            ...Object.fromEntries(hiddenColumns.map((field) => [field, false])),
+            cedula: true,
+            nombre: true,
+            cargo: true,
+            fecha_ingreso: true,
+            salario: true,
+            detalles: true,
+            campana_general: true,
+        };
+    }
+
+    let keys = [];
+    if (columnVisibilityModel) {
+        keys = Object.keys(columnVisibilityModel);
+    }
 
     const createInitialState = {
         sorting: {
@@ -160,6 +205,14 @@ const TableEmployees = ({
         columns: {
             columnVisibilityModel: columnVisibilityModel,
         },
+    };
+
+    const handleFirstPage = () => {
+        setPaginationModel((prev) => ({ ...prev, page: 0 }));
+    };
+
+    const handleLastPage = () => {
+        setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
     };
 
     const CustomToolbar = (props) => {
@@ -189,7 +242,25 @@ const TableEmployees = ({
                     const url = window.URL.createObjectURL(blob2);
                     const link = document.createElement("a");
                     link.href = url;
-                    link.setAttribute("download", "exporte.xlsx");
+                    // Create a Date object to get the current date and time
+                    const currentDate = new Date();
+
+                    // Define a function to format the date as yyyy-mm-dd
+                    function formatDate(date) {
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, "0"); // Add 1 to month since it's zero-based
+                        const day = String(date.getDate()).padStart(2, "0");
+                        return `${year}-${month}-${day}`;
+                    }
+
+                    // Get the formatted current date
+                    const formattedDate = formatDate(currentDate);
+
+                    // Construct the new file name with the current date
+                    const newFileName = `exporte-staffnet-${formattedDate}.xlsx`;
+
+                    // Set the "download" attribute with the new file name
+                    link.setAttribute("download", newFileName);
                     document.body.appendChild(link);
                     link.click();
                 } else {
@@ -225,11 +296,29 @@ const TableEmployees = ({
     useEffect(() => {
         // Define a function to format the date
         function formatDate(dateString) {
-            let date = new Date(dateString);
-            return date;
+            if (dateString) {
+                let date = new Date(dateString);
+                return date;
+            }
         }
 
-        // Map over the tableData array and format the dates
+        // Define a function to format the estado property
+        function formatEstado(value) {
+            return value ? "ACTIVO" : "RETIRADO";
+        }
+
+        // Define a function to format aplica_teletrabajo and aplica_recontratacion properties
+        function formatBoolean(value) {
+            if (value === null) {
+                return "-";
+            } else if (value === 0) {
+                return "NO";
+            } else if (value === 1) {
+                return "SI";
+            }
+        }
+
+        // Map over the tableData array and format the data
         const formattedData = tableData.map((rowData) => {
             // Create a new object to store the formatted data
             const formattedRow = {};
@@ -237,24 +326,25 @@ const TableEmployees = ({
             // Iterate through each property in the rowData object
             for (const [key, value] of Object.entries(rowData)) {
                 if (
-                    key === "fecha_nacimiento" ||
-                    key === "fecha_expedicion" ||
-                    key === "fecha_ingreso" ||
-                    key === "fecha_retiro" ||
-                    key === "fecha_aplica_teletrabajo" ||
-                    key === "fecha_afiliacion_eps" ||
-                    key === "fecha_nombramiento"
+                    [
+                        "fecha_nacimiento",
+                        "fecha_expedicion",
+                        "fecha_ingreso",
+                        "fecha_retiro",
+                        "fecha_aplica_teletrabajo",
+                        "fecha_afiliacion_eps",
+                        "fecha_nombramiento",
+                    ].includes(key)
                 ) {
                     // Format the date property
                     formattedRow[key] = formatDate(value);
                 } else if (key === "estado") {
-                    // Convert the "estado" property to "ACTIVO" or "RETIRADO"
-                    formattedRow[key] = value ? "ACTIVO" : "RETIRADO";
-                } else if (key === "otra_propiedad") {
-                    // Add additional formatting logic for specific properties if needed
-                    // Example: formattedRow[key] = someFormattingFunction(value);
+                    // Format the estado property
+                    formattedRow[key] = formatEstado(value);
+                } else if (["aplica_teletrabajo", "aplica_recontratacion"].includes(key)) {
+                    // Format aplica_teletrabajo and aplica_recontratacion properties
+                    formattedRow[key] = formatBoolean(value);
                 } else {
-                    // For other properties, simply copy the value as is
                     formattedRow[key] = value;
                 }
             }
@@ -274,10 +364,22 @@ const TableEmployees = ({
 
     const slots = { toolbar: CustomToolbar };
 
-    return (
-        <DataGrid
-            GridColDef={"center"}
-            sx={{
+    const generateDataGridOptions = (additionalOptions = {}) => {
+        const commonOptions = {
+            initialState: createInitialState,
+            columns: filteredColumns,
+            rows: rows,
+            slots: slots,
+            paginationModel: paginationModel,
+            onPaginationModelChange: (model) => {
+                setPaginationModel(model);
+            },
+            getRowId: (row) => row.cedula,
+            GridColDef: "center",
+            checkboxSelection: true,
+            disableRowSelectionOnClick: true,
+            pagination: true,
+            sx: {
                 position: "relative",
                 height: "calc(100vh - 200px)",
                 "&::before": {
@@ -295,22 +397,20 @@ const TableEmployees = ({
                     opacity: 0.15,
                     zIndex: -1,
                 },
-            }}
-            slots={slots}
-            pagination
-            getRowId={(row) => row.cedula}
-            paginationModel={paginationModel}
-            onPaginationModelChange={(model) => {
-                setPaginationModel(model);
-            }}
-            rows={rows}
-            checkboxSelection
-            initialState={createInitialState}
-            columns={filteredColumns}
-            pageSizeOptions={[12]}
-            disableRowSelectionOnClick
-        />
-    );
+            },
+            ...additionalOptions,
+        };
+
+        return commonOptions;
+    };
+
+    let dataGridOptions = generateDataGridOptions();
+
+    if (rol !== undefined && rol !== "gestion" && filteredColumns.length) {
+        return <DataGrid {...dataGridOptions} />;
+    } else if (filteredColumns.length > 1 && keys.length > 7) {
+        return <DataGrid {...dataGridOptions} />;
+    }
 };
 
 export default TableEmployees;

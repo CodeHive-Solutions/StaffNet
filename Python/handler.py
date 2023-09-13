@@ -9,7 +9,7 @@ from update import update
 from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
 from dotenv import load_dotenv
-from roles import get_rol
+from roles import get_rol_tables
 import datetime
 import mysql.connector
 import redis
@@ -383,14 +383,14 @@ def edit_admin():
 @ app.route('/search_employees', methods=['POST'])
 def search_employees():
     if session["consult"] == True:
-        rol = get_rol(session["rol"])
-        if not rol:
+        rol_tables = get_rol_tables(session["rol"])
+        if not rol_tables:
             response = {"status": "False", "error": "Rol no encontrado"}
             return response
         conexion = conexionMySQL()
         response = search_transaction(
-            conexion, rol.items())
-        response = {"info": response, "permissions": {
+            conexion, rol_tables.items())
+        response = {"info": response,"rol":session["rol"], "permissions": {
             "create": session["create"], "edit": session["edit"], "disable": session["disable"]}}
     else:
         response = {'status': 'False',

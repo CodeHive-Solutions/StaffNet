@@ -25,6 +25,7 @@ def consulta_login(body, conexion):
     query = "SELECT permission_consult, permission_create, permission_edit, permission_disable, permission_create_admins, rol FROM users WHERE `user` = %s"
     # La coma de user si es necesaria
     cursor.execute(query, (user,))
+    
     result_query = cursor.fetchone()
     if result_query != None and result_query != []:
         status, result, response, _ = consulta_usuario_ad(user, 'name')
