@@ -19,6 +19,7 @@ import { getApiUrl } from "../assets/getApi.js";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
+import Papa from "papaparse";
 
 const TableEmployees = ({
     arrayData,
@@ -56,7 +57,6 @@ const TableEmployees = ({
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
-                    console.log(data);
                     setRole(data.rol);
                     setTableData(data.info.data);
                     setPermissions(data.permissions);
@@ -112,7 +112,9 @@ const TableEmployees = ({
         };
 
         if (key === "cedula") {
-            column.width = 110;
+            column.width = 106;
+        } else if (key === "estado") {
+            column.width = 95;
         } else if (
             ["fecha_nacimiento", "fecha_expedicion", "fecha_afiliacion_eps", "fecha_nombramiento", "fecha_ingreso", "fecha_aplica_teletrabajo", "fecha_retiro"].includes(
                 key
@@ -220,7 +222,49 @@ const TableEmployees = ({
         const handleExport = async () => {
             setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const csvOptions = { delimiter: ";", utf8WithBom: true };
-            const result = apiRef.current.getDataAsCsv(csvOptions);
+            let result = apiRef.current.getDataAsCsv(csvOptions);
+            // Parse the CSV data
+            const arrayObjects = Papa.parse(result, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
+            });
+
+            if (arrayObjects.meta.fields.includes("Fecha de nacimiento")) {
+                function calculateAge(dateOfBirth) {
+                    const parts = dateOfBirth.split("/");
+                    const dob = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const today = new Date();
+                    let age = today.getFullYear() - dob.getFullYear();
+                    const monthDifference = today.getMonth() - dob.getMonth();
+
+                    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+
+                    return age;
+                }
+
+                // Calculate age for each row
+                arrayObjects.data = arrayObjects.data.map((row) => {
+                    const dob = row["Fecha de nacimiento"];
+                    const age = calculateAge(dob);
+
+                    // Create a new object with 'edad' after 'Fecha de nacimiento'
+                    let newRow = {};
+                    for (let prop in row) {
+                        newRow[prop] = row[prop];
+                        if (prop === "Fecha de nacimiento") {
+                            newRow["Edad"] = age;
+                        }
+                    }
+
+                    return newRow;
+                });
+
+                // Convert the data back to CSV format
+                result = Papa.unparse(arrayObjects.data, { delimiter: ";" });
+            }
             try {
                 const response = await fetch(`${getApiUrl()}/download`, {
                     method: "POST",
@@ -370,6 +414,7 @@ const TableEmployees = ({
             columns: filteredColumns,
             rows: rows,
             slots: slots,
+            pageSizeOptions: [12, 24, 36],
             paginationModel: paginationModel,
             onPaginationModelChange: (model) => {
                 setPaginationModel(model);

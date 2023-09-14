@@ -1,12 +1,4 @@
-import datetime
-import logging
-
-logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
-                    level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
-
-def get_rol_tables(search_rol):
-    roles = {
+roles = {
     "formacion": {
         "personal_information": {
             "cedula": "",
@@ -177,8 +169,36 @@ def get_rol_tables(search_rol):
             "estado": ""
         }
     },
+    "coordinador_falabella": {
+        "personal_information":{
+            "cedula": "",
+            "nombre": "",
+        },
+        "employment_information": {
+            "campana_general": "FALABELLA",
+            "cargo": "",
+            "fecha_ingreso": "",
+        },
+        "leave_information": {
+            "fecha_retiro": "",
+            "estado": ""
+        }
+    }
 }
+
+def get_rol_tables(search_rol):
     if search_rol in roles:
         return roles[search_rol]
     else:
         return None
+
+def get_rol_columns(search_rol):
+    roles = get_rol_tables(search_rol)
+    column_roles = []
+    if roles:
+        for key, value in roles.items():
+            for key2, value2 in value.items():
+                column_roles.append(key2)
+    else:
+        column_roles = None
+    return column_roles

@@ -9,7 +9,7 @@ from update import update
 from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
 from dotenv import load_dotenv
-from roles import get_rol_tables
+from roles import get_rol_tables, get_rol_columns
 import datetime
 import mysql.connector
 import redis
@@ -476,16 +476,22 @@ def download():
             csv_df = pd.read_csv(StringIO(body), delimiter=";", keep_default_na=False, na_values=[""])
             all_columns = csv_df.columns.tolist()
             history_data = None
+            rol_columns = get_rol_columns(session["rol"])
+            if not rol_columns:
+                response = {"status": "False", "error": "Rol no encontrado"}
+                return response
+            # This define if search the history
             if "Cedula" in all_columns:
                 # Extract "Cedula" values from the first column of the DataFrame
                 cedula_values = csv_df.iloc[:, 0].tolist()
                 # Build the WHERE clause for MySQL
-                where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
+                where = "WHERE (" + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + f') AND columna in ({str(rol_columns).replace("[","").replace("]","")})' + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
                 # Fetch history data from MySQL based on the WHERE clause
                 history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
                 if "error" in history and history['error'] == "Registro no encontrado":
                     history = {"info": []}
                 history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
+            # This is for format the data
             if "Salario" in all_columns:
                 salario_index = csv_df.columns.get_loc("Salario")
                 salario_list = csv_df.iloc[:, salario_index].tolist()

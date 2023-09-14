@@ -61,8 +61,12 @@ def search_transaction(conexion, table_info):
         sql = f"SELECT {select_columns} FROM {table_names[0]}"
         for i in range(1, len(table_names)):
             sql += f" LEFT JOIN {table_names[i]} ON {table_names[i-1]}.cedula = {table_names[i]}.cedula"
-        sql += f" WHERE {join_conditions}"
-        logging.info(f"SQL: {sql}")
+        column_dict = dict(columns)
+        if "employment_information" in columns and "campana_general" in columns["employment_information"]:
+            campana = f"AND employment_information.campana_general LIKE '%{columns['employment_information']['campana_general']}%'"
+        else:
+            campana = ""
+        sql += f" WHERE {join_conditions} {campana}"
         # Execute the SQL statement
         mycursor.execute(sql)
         # Fetch the results for the current table
