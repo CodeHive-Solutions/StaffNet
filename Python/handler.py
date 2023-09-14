@@ -1,5 +1,5 @@
 import logging
-from io import BytesIO, TextIOWrapper, StringIO
+from io import BytesIO, StringIO
 import re
 from flask import Flask, Response, request, session, g
 from flask_session import Session
@@ -9,6 +9,7 @@ from update import update
 from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
 from dotenv import load_dotenv
+from roles import get_rol_tables, get_rol_columns
 import datetime
 import mysql.connector
 import redis
@@ -31,7 +32,6 @@ else:
 try:
     redis_client = redis.Redis(
         host='172.16.0.128', port=6379, password=os.environ['Redis'])
-    logging.info(f"Connection to redis success")
     redis_client.ping()
 except:
     print("Connection to redis failed")
@@ -64,7 +64,7 @@ def get_request_body():
 
 
 def clean_value(value):
-    if value is None:
+    if value is None or value == "":
         return None
     if isinstance(value, int):
         return value
@@ -125,8 +125,8 @@ def bd_info():
                     "tipo_contrato": clean_value(body.get("tipo_contrato")),
                     "salario": clean_value(body.get("salario")),
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
-                    'aplica_teletrabajo': body.get('aplica_teletrabajo',False),
-                    'fecha_aplica_teletrabajo': body.get('fecha_aplica_teletrabajo'),
+                    'aplica_teletrabajo': clean_value(body.get('aplica_teletrabajo',False)),
+                    'fecha_aplica_teletrabajo': clean_value(body.get('fecha_aplica_teletrabajo')),
                     'observaciones': clean_value(body.get('observaciones'))
                 },
                 "disciplinary_actions": {
@@ -160,7 +160,6 @@ def login():
     body = get_request_body()
     conexion = conexionMySQL()
     response = consulta_login(body, conexion)
-    print(response)
     if response["status"] == 'success':
         session_key = 'session:' + session.get("sid", "")
         print("EXAMPLE", session_key)
@@ -172,6 +171,7 @@ def login():
         session["create"] = response["create"]
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
+        session["rol"] = response["rol"]
         update("users", "session_id", (session_key,),
                f"WHERE user = '{username}'", conexion)
         response = {"status": 'success',
@@ -189,7 +189,6 @@ def conexionMySQL():
                 password=os.environ['StaffNetmysql'],
                 database='staffnet'
             )
-            logging.info("Connection to MYSQL success")
         except Exception as err:
             print("Error conexion MYSQL: ", err)
             logging.critical("Error conexion MYSQL: ", err, exc_info=True)
@@ -384,18 +383,14 @@ def edit_admin():
 @ app.route('/search_employees', methods=['POST'])
 def search_employees():
     if session["consult"] == True:
+        rol_tables = get_rol_tables(session["rol"])
+        if not rol_tables:
+            response = {"status": "False", "error": "Rol no encontrado"}
+            return response
         conexion = conexionMySQL()
-        table_info = {
-            "personal_information": "*",
-            "disciplinary_actions": "*",
-            'educational_information': '*',
-            "employment_information": "*",
-            "leave_information": "*"
-        }
-        where = "educational_information.cedula = employment_information.cedula AND employment_information.cedula = personal_information.cedula AND leave_information.cedula = personal_information.cedula AND disciplinary_actions.cedula = personal_information.cedula"
         response = search_transaction(
-            conexion, table_info, where=where)
-        response = {"info": response, "permissions": {
+            conexion, rol_tables.items())
+        response = {"info": response,"rol":session["rol"], "permissions": {
             "create": session["create"], "edit": session["edit"], "disable": session["disable"]}}
     else:
         response = {'status': 'False',
@@ -476,33 +471,27 @@ def download():
     if session["consult"] == True:
         try:
             body = request.get_data(as_text=True)
-            logging.info("Request: %s", body)
             conexion = conexionMySQL()
             # Parse the CSV data from the request body
             csv_df = pd.read_csv(StringIO(body), delimiter=";", keep_default_na=False, na_values=[""])
-            
-            logging.info("CSV DataFrame: %s", csv_df)
             all_columns = csv_df.columns.tolist()
             history_data = None
+            rol_columns = get_rol_columns(session["rol"])
+            if not rol_columns:
+                response = {"status": "False", "error": "Rol no encontrado"}
+                return response
+            # This define if search the history
             if "Cedula" in all_columns:
                 # Extract "Cedula" values from the first column of the DataFrame
                 cedula_values = csv_df.iloc[:, 0].tolist()
-                logging.info("Cedula values: %s", cedula_values)
                 # Build the WHERE clause for MySQL
-                where = "WHERE " + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
-                logging.info("WHERE %s", where)
+                where = "WHERE (" + " OR ".join([f'historical.cedula = "{cedula}"' for cedula in cedula_values]) + f') AND columna in ({str(rol_columns).replace("[","").replace("]","")})' + " ORDER BY historical.cedula, historical.fecha_cambio DESC"
                 # Fetch history data from MySQL based on the WHERE clause
                 history = search(["cedula","columna", "valor_antiguo", "valor_nuevo", 'fecha_cambio'], "historical", where, None, conexion)
                 if "error" in history and history['error'] == "Registro no encontrado":
                     history = {"info": []}
                 history_data = pd.DataFrame(history["info"], columns=["cedula","columna", "valor_antiguo", "valor_nuevo", "fecha_cambio"])
-            def clean_and_convert_to_int(values):
-                cleaned_values = []
-                for value in values:
-                    cleaned_value = re.sub(r'[^0-9]', '', value)
-                    if cleaned_value:
-                        cleaned_values.append(int(cleaned_value))
-                return cleaned_values
+            # This is for format the data
             if "Salario" in all_columns:
                 salario_index = csv_df.columns.get_loc("Salario")
                 salario_list = csv_df.iloc[:, salario_index].tolist()

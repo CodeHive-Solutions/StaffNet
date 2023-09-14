@@ -1,5 +1,11 @@
 from ldap3 import Server, Connection, SAFE_SYNC,  SUBTREE
 import os
+import logging
+import datetime
+
+logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
+                    level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 # LDAP
 server = Server('CYC-SERVICES.COM.CO')
@@ -16,9 +22,10 @@ def consulta_login(body, conexion):
     cursor = conexion.cursor()
     password = body['password']
     user = body['user']
-    query = "SELECT permission_consult, permission_create, permission_edit, permission_disable, permission_create_admins FROM users WHERE `user` = %s"
+    query = "SELECT permission_consult, permission_create, permission_edit, permission_disable, permission_create_admins, rol FROM users WHERE `user` = %s"
     # La coma de user si es necesaria
     cursor.execute(query, (user,))
+    
     result_query = cursor.fetchone()
     if result_query != None and result_query != []:
         status, result, response, _ = consulta_usuario_ad(user, 'name')
@@ -30,7 +37,7 @@ def consulta_login(body, conexion):
                 login = Connection(
                     server, user=nombre, password=password, client_strategy='SYNC', auto_bind=True, read_only=True) # type: ignore
                 response = {"disable": result_query[3], "edit": result_query[2], 'status': 'success', "consult": result_query[0], "create": result_query[1],
-                            'create_admins': result_query[4]}
+                            'create_admins': result_query[4], 'rol': result_query[5]}
                 login.unbind()
             except Exception as e:
                 response = {'status': 'failure',

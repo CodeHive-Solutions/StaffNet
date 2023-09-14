@@ -8,7 +8,6 @@ import Fade from "@mui/material/Fade";
 import Header from "./Header";
 import Typography from "@mui/material/Typography";
 import SnackAlert from "./SnackAlert";
-import { useNavigate } from "react-router-dom";
 import LinearProgress from "@mui/material/LinearProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import TableEmployees from "./TableEmployees";
@@ -23,7 +22,6 @@ const HomeView = () => {
     const [detalles, setDetalles] = useState({});
     const [inputValues, setInputValues] = useState({});
     const [rows, setRows] = useState([]);
-    const [tableData, setTableData] = useState([]);
     const [edit, setEdit] = useState(true);
     const [access, setAccess] = useState(false);
     const [openModal, setOpenModal] = useState(false);
@@ -39,42 +37,6 @@ const HomeView = () => {
     const [cedulaDetails, setCedulaDetails] = useState(0);
     const [checked, setChecked] = useState(true);
     const [originalData, setOriginalData] = useState(rows);
-
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                const response = await fetch(`${getApiUrl()}/search_employees`, {
-                    method: "POST",
-                    credentials: "include",
-                });
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                const data = await response.json();
-                if ("info" in data) {
-                    setAccess(true);
-                    setTableData(data.info.data);
-                    setPermissions(data.permissions);
-                } else if (data.error === "conexion") {
-                    console.error("error:" + data + data.error);
-                }
-            } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-                if (error === "Usuario no ha iniciado sesion") {
-                    navigate("/");
-                }
-            }
-            setTransition(!transition);
-        };
-        fetchEmployees();
-
-        const intervalId = setInterval(() => {
-            fetchEmployees();
-        }, 10 * 30 * 1000);
-        return () => clearTimeout(intervalId);
-    }, []);
 
     const calculateAge = (birthdate) => {
         // Split birthdate string into array of year, month, and day
@@ -241,122 +203,123 @@ const HomeView = () => {
         }
     };
 
-    if (access) {
-        return (
-            <>
-                <Fade in={progressBar}>
-                    <Box sx={{ width: "100%", position: "absolute" }}>
-                        <LinearProgress open={true} />
-                    </Box>
-                </Fade>
-                <Fade in={transition}>
-                    <Container>
-                        <SnackAlert
-                            severity={severityAlert}
-                            message={messageAlert}
-                            open={openSnackAlert}
-                            close={handleCloseSnack}
-                            setShowSnackAlert={setShowSnackAlert}
-                        ></SnackAlert>
-                        <EditModal
-                            arrayData={arrayData}
-                            openModal={openModal}
-                            inputValues={inputValues}
-                            handleEdit={handleEdit}
-                            dataCalculateAge={dataCalculateAge}
-                            seniority={seniority}
-                            setOpenModal={setOpenModal}
-                            setProgressBar={setProgressBar}
-                            searchEmployeesUpdate={searchEmployeesUpdate}
-                            stylesModal={stylesModal}
-                            handleOpenModal={handleOpenModal}
-                            setShowSnackAlert={setShowSnackAlert}
-                            permissions={permissions}
-                            edit={edit}
-                            cedulaDetails={cedulaDetails}
-                            handleChange={handleChange}
-                            setDetalles={setDetalles}
-                            setEdit={setEdit}
-                        />
+    return (
+        <>
+            <Fade in={progressBar}>
+                <Box sx={{ width: "100%", position: "absolute" }}>
+                    <LinearProgress open={true} />
+                </Box>
+            </Fade>
+            <Fade in={transition}>
+                <Container>
+                    <SnackAlert
+                        severity={severityAlert}
+                        message={messageAlert}
+                        open={openSnackAlert}
+                        close={handleCloseSnack}
+                        setShowSnackAlert={setShowSnackAlert}
+                    ></SnackAlert>
+                    <EditModal
+                        arrayData={arrayData}
+                        openModal={openModal}
+                        inputValues={inputValues}
+                        handleEdit={handleEdit}
+                        dataCalculateAge={dataCalculateAge}
+                        seniority={seniority}
+                        setOpenModal={setOpenModal}
+                        setProgressBar={setProgressBar}
+                        searchEmployeesUpdate={searchEmployeesUpdate}
+                        stylesModal={stylesModal}
+                        handleOpenModal={handleOpenModal}
+                        setShowSnackAlert={setShowSnackAlert}
+                        permissions={permissions}
+                        edit={edit}
+                        cedulaDetails={cedulaDetails}
+                        handleChange={handleChange}
+                        setDetalles={setDetalles}
+                        setEdit={setEdit}
+                    />
 
-                        <AddModal
-                            arrayData={arrayData}
-                            openModalAdd={openModalAdd}
-                            formData={formData}
-                            setFormData={setFormData}
-                            setOpenModalAdd={setOpenModalAdd}
-                            setProgressBar={setProgressBar}
-                            searchEmployeesUpdate={searchEmployeesUpdate}
-                            stylesModal={stylesModal}
-                            handleOpenModalAdd={handleOpenModalAdd}
-                            setShowSnackAlert={setShowSnackAlert}
-                        />
-                        <Header></Header>
-                        <Box
+                    <AddModal
+                        arrayData={arrayData}
+                        openModalAdd={openModalAdd}
+                        formData={formData}
+                        setFormData={setFormData}
+                        setOpenModalAdd={setOpenModalAdd}
+                        setProgressBar={setProgressBar}
+                        searchEmployeesUpdate={searchEmployeesUpdate}
+                        stylesModal={stylesModal}
+                        handleOpenModalAdd={handleOpenModalAdd}
+                        setShowSnackAlert={setShowSnackAlert}
+                    />
+                    <Header></Header>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                        }}
+                    >
+                        <FormControlLabel
                             sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
+                                color: "#1976d2",
+                                fontSize: "5px", // Change this value to the desired font size
                             }}
-                        >
-                            <FormControlLabel
-                                sx={{
-                                    color: "#1976d2",
-                                    fontSize: "5px", // Change this value to the desired font size
+                            control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
+                            label="SOLO ACTIVOS"
+                        />
+                        {permissions.create == 1 ? (
+                            <Button
+                                onClick={() => {
+                                    handleOpenModalAdd();
                                 }}
-                                control={<Switch sx={{ fontSize: "8px" }} onChange={handleChangeCheck} checked={checked} />}
-                                label="SOLO ACTIVOS"
-                            />
-                            {permissions.create == 1 ? (
-                                <Button
-                                    onClick={() => {
-                                        handleOpenModalAdd();
+                            >
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        paddingRight: ".5em",
                                     }}
                                 >
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            paddingRight: ".5em",
-                                        }}
-                                    >
-                                        <PersonAddIcon />
-                                    </Box>
-                                    Añadir
-                                </Button>
-                            ) : (
-                                <Button disabled>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            paddingRight: ".5em",
-                                        }}
-                                    >
-                                        <PersonAddIcon />
-                                    </Box>
-                                    Añadir
-                                </Button>
-                            )}
-                        </Box>
-                        <Box sx={{ padding: "15px 0px" }}>
-                            <TableEmployees
-                                tableData={tableData}
-                                arrayData={arrayData}
-                                rows={rows}
-                                setOriginalData={setOriginalData}
-                                setRows={setRows}
-                                handleOpenModal={handleOpenModal}
-                                setShowSnackAlert={setShowSnackAlert}
-                                setProgressBar={setProgressBar}
-                                checked={checked}
-                            />
-                        </Box>
-                        <Box sx={{ textAlign: "center" }}>
-                            <Typography sx={{ fontSize: "25px", color: "#d3d3d3", fontStyle: "italic", fontWeight: "semi-bold" }}>We will win</Typography>
-                        </Box>
-                    </Container>
-                </Fade>
-            </>
-        );
-    }
+                                    <PersonAddIcon />
+                                </Box>
+                                Añadir
+                            </Button>
+                        ) : (
+                            <Button disabled>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        paddingRight: ".5em",
+                                    }}
+                                >
+                                    <PersonAddIcon />
+                                </Box>
+                                Añadir
+                            </Button>
+                        )}
+                    </Box>
+                    <Box sx={{ padding: "15px 0px" }}>
+                        <TableEmployees
+                            arrayData={arrayData}
+                            setPermissions={setPermissions}
+                            setAccess={setAccess}
+                            transition={transition}
+                            setTransition={setTransition}
+                            rows={rows}
+                            setOriginalData={setOriginalData}
+                            setRows={setRows}
+                            handleOpenModal={handleOpenModal}
+                            setShowSnackAlert={setShowSnackAlert}
+                            setProgressBar={setProgressBar}
+                            checked={checked}
+                        />
+                    </Box>
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography sx={{ fontSize: "25px", color: "#d3d3d3", fontStyle: "italic", fontWeight: "semi-bold" }}>We will win</Typography>
+                    </Box>
+                </Container>
+            </Fade>
+        </>
+    );
 };
 
 export default HomeView;
