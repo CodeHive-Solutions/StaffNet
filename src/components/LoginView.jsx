@@ -81,6 +81,7 @@ const LoginView = () => {
                 const response = await fetch(`${getApiUrl()}/loged`, {
                     method: "POST",
                     credentials: "include",
+                    contentEncoding: "br",
                 });
                 // Check if the response was successful
                 if (!response.ok) {
@@ -129,6 +130,7 @@ const LoginView = () => {
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dataP),
+                    contentEncoding: "br",
                 });
                 // Check if the response was successful
                 if (!response.ok) {

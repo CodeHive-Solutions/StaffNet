@@ -50,6 +50,7 @@ const PermissionsView = () => {
                 const response = await fetch(`${getApiUrl()}/validate_create_admins`, {
                     method: "POST",
                     credentials: "include",
+                    contentEncoding: "br",
                 });
                 if (!response.ok) {
                     throw Error(response.statusText);
@@ -119,6 +120,7 @@ const PermissionsView = () => {
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dataSearch),
+                    contentEncoding: "br",
                 });
                 if (!response.ok) {
                     throw Error(response.statusText);
@@ -198,6 +200,7 @@ const PermissionsView = () => {
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
                         body: JSON.stringify(dataCreate),
+                        contentEncoding: "br",
                     });
                     if (!response.ok) {
                         throw Error(response.statusText);
@@ -229,6 +232,7 @@ const PermissionsView = () => {
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
                         body: JSON.stringify(dataEdit),
+                        contentEncoding: "br",
                     });
                     if (!response.ok) {
                         throw Error(response.statusText);

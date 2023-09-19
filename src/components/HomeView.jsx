@@ -19,6 +19,7 @@ import EditModal from "./EditModal";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
+    const [tableData, setTableData] = useState([]);
     const [detalles, setDetalles] = useState({});
     const [inputValues, setInputValues] = useState({});
     const [rows, setRows] = useState([]);
@@ -53,28 +54,22 @@ const HomeView = () => {
     };
 
     const calculateSeniority = (affiliationDate) => {
-        if (affiliationDate !== undefined) {
-            const fechaIngreso = new Date(affiliationDate);
-            const fechaActual = new Date();
-            const antiguedadEnMeses = (fechaActual.getFullYear() - fechaIngreso.getFullYear()) * 12 + (fechaActual.getMonth() - fechaIngreso.getMonth());
-            const antiguedadEnAños = Math.floor(antiguedadEnMeses / 12);
-            const antiguedadEnMesesRestantes = antiguedadEnMeses % 12;
-            if (antiguedadEnAños === 0 && antiguedadEnMesesRestantes === 1) {
-                return `${antiguedadEnMesesRestantes} mes `;
-            } else if (antiguedadEnAños === 0) {
-                return `${antiguedadEnMesesRestantes} meses`;
-            } else if (antiguedadEnAños === 1 && antiguedadEnMesesRestantes === 0) {
-                return `${antiguedadEnAños} año`;
-            } else if (antiguedadEnAños > 1 && antiguedadEnMesesRestantes === 0) {
-                return `${antiguedadEnAños} años`;
-            } else if (antiguedadEnAños === 1 && antiguedadEnMesesRestantes !== 1) {
-                return `${antiguedadEnAños} año y ${antiguedadEnMesesRestantes} meses`;
-            } else if (antiguedadEnMesesRestantes === 1) {
-                return `${antiguedadEnAños} años y ${antiguedadEnMesesRestantes} mes`;
-            } else {
-                return `${antiguedadEnAños} años y ${antiguedadEnMesesRestantes} meses`;
-            }
-        }
+        if (affiliationDate === undefined) return;
+
+        const fechaIngreso = new Date(affiliationDate);
+        const fechaActual = new Date();
+        const monthsDiff = (fechaActual.getFullYear() - fechaIngreso.getFullYear()) * 12 + (fechaActual.getMonth() - fechaIngreso.getMonth());
+
+        const years = Math.floor(monthsDiff / 12);
+        const months = monthsDiff % 12;
+
+        const yearText = years === 1 ? "año" : "años";
+        const monthText = months === 1 ? "mes" : "meses";
+
+        const yearString = years > 0 ? `${years} ${yearText}` : "";
+        const monthString = months > 0 ? `${months} ${monthText}` : "";
+
+        return `${yearString}${yearString && monthString ? " y " : ""}${monthString}`;
     };
 
     const handleOpenModalAdd = () => {
@@ -104,6 +99,7 @@ const HomeView = () => {
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ cedula: identificador }),
+                    contentEncoding: "br",
                 });
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -159,6 +155,7 @@ const HomeView = () => {
             const response = await fetch(`${getApiUrl()}/search_employees`, {
                 method: "POST",
                 credentials: "include",
+                contentEncoding: "br",
             });
             if (!response.ok) {
                 throw Error(response.statusText);
@@ -311,6 +308,8 @@ const HomeView = () => {
                             setShowSnackAlert={setShowSnackAlert}
                             setProgressBar={setProgressBar}
                             checked={checked}
+                            tableData={tableData}
+                            setTableData={setTableData}
                         />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>

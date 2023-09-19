@@ -24,30 +24,24 @@ def update_data(conexion, info_tables, where):
                 response = {"status": "success"}
         conexion.commit()
         return response
-
     except mysql.connector.Error as error:
-        print("Error: ", error)
         logging.error(f"Error: {error}")
         response = {"status": "failed", "error": str(error)}
         return response
-
     finally:
-        mycursor.close()
+        conexion.close()
 
 
 def search_transaction(conexion, table_info):
     # Create a cursor
     mycursor = conexion.cursor()
     try:
-        response = {"status": "success"}
-        # Start a transaction
-        mycursor.execute("START TRANSACTION")
         # Initialize the response dictionary
-        response = {"status": "success", "data": {}}
+        response = {"status": "success", "data": []}  # Changed data to an empty list
         # Get the table names and columns
         table_names = [table[0] for table in table_info]
         columns = {table[0]: table[1] for table in table_info}
-        # Construct the SELECT statement dynamically
+        # Construct the SELECT statement and join conditions
         select_columns = []
         join_conditions = []
         for table_name in table_names:
@@ -56,48 +50,33 @@ def search_transaction(conexion, table_info):
             if valid_columns:
                 select_columns.extend(valid_columns)
                 join_conditions.append(f"{table_name}.cedula = {table_names[0]}.cedula")
+        
         select_columns = ", ".join(select_columns)
         join_conditions = " AND ".join(join_conditions)
         sql = f"SELECT {select_columns} FROM {table_names[0]}"
         for i in range(1, len(table_names)):
             sql += f" LEFT JOIN {table_names[i]} ON {table_names[i-1]}.cedula = {table_names[i]}.cedula"
-        column_dict = dict(columns)
-        if "employment_information" in columns and "campana_general" in columns["employment_information"]:
-            campana = f"AND employment_information.campana_general LIKE '%{columns['employment_information']['campana_general']}%'"
+        
+        # Use parameterized queries to prevent SQL injection
+        campana_filter = columns.get("employment_information", {}).get("campana_general", "")
+        if campana_filter:
+            sql += " WHERE " + join_conditions + " AND employment_information.campana_general LIKE %s"
+            campana_value = f"%{campana_filter}%"
+            mycursor.execute(sql, (campana_value,))
         else:
-            campana = ""
-        sql += f" WHERE {join_conditions} {campana}"
-        # Execute the SQL statement
-        mycursor.execute(sql)
-        # Fetch the results for the current table
-        result = mycursor.fetchall()
-        # Commit the transaction
-        conexion.commit()
-        key_value_results = []
-        for row in result:
-            row_dict = {}
-            for i, column in enumerate(mycursor.description):
-                # Remove the table name prefix to get the column name
-                column_name = column[0].split('.')[-1]
-                row_dict[column_name] = row[i]
-            key_value_results.append(row_dict)
-        response["data"] = key_value_results
+            sql += " WHERE " + join_conditions
+            mycursor.execute(sql)
+        
+        # Fetch the results using a list comprehension
+        response["data"] = [dict(zip([column[0].split('.')[-1] for column in mycursor.description], row)) for row in mycursor.fetchall()]
+        
         return response
-
-    except mysql.connector.Error as error:
-        # Roll back the transaction if there's an error
-        print(f"Error: {error}")
-        conexion.rollback()
-        logging.error(f"Error: {error}")
-        error = str(error)
-        response = {"status": "error", "error": error}
-        return response
-
+    except Exception as e:
+        # Handle exceptions or log them for debugging
+        logging.error(f"Error: {str(e)}")
+        return {"status": "error", "message": str(e)}
     finally:
-        # Close the cursor and database connection
-        mycursor.close()
         conexion.close()
-
 
 def insert_transaction(conexion, table_info):
     """The "table_content" is a dictionary that contains the name of the table
@@ -121,7 +100,6 @@ def insert_transaction(conexion, table_info):
         response = {"status": "success"}
         # Start a transaction
         mycursor.execute("START TRANSACTION")
-
         # Loop through each table in the table_info dictionary
         for table_name, columns in table_info.items():
             # Build the SQL INSERT statement
@@ -129,9 +107,6 @@ def insert_transaction(conexion, table_info):
             # Build the tuple of column values
             values = tuple(columns.values())
             # Execute the SQL statement
-            print("Consulta sql: ", sql)
-            print("valores", values)
-            print("Aqui ", sql % values)
             mycursor.execute(sql, values)
             if mycursor.rowcount == 0:
                 response = {"status": "error",
@@ -139,17 +114,14 @@ def insert_transaction(conexion, table_info):
         # Commit the transaction
         conexion.commit()
         return response
-
     except mysql.connector.Error as error:
         # Roll back the transaction if there's an error
-        print(f"Error: {error}")
         logging.error(f"Error: {error}")
         conexion.rollback()
         error = str(error)
         logging.error(f"sending error mysql {error}")
         response = {"status": "error", "error": error}
         return response
-
     finally:
         # Close the cursor and database connection
         mycursor.close()
@@ -191,6 +163,7 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
         return {"status": "success", "data": data}
     except Exception as error:
         logging.error(f"Error: {error}")
-        print("Error ", error)
         return {"status": "False", "error": str(error)}
+    finally:
+        conexion.close()
 

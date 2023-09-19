@@ -49,6 +49,7 @@ def consulta_login(body, conexion):
         response = {'status': 'failure',
                     'error': 'Usuario no encontrado'}
     cursor.close()
+    conexion.close()
     return response
 
 

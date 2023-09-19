@@ -15,6 +15,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ cedula: cedulaDetails }),
+                    contentEncoding: "br",
                 });
                 if (!response.ok) {
                     throw new Error("Network response was not ok");

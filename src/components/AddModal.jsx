@@ -27,6 +27,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(formData),
+                    contentEncoding: "br",
                 });
                 setProgressBar(false);
                 if (!response.ok) {
