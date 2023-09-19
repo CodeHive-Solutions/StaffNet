@@ -2,6 +2,7 @@ import logging
 from io import BytesIO, StringIO
 import re
 from flask import Flask, Response, request, session, g
+from flask_compress import Compress
 from flask_session import Session
 from insert import insert
 from login import consulta_login
@@ -11,7 +12,7 @@ from transaction import search_transaction, insert_transaction, join_tables, upd
 from dotenv import load_dotenv
 from roles import get_rol_tables, get_rol_columns
 import datetime
-import mysql.connector
+from mysql.connector import pooling
 import redis
 import pandas as pd
 import os
@@ -34,13 +35,13 @@ try:
         host='172.16.0.128', port=6379, password=os.environ['Redis'])
     redis_client.ping()
 except:
-    print("Connection to redis failed")
     redis_client = None
     logging.critical(f"Connection to redis failed", exc_info=True)
     raise
 
 
 app = Flask(__name__)
+Compress(app)
 app.config['WERKZEUG_LOGGING_LEVEL'] = 'ERROR'
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = redis_client
@@ -73,7 +74,6 @@ def clean_value(value):
 def bd_info():
     body = get_request_body()
     if body != str:
-        logging.info(f"Request: {body}")
         info_tables = {}
         try:
             info_tables = {
@@ -162,7 +162,6 @@ def login():
     response = consulta_login(body, conexion)
     if response["status"] == 'success':
         session_key = 'session:' + session.get("sid", "")
-        print("EXAMPLE", session_key)
         username = body["user"]
         session['session_id'] = session_key
         session["username"] = username
@@ -172,6 +171,7 @@ def login():
         session["edit"] = response["edit"]
         session["disable"] = response["disable"]
         session["rol"] = response["rol"]
+        conexion = conexionMySQL()
         update("users", "session_id", (session_key,),
                f"WHERE user = '{username}'", conexion)
         response = {"status": 'success',
@@ -179,40 +179,44 @@ def login():
     return response
 
 
+db_config = {
+    "host":"172.16.0.115",
+    # "host":'172.16.0.118',
+    "user": "StaffNetuser",
+    "password": os.environ['StaffNetmysql'],
+    "database": "staffnet",
+}
+
+connection_pool = pooling.MySQLConnectionPool(
+    pool_name="StaffNet_pool",
+    pool_size=1,  # Number of connections in the pool
+    pool_reset_session=True,
+    **db_config  # Pass the database connection parameters
+)
+
 def conexionMySQL():
-    if "conexion" not in g:
-        try:
-            g.conexion = mysql.connector.connect(
-                host="172.16.0.115",
-                # host='172.16.0.118',
-                user="StaffNetuser",
-                password=os.environ['StaffNetmysql'],
-                database='staffnet'
-            )
-        except Exception as err:
-            print("Error conexion MYSQL: ", err)
-            logging.critical("Error conexion MYSQL: ", err, exc_info=True)
-            raise
-    return g.conexion
+    try:
+        conexion = connection_pool.get_connection()
+    except Exception as err:
+        logging.critical("Error getting MySQL connection: ", err, exc_info=True)
+        raise
+    return conexion
 
 
 @app.before_request
 def logs():
-    logging.info("Request: %s", request.content_type)
     if request.method == 'OPTIONS':
         pass
     elif request.content_type == 'application/json':
         body = get_request_body()
         petition = request.url.split("/")[3]
         if petition == "login":
-            print("Peticion: ", petition, "user: ", body["user"])
             logging.info(
                 {"User": body["user"], "Peticion": petition})
         elif petition == "download":
             logging.info(
                 {"User": session["username"], "Peticion": petition})
         else:
-            print("Peticion: ", petition)
             if 'username' in session:
                 logging.info({"User": session["username"], "Peticion": petition,
                               "Valores": request.json})
@@ -224,7 +228,6 @@ def logs():
             pass
         else:
             petition = request.url.split("/")[3]
-            print("Peticion: ", petition)
             if petition != "login":
                 logging.info(
                     {"User": session["username"], "Peticion": petition})
@@ -234,14 +237,13 @@ def logs():
 def after_request(response):
     # Logs de respuesta
     if response.json != None:
-        print("Respuesta: ", response.json)
         if request.url.split("/")[3] == "search_employees":
             if "info" in response.json:
                 logging.info(
                     {"Respuesta: ": {"status": response.json["info"]["status"]}})
             else:
                 logging.info(
-                    {"Respuesta: ": {"status": response.json["status"]}})
+                    {"Respuesta: ": response.json})
         elif response.json["status"] == "False" and request.url.split("/")[3] != "loged":
             logging.info({"Respuesta: ": {
                 "status": response.json["status"], "error": response.json["error"]}})
@@ -249,7 +251,7 @@ def after_request(response):
             pass
         else:
             logging.info(
-                {"Respuesta: ": {"status": response.json["status"]}})
+                {"Respuesta: ": response.json["status"]})
     # CORS
     url_permitidas = ["https://staffnet.cyc-bpo.com",
                       "https://staffnet-dev.cyc-bpo.com", "http://localhost:5173", "http://localhost:3000", "http://172.16.5.11:3000","http://172.16.0.115:3000"]
@@ -263,23 +265,12 @@ def after_request(response):
                          'POST')
     return response
 
-
-@app.teardown_appcontext
-def close_db(useless_var):
-    conexion = g.pop('conexion', None)
-    if conexion != None:
-        print("Conexion cerrada")
-        conexion.close()
-    print("____________________________________________________________________________")
-
-
 @ app.errorhandler(Exception)
 def handle_error(error):
     response = {"status": "False", "error": str(error)}
     if str(error) == "'username'":
         response = {"status": "False",
                     "error": "Usuario no ha iniciado sesion."}
-    print(request.url.split('/')[3])
     logging.warning(
         f"Peticion: {request.url.split('/')[3]}", exc_info=True)
     return response, 200
@@ -366,7 +357,6 @@ def edit_admin():
             response = update(
                 table, fields, parameters, condition, conexion)
             if response["status"] == "success":
-                print("searching")
                 response_search = search(
                     "session_id", "users", "WHERE user = %s", (body["user"],), conexion)
                 session_key = response_search["info"][0]

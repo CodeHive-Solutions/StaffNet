@@ -33,8 +33,9 @@ const TableEmployees = ({
     setShowSnackAlert,
     setProgressBar,
     checked,
+    tableData,
+    setTableData,
 }) => {
-    const [tableData, setTableData] = useState([]);
     const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
         page: 0,
@@ -48,22 +49,23 @@ const TableEmployees = ({
                 const response = await fetch(`${getApiUrl()}/search_employees`, {
                     method: "POST",
                     credentials: "include",
+                    contentEncoding: "br",
                 });
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
                 const data = await response.json();
-                if (data.error === "Usuario no ha iniciado sesion.") {
+                if (data.error === "Usuario no ha iniciado sesión.") {
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
                     setRole(data.rol);
-                    setTableData(data.info.data);
+                    addFields(data.info.data);
                     setPermissions(data.permissions);
                     setTransition(!transition);
                 }
             } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
                 setTransition(!transition);
             }
         };
@@ -73,6 +75,62 @@ const TableEmployees = ({
             fetchEmployees();
         }, 10 * 30 * 1000);
         return () => clearTimeout(intervalId);
+    }, []);
+
+    function calculateAge(birthday) {
+        const birthDate = new Date(birthday);
+        const currentDate = new Date();
+        const age = currentDate.getFullYear() - birthDate.getFullYear();
+        const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
+            return age - 1;
+        } else {
+            return age;
+        }
+    }
+
+    const calculateSeniority = (affiliationDate) => {
+        if (affiliationDate === undefined) return;
+
+        const fechaIngreso = new Date(affiliationDate);
+        const fechaActual = new Date();
+        const monthsDiff = (fechaActual.getFullYear() - fechaIngreso.getFullYear()) * 12 + (fechaActual.getMonth() - fechaIngreso.getMonth());
+
+        const years = Math.floor(monthsDiff / 12);
+        const months = monthsDiff % 12;
+
+        const yearText = years === 1 ? "AÑO" : "AÑOS";
+        const monthText = months === 1 ? "MES" : "MESES";
+
+        const yearString = years > 0 ? `${years} ${yearText}` : "";
+        const monthString = months > 0 ? `${months} ${monthText}` : "";
+
+        return `${yearString}${yearString && monthString ? " Y " : ""}${monthString}`;
+    };
+
+    const addFields = (tableData) => {
+        const newData = tableData.map((item) => {
+            const age = item.fecha_nacimiento ? calculateAge(item.fecha_nacimiento) : undefined;
+            const seniority = item.fecha_ingreso ? calculateSeniority(item.fecha_ingreso) : undefined;
+
+            return {
+                ...item,
+                ...(item.fecha_nacimiento && item.fecha_ingreso
+                    ? { edad: age, antiguedad: seniority }
+                    : item.fecha_nacimiento
+                    ? { edad: age }
+                    : item.fecha_ingreso
+                    ? { antiguedad: seniority }
+                    : {}),
+            };
+        });
+
+        setTableData(newData);
+    };
+
+    useEffect(() => {
+        addFields(tableData);
     }, []);
 
     let backendKeys = [];
@@ -141,6 +199,27 @@ const TableEmployees = ({
                     let options = { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 };
                     return salary.toLocaleString("es-CO", options);
                 }
+            };
+        } else if (key === "antiguedad") {
+            column.sortComparator = (v1, v2, cell1, cell2) => {
+                const seniorityToMonths = (seniorityString) => {
+                    let years = 0;
+                    let months = 0;
+
+                    const yearsMatch = seniorityString.match(/(\d+)\s*AÑO/);
+                    if (yearsMatch) {
+                        years = parseInt(yearsMatch[1]);
+                    }
+
+                    const monthsMatch = seniorityString.match(/(\d+)\s*MES/);
+                    if (monthsMatch) {
+                        months = parseInt(monthsMatch[1]);
+                    }
+
+                    return years * 12 + months;
+                };
+
+                return seniorityToMonths(v1) - seniorityToMonths(v2);
             };
         } else if (key === "nombre") {
             column.width = 270;
@@ -223,48 +302,7 @@ const TableEmployees = ({
             setShowSnackAlert("success", "El excel esta siendo procesado, por favor espera unos minutos");
             const csvOptions = { delimiter: ";", utf8WithBom: true };
             let result = apiRef.current.getDataAsCsv(csvOptions);
-            // Parse the CSV data
-            const arrayObjects = Papa.parse(result, {
-                header: true,
-                dynamicTyping: true,
-                skipEmptyLines: true,
-            });
 
-            if (arrayObjects.meta.fields.includes("Fecha de nacimiento")) {
-                function calculateAge(dateOfBirth) {
-                    const parts = dateOfBirth.split("/");
-                    const dob = new Date(parts[2], parts[1] - 1, parts[0]);
-                    const today = new Date();
-                    let age = today.getFullYear() - dob.getFullYear();
-                    const monthDifference = today.getMonth() - dob.getMonth();
-
-                    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) {
-                        age--;
-                    }
-
-                    return age;
-                }
-
-                // Calculate age for each row
-                arrayObjects.data = arrayObjects.data.map((row) => {
-                    const dob = row["Fecha de nacimiento"];
-                    const age = calculateAge(dob);
-
-                    // Create a new object with 'edad' after 'Fecha de nacimiento'
-                    let newRow = {};
-                    for (let prop in row) {
-                        newRow[prop] = row[prop];
-                        if (prop === "Fecha de nacimiento") {
-                            newRow["Edad"] = age;
-                        }
-                    }
-
-                    return newRow;
-                });
-
-                // Convert the data back to CSV format
-                result = Papa.unparse(arrayObjects.data, { delimiter: ";" });
-            }
             try {
                 const response = await fetch(`${getApiUrl()}/download`, {
                     method: "POST",
@@ -273,6 +311,7 @@ const TableEmployees = ({
                         "Content-Type": "text/csv",
                     },
                     body: result,
+                    contentEncoding: "br",
                 });
                 setProgressBar(false);
                 if (!response.ok) {
@@ -301,7 +340,7 @@ const TableEmployees = ({
                     const formattedDate = formatDate(currentDate);
 
                     // Construct the new file name with the current date
-                    const newFileName = `exporte-staffnet-${formattedDate}.xlsx`;
+                    const newFileName = `staffnet-${formattedDate}.xlsx`;
 
                     // Set the "download" attribute with the new file name
                     link.setAttribute("download", newFileName);
@@ -309,10 +348,10 @@ const TableEmployees = ({
                     link.click();
                 } else {
                     console.error(response.status + response.statusText);
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + response.statusText, true);
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + response.statusText, true);
                 }
             } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
             }
         };
 
@@ -408,7 +447,7 @@ const TableEmployees = ({
 
     const slots = { toolbar: CustomToolbar };
 
-    const generateDataGridOptions = (additionalOptions = {}) => {
+    const generateDataGridOptions = useMemo(() => {
         const commonOptions = {
             initialState: createInitialState,
             columns: filteredColumns,
@@ -443,13 +482,12 @@ const TableEmployees = ({
                     zIndex: -1,
                 },
             },
-            ...additionalOptions,
         };
 
         return commonOptions;
-    };
+    }, [createInitialState, filteredColumns, rows, slots, paginationModel, setPaginationModel, cycLogo]);
 
-    let dataGridOptions = generateDataGridOptions();
+    let dataGridOptions = generateDataGridOptions;
 
     if (rol !== undefined && rol !== "gestion" && filteredColumns.length) {
         return <DataGrid {...dataGridOptions} />;

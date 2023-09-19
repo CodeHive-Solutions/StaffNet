@@ -22,6 +22,7 @@ const Header = () => {
         fetch(`${getApiUrl()}/logout`, {
             method: "POST",
             credentials: "include",
+            contentEncoding: "br",
         })
             .then((response) => {
                 // Check if the response was successful

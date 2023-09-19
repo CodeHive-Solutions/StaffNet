@@ -11,6 +11,7 @@ def search(campos, tabla, condicion, params, conexion, active_directory=None, us
     """The params is for the condicion argument that have to be an %s if you dont want any condition, send just the %s and the param like a string in white."""
     results = run_query(campos, tabla, condicion, conexion, params)
     response = process_query(results, active_directory, user_ad)
+    conexion.close()
     return response
 
 
@@ -42,7 +43,6 @@ def process_query(results, active_directory, user_ad):
         if len(respuesta) >= 4:
             response = {'status': 'success'}
         else:
-            print("Registro no encontrado LDAP")
             response = {'status': 'False', 'error': 'Usuario de windows no encontrado'}
     else:
         response = {'status': 'False', 'error': 'Registro no encontrado'}

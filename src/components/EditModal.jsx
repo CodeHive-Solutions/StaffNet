@@ -46,6 +46,7 @@ const EditModal = ({
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(inputValues),
+                    contentEncoding: "br",
                 });
                 if (!response.ok) {
                     throw Error(response.statusText);

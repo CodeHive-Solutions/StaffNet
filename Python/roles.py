@@ -5,22 +5,10 @@ roles = {
             "nombre": "",
             "tipo_documento": "",
             "fecha_nacimiento": "",
-            "lugar_expedicion": "",
-            "fecha_expedicion": "",
             "genero": "",
-            "rh": "",
-            "estado_civil": "",
-            "hijos": "",
-            "tel_fijo": "",
             "celular": "",
             "correo": "",
             "correo_corporativo": "",
-            "direccion": "",
-            "barrio": "",
-            "localidad": "",
-            "contacto_emergencia": "",
-            "parentesco": "",
-            "tel_contacto": ""
         },
         "educational_information": {
             "nivel_escolaridad": "",
@@ -33,7 +21,6 @@ roles = {
             "gerencia": "",
             "campana_general": "",
             "area_negocio": "",
-            "tipo_contrato": "",
             "fecha_ingreso": "",
             "aplica_teletrabajo": "",
             "fecha_aplica_teletrabajo": "",
@@ -79,7 +66,6 @@ roles = {
             "tipo_documento": "",
             "fecha_nacimiento": "",
             "genero": "",
-            "edad": "",
             "rh": "",
             "hijos": "",
             "tel_fijo": "",
@@ -92,6 +78,11 @@ roles = {
             "contacto_emergencia": "",
             "parentesco": "",
             "tel_contacto": "",
+        },
+        "leave_information": {
+            "estado": ""
+        },
+        "employment_information": {
             "eps": "",
             "pension": "",
             "sede": "",
@@ -102,9 +93,6 @@ roles = {
             "tipo_contrato": "",
             "aplica_teletrabajo": "",
             "fecha_aplica_teletrabajo": ""
-        },
-        "leave_information": {
-            "estado": ""
         }
     },
     "gestion":{
