@@ -196,12 +196,20 @@ connection_pool = pooling.MySQLConnectionPool(
 
 def conexionMySQL():
     try:
-        conexion = connection_pool.get_connection()
+        g.mysql_conn = connection_pool.get_connection()
     except Exception as err:
         logging.critical("Error getting MySQL connection: ", err, exc_info=True)
         raise
-    return conexion
+    return g.mysql_conn
 
+@app.teardown_request
+def teardown_request(exception):
+    if hasattr(g, 'mysql_conn') and g.mysql_conn is not None:
+        try:
+            logging.info("Closing MySQL connection...")
+            g.mysql_conn.close()
+        except Exception as e:
+            logging.error("Error closing MySQL connection: %s", e)
 
 @app.before_request
 def logs():
@@ -230,7 +238,7 @@ def logs():
             petition = request.url.split("/")[3]
             if petition != "login":
                 logging.info(
-                    {"User": session["username"], "Peticion": petition})
+                    {"User": session["username"], "Petición": petition})
 
 
 @ app.after_request

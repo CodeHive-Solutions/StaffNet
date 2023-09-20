@@ -40,7 +40,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                     setShowSnackAlert("success", "Empleado añadido correctamente");
                 } else {
                     console.error(data.error + "error alert");
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error.toString(), true);
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error.toString(), true);
                 }
             } catch (error) {
                 setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
@@ -118,29 +118,6 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                         <Box sx={{ p: 2 }}>
                             {arrayData.map((section) => {
                                 const renderSelectInput = (input, formData, handleFormChange) => {
-                                    if (input.name === "aplica_teletrabajo") {
-                                        return (
-                                            <TextField
-                                                select
-                                                sx={{
-                                                    width: "20rem",
-                                                }}
-                                                key={input.id}
-                                                name={input.name}
-                                                onChange={handleFormChange}
-                                                value={formData[input.name] !== undefined ? formData[input.name] : ""}
-                                                variant="outlined"
-                                                autoComplete="off"
-                                                label={input.label}
-                                            >
-                                                {input.options.map((option, index) => (
-                                                    <MenuItem key={index} value={option.value}>
-                                                        {option.label}
-                                                    </MenuItem>
-                                                ))}
-                                            </TextField>
-                                        );
-                                    }
                                     if (input.id === "59" || input.id === "60" || input.id === "61") {
                                         return null;
                                     } else if (
@@ -184,7 +161,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                             key={input.id}
                                             name={input.name}
                                             onChange={handleFormChange}
-                                            value={formData[input.name] || ""}
+                                            value={formData[input.name] !== undefined ? formData[input.name] : ""}
                                             variant="outlined"
                                             autoComplete="off"
                                             label={input.label}

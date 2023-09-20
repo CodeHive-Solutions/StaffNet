@@ -91,7 +91,7 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "9",
+                    id: "hijos",
                     label: "Hijos",
                     name: "hijos",
                     type: "select",
