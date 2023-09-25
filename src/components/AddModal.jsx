@@ -125,8 +125,8 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name == "pension" ||
                                         input.name == "cesantias" ||
                                         input.name == "caja_compensacion" ||
-                                        input.name == "fecha_afiliacion_eps" ||
-                                        input.name === "parentesco"
+                                        input.name === "parentesco" ||
+                                        input.name === "aplica_teletrabajo"
                                     ) {
                                         return (
                                             <TextField
@@ -137,7 +137,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                                 key={input.id}
                                                 name={input.name}
                                                 onChange={handleFormChange}
-                                                value={formData[input.name] || ""}
+                                                value={formData[input.name] !== undefined ? formData[input.name] : ""}
                                                 variant="outlined"
                                                 autoComplete="off"
                                                 label={input.label}
