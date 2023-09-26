@@ -308,7 +308,7 @@ const EditModal = ({
                                                 );
                                             }
                                             if (input.type === "select") {
-                                                const optionExists = input.options.some((option) => option.value === inputValues[input.name]);
+                                                const optionExists = input.options.some((option) => option.value == inputValues[input.name]);
 
                                                 if (!optionExists) {
                                                     input.options.push({

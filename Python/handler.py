@@ -126,7 +126,9 @@ def bd_info():
                     "salario": clean_value(body.get("salario")),
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
                     'aplica_teletrabajo': clean_value(body.get('aplica_teletrabajo',False)),
-                    'fecha_aplica_teletrabajo': clean_value(body.get('fecha_aplica_teletrabajo')),
+                    'talla_camisa': clean_value(body.get('talla_camisa')),
+                    'talla_pantalon': clean_value(body.get('talla_pantalon')),
+                    'talla_zapatos': clean_value(body.get('talla_zapatos')),
                     'observaciones': clean_value(body.get('observaciones'))
                 },
                 "disciplinary_actions": {
@@ -196,12 +198,20 @@ connection_pool = pooling.MySQLConnectionPool(
 
 def conexionMySQL():
     try:
-        conexion = connection_pool.get_connection()
+        g.mysql_conn = connection_pool.get_connection()
     except Exception as err:
         logging.critical("Error getting MySQL connection: ", err, exc_info=True)
         raise
-    return conexion
+    return g.mysql_conn
 
+@app.teardown_request
+def teardown_request(exception):
+    if hasattr(g, 'mysql_conn') and g.mysql_conn is not None:
+        try:
+            logging.info("Closing MySQL connection...")
+            g.mysql_conn.close()
+        except Exception as e:
+            logging.error("Error closing MySQL connection: %s", e)
 
 @app.before_request
 def logs():
@@ -230,7 +240,7 @@ def logs():
             petition = request.url.split("/")[3]
             if petition != "login":
                 logging.info(
-                    {"User": session["username"], "Peticion": petition})
+                    {"User": session["username"], "Petición": petition})
 
 
 @ app.after_request
