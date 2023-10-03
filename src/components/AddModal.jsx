@@ -126,6 +126,9 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name == "cesantias" ||
                                         input.name == "caja_compensacion" ||
                                         input.name === "parentesco" ||
+                                        input.name === "talla_camisa" ||
+                                        input.name === "talla_pantalon" ||
+                                        input.name === "talla_zapatos" ||
                                         input.name === "aplica_teletrabajo"
                                     ) {
                                         return (
