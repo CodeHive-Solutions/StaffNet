@@ -1,26 +1,31 @@
+"""This module contains functions to perform transactions on the MySQL database."""
 from datetime import date
-import mysql.connector
 import json
 import logging
 import datetime
+import mysql.connector
 
-logging.basicConfig(filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
-                    level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(
+    filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
+    level=logging.INFO,
+    format="%(asctime)s:%(levelname)s:%(message)s",
+)
+
 
 def update_data(conexion, info_tables, where):
-    mycursor = conexion.cursor()
+    cursor = conexion.cursor()
     try:
         response = {"status": "failed", "error": "No hubo ningun cambio"}
         for table_name, columns in info_tables.items():
             values = []
             for column_name, value in columns.items():
                 values.append(column_name + "=%s")
-            sql = "UPDATE " + table_name + " SET " + \
-                ", ".join(values) + " WHERE " + where
+            sql = (
+                "UPDATE " + table_name + " SET " + ", ".join(values) + " WHERE " + where
+            )
             params = tuple(columns.values())
-            mycursor.execute(sql, params)
-            if mycursor.rowcount > 0:
+            cursor.execute(sql, params)
+            if cursor.rowcount > 0:
                 response = {"status": "success"}
         conexion.commit()
         return response
@@ -33,11 +38,9 @@ def update_data(conexion, info_tables, where):
 
 
 def search_transaction(conexion, table_info):
-    # Create a cursor
-    mycursor = conexion.cursor()
+    cursor = conexion.cursor()
     try:
-        # Initialize the response dictionary
-        response = {"status": "success", "data": []}  # Changed data to an empty list
+        response = {"status": "success", "data": []}
         # Get the table names and columns
         table_names = [table[0] for table in table_info]
         columns = {table[0]: table[1] for table in table_info}
@@ -46,30 +49,50 @@ def search_transaction(conexion, table_info):
         join_conditions = []
         for table_name in table_names:
             table_columns = columns[table_name]
-            valid_columns = [f"{table_name}.{column}" for column, search_value in table_columns.items()]
+            valid_columns = [
+                f"{table_name}.{column}"
+                for column, search_value in table_columns.items()
+            ]
             if valid_columns:
                 select_columns.extend(valid_columns)
                 join_conditions.append(f"{table_name}.cedula = {table_names[0]}.cedula")
-        
+
         select_columns = ", ".join(select_columns)
         join_conditions = " AND ".join(join_conditions)
         sql = f"SELECT {select_columns} FROM {table_names[0]}"
         for i in range(1, len(table_names)):
             sql += f" LEFT JOIN {table_names[i]} ON {table_names[i-1]}.cedula = {table_names[i]}.cedula"
-        
-        # Use parameterized queries to prevent SQL injection
-        campana_filter = columns.get("employment_information", {}).get("campana_general", "")
+        # Here we check if the user rol is assigned for a specific campaign
+        campana_filter = columns.get("employment_information", {}).get(
+            "campana_general", ""
+        )
         if campana_filter:
-            sql += " WHERE " + join_conditions + " AND employment_information.campana_general LIKE %s"
+            campana_conditions = []
+
+            for value in campana_filter:
+                campana_conditions.append(
+                    "employment_information.campana_general LIKE %s"
+                )
+
+            campana_condition = " OR ".join(campana_conditions)
+
+            sql += " WHERE " + join_conditions + " AND (" + campana_condition + ")"
             campana_value = f"%{campana_filter}%"
-            mycursor.execute(sql, (campana_value,))
+            logging.info(f"campana_value: {campana_value}")
+
+            campana_values = [f"%{value}%" for value in campana_filter]
+            cursor.execute(sql, tuple((campana_values)))
+            logging.info(f"sql: {sql} values: {tuple((campana_values))}")
         else:
             sql += " WHERE " + join_conditions
-            mycursor.execute(sql)
-        
+            cursor.execute(sql)
+
         # Fetch the results using a list comprehension
-        response["data"] = [dict(zip([column[0].split('.')[-1] for column in mycursor.description], row)) for row in mycursor.fetchall()]
-        
+        response["data"] = [
+            dict(zip([column[0].split(".")[-1] for column in cursor.description], row))
+            for row in cursor.fetchall()
+        ]
+
         return response
     except Exception as e:
         # Handle exceptions or log them for debugging
@@ -78,9 +101,10 @@ def search_transaction(conexion, table_info):
     finally:
         conexion.close()
 
+
 def insert_transaction(conexion, table_info):
     """The "table_content" is a dictionary that contains the name of the table
-    and her columns is maded in this format:
+    and her columns is made in this format:
     {
         "table_name": {
             "column1": "value1",
@@ -94,12 +118,10 @@ def insert_transaction(conexion, table_info):
         }
     }
     """
-    # Create a cursor
-    mycursor = conexion.cursor()
+    cursor = conexion.cursor()
     try:
         response = {"status": "success"}
-        # Start a transaction
-        mycursor.execute("START TRANSACTION")
+        cursor.execute("START TRANSACTION")
         # Loop through each table in the table_info dictionary
         for table_name, columns in table_info.items():
             # Build the SQL INSERT statement
@@ -107,10 +129,9 @@ def insert_transaction(conexion, table_info):
             # Build the tuple of column values
             values = tuple(columns.values())
             # Execute the SQL statement
-            mycursor.execute(sql, values)
-            if mycursor.rowcount == 0:
-                response = {"status": "error",
-                            "message": "Ninguna fila fue afectada."}
+            cursor.execute(sql, values)
+            if cursor.rowcount == 0:
+                response = {"status": "error", "message": "Ninguna fila fue afectada."}
         # Commit the transaction
         conexion.commit()
         return response
@@ -124,21 +145,22 @@ def insert_transaction(conexion, table_info):
         return response
     finally:
         # Close the cursor and database connection
-        mycursor.close()
+        cursor.close()
         conexion.close()
+
 
 class DateEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, date):
-            return obj.strftime('%Y-%m-%d')
+            return obj.strftime("%Y-%m-%d")
         return json.JSONEncoder.default(self, obj)
 
 
-def join_tables(conexion, table_names, select_columns, join_columns, id_column=None, id_value=None):
+def join_tables(
+    conexion, table_names, select_columns, join_columns, id_column=None, id_value=None
+):
     """Just a simple function to join tables and return a JSON string of the results"""
-    # Set up the connection to the MySQL database
-    # Create a cursor
-    mycursor = conexion.cursor()
+    cursor = conexion.cursor()
 
     # Define the final query
     query = f"SELECT {', '.join(select_columns)} FROM {table_names[0]}"
@@ -151,11 +173,11 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
         query += f" WHERE {table_names[0]}.{id_column} = {id_value}"
     try:
         # Execute the query
-        mycursor.execute(query)
+        cursor.execute(query)
         # Fetch the results
-        results = mycursor.fetchall()
+        results = cursor.fetchall()
         # Convert the results to a list of dictionaries
-        columns = [col[0] for col in mycursor.description]
+        columns = [col[0] for col in cursor.description]
         rows = [dict(zip(columns, row)) for row in results]
         # Convert the list of dictionaries to a JSON string using the custom encoder
         json_str = json.dumps(rows, cls=DateEncoder)
@@ -166,4 +188,3 @@ def join_tables(conexion, table_names, select_columns, join_columns, id_column=N
         return {"status": "False", "error": str(error)}
     finally:
         conexion.close()
-

@@ -13,7 +13,7 @@ roles = {
         "educational_information": {
             "nivel_escolaridad": "",
             "profesion": "",
-            "estudios_en_curso": ""
+            "estudios_en_curso": "",
         },
         "employment_information": {
             "sede": "",
@@ -29,10 +29,10 @@ roles = {
             "fecha_retiro": "",
             "tipo_retiro": "",
             "motivo_retiro": "",
-            "estado": ""
-        }
+            "estado": "",
+        },
     },
-    "seleccion" : {
+    "seleccion": {
         "personal_information": {
             "cedula": "",
             "nombre": "",
@@ -49,15 +49,13 @@ roles = {
             "direccion": "",
             "contacto_emergencia": "",
             "parentesco": "",
-            "tel_contacto": ""
+            "tel_contacto": "",
         },
         "employment_information": {
             "campana_general": "",
             "cargo": "",
         },
-        "leave_information": {
-            "estado": ""
-        }
+        "leave_information": {"estado": ""},
     },
     "sst": {
         "personal_information": {
@@ -79,12 +77,11 @@ roles = {
             "parentesco": "",
             "tel_contacto": "",
         },
-        "leave_information": {
-            "estado": ""
-        },
+        "leave_information": {"estado": ""},
         "employment_information": {
             "eps": "",
             "pension": "",
+            "fecha_ingreso": "",
             "sede": "",
             "cargo": "",
             "gerencia": "",
@@ -92,10 +89,10 @@ roles = {
             "area_negocio": "",
             "tipo_contrato": "",
             "aplica_teletrabajo": "",
-            "fecha_aplica_teletrabajo": ""
-        }
+            "fecha_aplica_teletrabajo": "",
+        },
     },
-    "gestion":{
+    "gestion": {
         "personal_information": {
             "cedula": "",
             "nombre": "",
@@ -118,12 +115,12 @@ roles = {
             "localidad": "",
             "contacto_emergencia": "",
             "parentesco": "",
-            "tel_contacto": ""
+            "tel_contacto": "",
         },
         "educational_information": {
             "nivel_escolaridad": "",
             "profesion": "",
-            "estudios_en_curso": ""
+            "estudios_en_curso": "",
         },
         "employment_information": {
             "fecha_afiliacion_eps": "",
@@ -147,38 +144,79 @@ roles = {
             "cambio_campaña_legado": "",
             "aplica_teletrabajo": "",
             "fecha_aplica_teletrabajo": "",
-            "observaciones": ""
+            "observaciones": "",
         },
         "leave_information": {
             "fecha_retiro": "",
             "tipo_retiro": "",
             "motivo_retiro": "",
             "aplica_recontratacion": "",
-            "estado": ""
-        }
+            "estado": "",
+        },
     },
     "coordinador_falabella": {
-        "personal_information":{
+        "personal_information": {
             "cedula": "",
             "nombre": "",
         },
         "employment_information": {
-            "campana_general": "FALABELLA",
+            "campana_general": ["BANCO FALABELLA"],
             "cargo": "",
             "fecha_ingreso": "",
         },
-        "leave_information": {
-            "fecha_retiro": "",
-            "estado": ""
-        }
-    }
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    },
+    "gerente_comercial": {
+        "personal_information": {
+            "cedula": "",
+            "nombre": "",
+            "genero": "",
+            "fecha_nacimiento": "",
+        },
+        "employment_information": {
+            "cargo": "",
+            "campana_general": ["SURA", "COOMEVA", "METLIFE", "LIBERTY"],
+            "fecha_ingreso": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    },
+    "gerente_operaciones": {
+        "personal_information": {
+            "cedula": "",
+            "nombre": "",
+            "genero": "",
+            "fecha_nacimiento": "",
+        },
+        "employment_information": {
+            "cargo": "",
+            "campana_general": [
+                "BANCO FALABELLA",
+                "PAY-U",
+                "MI BANCO",
+                "CREDIBANCO",
+                "YANBAL",
+                "BBVA",
+                "AZTECA",
+                "CLARO",
+                "BANCO AGRARIO",
+                "BANCO PICHINCHA",
+                "CODENSA",
+                "NUEVA EPS",
+                "SCOTIABANK COLPATRIA",
+            ],
+            "fecha_ingreso": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    },
 }
+
 
 def get_rol_tables(search_rol):
     if search_rol in roles:
         return roles[search_rol]
     else:
         return None
+
 
 def get_rol_columns(search_rol):
     roles = get_rol_tables(search_rol)
