@@ -15,6 +15,13 @@ import { getApiUrl } from "../assets/getApi.js";
 import DirectionField from "../components/DirectionField.jsx";
 
 const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModalAdd, setProgressBar, searchEmployeesUpdate, stylesModal, setShowSnackAlert }) => {
+    const validationSchema = Yup.object().shape({
+        // Define your validation rules here for each form field
+        // Example:
+        salario: Yup.number().required("Salario is required"),
+        // Add more fields as needed
+    });
+
     const submitAdd = (event) => {
         event.preventDefault();
         setProgressBar(true);
