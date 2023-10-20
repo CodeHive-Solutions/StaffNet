@@ -421,7 +421,7 @@ export const arrayData = [
                         { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
                         { value: "ABOGADO(A) JUNIOR", label: "Abogado(a) Junior" },
                         { value: "ANALISTA DE BD Y APLICACIONES", label: "Analista de BD y Aplicaciones" },
-                        { value: "ANALISTA DE INVESTIGACIÓN", label: "Analista de Investigación" },
+                        { value: "ANALISTA DE CALIDAD", label: "Analista de Calidad" },
                         { value: "ANALISTA DE SANEAMIENTO", label: "Analista de Saneamiento" },
                         { value: "ANALISTA DE SOPORTE", label: "Analista de Soporte" },
                         { value: "ANALISTA GESTIÓN HUMANA", label: "Analista Gestión Humana" },
@@ -540,12 +540,12 @@ export const arrayData = [
                             label: "Dinerum",
                         },
                         {
-                            value: "FALABELLA",
-                            label: "Falabella",
+                            value: "BANCO FALABELLA",
+                            label: "Banco Falabella",
                         },
                         {
-                            value: "FALABELLA MEDELLÍN",
-                            label: "Falabella Medellín",
+                            value: "BANCO FALABELLA MEDELLÍN",
+                            label: "Banco Falabella Medellín",
                         },
                         {
                             value: "DINERUM",
@@ -704,12 +704,12 @@ export const arrayData = [
                             label: "Dinerum",
                         },
                         {
-                            value: "FALABELLA",
-                            label: "Falabella",
+                            value: "BANCO FALABELLA",
+                            label: "Banco Falabella",
                         },
                         {
-                            value: "FALABELLA MEDELLÍN",
-                            label: "Falabella Medellín",
+                            value: "BANCO FALABELLA MEDELLÍN",
+                            label: "Banco Falabella Medellín",
                         },
                         {
                             value: "DINERUM",
