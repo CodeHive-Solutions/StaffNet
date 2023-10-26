@@ -141,6 +141,9 @@ def bd_info():
                     "aplica_teletrabajo": clean_value(
                         body.get("aplica_teletrabajo", False)
                     ),
+                    "fecha_aplica_teletrabajo": clean_value(
+                        body.get("fecha_aplica_teletrabajo")
+                    ),
                     "talla_camisa": clean_value(body.get("talla_camisa")),
                     "talla_pantalon": clean_value(body.get("talla_pantalon")),
                     "talla_zapatos": clean_value(body.get("talla_zapatos")),
@@ -553,6 +556,7 @@ def change_state():
 
 @app.route("/update_transaction", methods=["POST"])
 def update_transaction():
+    """Update the data in the database"""
     if session["edit"] == True:
         body = get_request_body()
         info_tables = bd_info()
@@ -565,6 +569,7 @@ def update_transaction():
 
 @app.route("/insert_transaction", methods=["POST"])
 def insert_in_tables():
+    """Insert the data in the database"""
     info_tables = bd_info()
     if session["create"] == True:
         conexion = conexion_mysql()
@@ -581,6 +586,7 @@ def favicon():
 
 
 @app.route("/download", methods=["POST"])  # type: ignore
+"""Download the data in the database"""
 def download():
     if session["consult"] == True:
         try:

@@ -560,6 +560,10 @@ export const arrayData = [
                             label: "Gerencia Administrativa",
                         },
                         {
+                            value: "GERENCIA FINANCIERA",
+                            label: "Gerencia Financiera",
+                        },
+                        {
                             value: "GERENCIA DE LEGAL RIESGO",
                             label: "Gerencia de Legal y Riesgo",
                         },
@@ -722,6 +726,10 @@ export const arrayData = [
                         {
                             value: "GERENCIA ADMINISTRATIVA",
                             label: "Gerencia Administrativa",
+                        },
+                        {
+                            value: "GERENCIA FINANCIERA",
+                            label: "Gerencia Financiera",
                         },
                         {
                             value: "GERENCIA DE LEGAL RIESGO",
