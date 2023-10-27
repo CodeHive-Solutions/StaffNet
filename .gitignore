@@ -37,3 +37,7 @@ venv/
 *.xlsx
 *.xls
 *.csv
+*.sql
+*.webp
+
+*/images

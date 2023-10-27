@@ -208,10 +208,23 @@ roles = {
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
     },
+    "BI": {
+        "personal_information": {
+            "cedula": "",
+            "nombre": "",
+        },
+        "employment_information": {
+            "cargo": "",
+            "campana_general": ["BI"],
+            "fecha_ingreso": "",
+        },
+        "leave_information": {"fecha_retiro": "", "tipo_retiro":"","motivo_retiro":"","estado": ""},
+    },
 }
 
 
 def get_rol_tables(search_rol):
+    """Return a dictionary with the tables of the rol"""
     if search_rol in roles:
         return roles[search_rol]
     else:
@@ -219,11 +232,12 @@ def get_rol_tables(search_rol):
 
 
 def get_rol_columns(search_rol):
-    roles = get_rol_tables(search_rol)
+    """Return a list with the columns of the rol"""
+    existing_roles = get_rol_tables(search_rol)
     column_roles = []
-    if roles:
-        for key, value in roles.items():
-            for key2, value2 in value.items():
+    if existing_roles:
+        for _, value in existing_roles.items():
+            for key2, _ in value.items():
                 column_roles.append(key2)
     else:
         column_roles = None

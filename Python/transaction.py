@@ -15,10 +15,10 @@ logging.basicConfig(
 def update_data(conexion, info_tables, where):
     cursor = conexion.cursor()
     try:
-        response = {"status": "failed", "error": "No hubo ningun cambio"}
+        response = {"status": "failed", "error": "No hubo ningún cambio"}
         for table_name, columns in info_tables.items():
             values = []
-            for column_name, value in columns.items():
+            for column_name, _ in columns.items():
                 values.append(column_name + "=%s")
             sql = (
                 "UPDATE " + table_name + " SET " + ", ".join(values) + " WHERE " + where

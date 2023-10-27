@@ -4,7 +4,7 @@ from io import BytesIO, StringIO
 import re
 import datetime
 import os
-from flask import Flask, Response, request, session, g
+from flask import Flask, Response, request, session, g, send_file
 from flask_compress import Compress
 from flask_session import Session
 from insert import insert
@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from roles import get_rol_tables, get_rol_columns
 from mysql.connector import pooling
 import redis
+from werkzeug.utils import secure_filename
 import pandas as pd
 
 # Evitar logs innecesarios
@@ -34,27 +35,29 @@ else:
     load_dotenv("/var/env/StaffNet.env")
 
 try:
-    redis_client = redis.Redis(
+    REDIS_CLIENT = redis.Redis(
         host="172.16.0.128", port=6379, password=os.environ["Redis"]
     )
-    redis_client.ping()
+    REDIS_CLIENT.ping()
 except:
-    redis_client = None
+    REDIS_CLIENT = None
     logging.critical(f"Connection to redis failed", exc_info=True)
     raise
 
+PROFILE_PICTURE_KEY = os.environ["PROFILE_PICTURE_KEY"]
 
 app = Flask(__name__)
 Compress(app)
 app.config["WERKZEUG_LOGGING_LEVEL"] = "ERROR"
 app.config["SESSION_TYPE"] = "redis"
-app.config["SESSION_REDIS"] = redis_client
+app.config["SESSION_REDIS"] = REDIS_CLIENT
 app.config["SESSION_COOKIE_NAME"] = "StaffNet"
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 # app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
+app.config["PICTURES_FOLDER"] = "/var/www/StaffNet/src/Images/profile_pictures"
 app.secret_key = os.getenv("SECRET_KEY") or os.urandom(24)
 
 s = Session()
@@ -137,6 +140,9 @@ def bd_info():
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
                     "aplica_teletrabajo": clean_value(
                         body.get("aplica_teletrabajo", False)
+                    ),
+                    "fecha_aplica_teletrabajo": clean_value(
+                        body.get("fecha_aplica_teletrabajo")
                     ),
                     "talla_camisa": clean_value(body.get("talla_camisa")),
                     "talla_pantalon": clean_value(body.get("talla_pantalon")),
@@ -260,12 +266,16 @@ def logs():
         logging.info({"User": session["username"], "Petición": "download"})
     else:
         petition = request.url.split("/")[3]
-        if petition == "loged":
+        if petition == "loged" or petition == "favicon.ico":
             pass
-        else:
+        elif "username" in session:
             petition = request.url.split("/")[3]
             if petition != "login":
                 logging.info({"User": session["username"], "Petición": petition})
+            else:
+                logging.info({"User": session["username"], "Petición": request.url})
+        else:
+            logging.info({"User": "Anonymous", "Petición": petition})
 
 
 @app.after_request
@@ -315,15 +325,21 @@ def after_request(response):
 @app.errorhandler(Exception)
 def handle_error(error):
     """Logs of the application errors"""
-    response = {"status": "False", "error": str(error)}
     if str(error) == "'username'":
-        response = {"status": "False", "error": "Usuario no ha iniciado sesión."}
-    logging.warning(f"Peticion: {request.url.split('/')[3]}", exc_info=True)
-    return response, 200
+        return {"status": "False", "error": "Usuario no ha iniciado sesión."}
+    elif error.code == 404:
+        return {"status": "False", "error": "No encontrado"}
+    elif error.code == 405:
+        return {"status": "False", "error": "Método no permitido"}
+    else:
+        logging.warning("Petición: {}" % error, exc_info=True)
+        response = {"status": "False", "error": str(error)}
+        return response
 
 
 @app.route("/loged", methods=["POST"])
 def loged():
+    """Check if the user is logged in"""
     response = {"status": "False"}
     if "username" in session:
         if session["consult"] is True:
@@ -448,7 +464,7 @@ def edit_admin():
                     "session_id", "users", "WHERE user = %s", (body["user"],), conexion
                 )
                 session_key = response_search["info"][0]
-                redis_client.delete(session_key)
+                REDIS_CLIENT.delete(session_key)
         else:
             response = {"status": "False", "error": "No puedes cambiar tus permisos."}
     else:
@@ -540,6 +556,7 @@ def change_state():
 
 @app.route("/update_transaction", methods=["POST"])
 def update_transaction():
+    """Update the data in the database"""
     if session["edit"] == True:
         body = get_request_body()
         info_tables = bd_info()
@@ -552,6 +569,7 @@ def update_transaction():
 
 @app.route("/insert_transaction", methods=["POST"])
 def insert_in_tables():
+    """Insert the data in the database"""
     info_tables = bd_info()
     if session["create"] == True:
         conexion = conexion_mysql()
@@ -561,8 +579,15 @@ def insert_in_tables():
     return response
 
 
+@app.route("/favicon.ico")
+def favicon():
+    """Get the favicon.ico"""
+    return Response(status=404)
+
+
 @app.route("/download", methods=["POST"])  # type: ignore
 def download():
+    """Download the data in the database"""
     if session["consult"] == True:
         try:
             body = request.get_data(as_text=True)
@@ -719,3 +744,61 @@ def download():
         except Exception as e:
             logging.exception(e)
             return Response(status=500)
+
+
+@app.route("/profile-picture", methods=["POST"])  # type: ignore
+def upload_image():
+    """Upload the profile picture of an employee"""
+    if ("create" not in session or session["create"] is False) and (
+        "edit" not in session or session["edit"] is False
+    ):
+        return Response("No tienes permisos", 403)
+    if "image" not in request.files:
+        return Response("No file included", 400)
+
+    file = request.files["image"]
+
+    if file.filename == "":
+        return Response("No selected file", 400)
+
+    if file:
+        filename = secure_filename(str(file.filename))
+        # Check the file type
+        allowed_file_types = ["webp"]
+        if (
+            "." not in filename
+            or filename.split(".")[-1].lower() not in allowed_file_types
+        ):
+            return Response("Invalid file type", 400)
+
+        # Check the file size
+        file_content = file.read()
+        max_file_size_bytes = 5 * 1024 * 1024  # 5 MB
+        if len(file_content) > max_file_size_bytes or len(file_content) == 0:
+            return Response("File size exceeds the allowed limit (5 MB)", 400)
+
+        # Reset the file pointer to the beginning
+        file.seek(0)
+
+        file.save(os.path.join(app.config["PICTURES_FOLDER"], filename))
+        return Response("File uploaded successfully", 200)
+
+
+@app.route("/profile-picture/<filename>", methods=["GET"])
+def get_profile_picture(filename):
+    """Get the profile picture of an employee"""
+    body = get_request_body()
+    if "consult" in session and session["consult"] is False:
+        return Response("No tienes permisos", 403)
+    elif "picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY:
+        return Response("Invalid picture key", 403)
+    try:
+        filename = secure_filename(str(filename))
+        return send_file(
+            f"{app.config['PICTURES_FOLDER']}/{filename}", mimetype="image/webp"
+        )
+    except FileNotFoundError:
+        return Response("File not found", 404)
+    except Exception as e:
+        logging.exception(e)
+        return Response("Internal server error", status=500)
