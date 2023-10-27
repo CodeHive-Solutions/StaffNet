@@ -586,8 +586,8 @@ def favicon():
 
 
 @app.route("/download", methods=["POST"])  # type: ignore
-"""Download the data in the database"""
 def download():
+    """Download the data in the database"""
     if session["consult"] == True:
         try:
             body = request.get_data(as_text=True)
