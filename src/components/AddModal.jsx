@@ -13,6 +13,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 import { getApiUrl } from "../assets/getApi.js";
 import DirectionField from "../components/DirectionField.jsx";
+import * as Yup from "yup";
 
 const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModalAdd, setProgressBar, searchEmployeesUpdate, stylesModal, setShowSnackAlert }) => {
     const validationSchema = Yup.object().shape({

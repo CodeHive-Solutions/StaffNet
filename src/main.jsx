@@ -23,7 +23,7 @@ const router = createBrowserRouter([
     },
     {
         path: "home",
-        element: <Test />,
+        element: <HomeView />,
     },
     {
         path: "permissions",

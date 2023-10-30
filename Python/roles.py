@@ -215,10 +215,15 @@ roles = {
         },
         "employment_information": {
             "cargo": "",
-            "campana_general": ["BI"],
+            "campana_general": "",
             "fecha_ingreso": "",
         },
-        "leave_information": {"fecha_retiro": "", "tipo_retiro":"","motivo_retiro":"","estado": ""},
+        "leave_information": {
+            "fecha_retiro": "",
+            "tipo_retiro": "",
+            "motivo_retiro": "",
+            "estado": "",
+        },
     },
 }
 
