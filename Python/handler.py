@@ -755,31 +755,27 @@ def upload_image():
     if "image" not in request.files:
         return Response("No file included", 400)
 
-    file = request.files["image"]
+    image = request.files["image"]
 
-    if file.filename == "":
+    if image.filename == "":
         return Response("No selected file", 400)
 
-    if file:
-        filename = secure_filename(str(file.filename))
+    if image:
+        filename = secure_filename(str(image.filename))
         # Check the file type
-        allowed_file_types = ["webp"]
-        if (
-            "." not in filename
-            or filename.split(".")[-1].lower() not in allowed_file_types
-        ):
-            return Response("Invalid file type", 400)
+        if not filename.endswith(".webp"):
+            return Response("Invalid file type have to be a .webp file.", 400)
 
         # Check the file size
-        file_content = file.read()
+        file_content = image.read()
         max_file_size_bytes = 5 * 1024 * 1024  # 5 MB
         if len(file_content) > max_file_size_bytes or len(file_content) == 0:
             return Response("File size exceeds the allowed limit (5 MB)", 400)
 
         # Reset the file pointer to the beginning
-        file.seek(0)
+        image.seek(0)
 
-        file.save(os.path.join(app.config["PICTURES_FOLDER"], filename))
+        image.save(os.path.join(app.config["PICTURES_FOLDER"], filename))
         return Response("File uploaded successfully", 200)
 
 

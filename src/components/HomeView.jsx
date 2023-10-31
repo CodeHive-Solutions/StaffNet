@@ -38,9 +38,10 @@ const HomeView = () => {
     const [cedulaDetails, setCedulaDetails] = useState(0);
     const [checked, setChecked] = useState(true);
     const [originalData, setOriginalData] = useState(rows);
+    const [profilePicture, setProfilePicture] = useState();
 
     const calculateAge = (birthdate) => {
-        // Split birthdate string into array of year, month, and day
+        // Split birthday string into array of year, month, and day
         const [year, month, day] = birthdate.split("-");
         // Calculate today's date
         const today = new Date();
@@ -92,6 +93,37 @@ const HomeView = () => {
         setCedulaDetails(identificador);
         setProgressBar(true);
 
+        const getProfilePicture = async () => {
+            try {
+                const response = await fetch(`${getApiUrl()}/profile-picture/${identificador}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw 404;
+                    }
+                    throw new Error("Network response was not ok");
+                }
+
+                if (response.status === 200) {
+                    const blob = await response.blob();
+                    const imageUrl = URL.createObjectURL(blob);
+                    setProfilePicture(imageUrl);
+                } else {
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
+                }
+            } catch (error) {
+                if (error === 404) {
+                    setShowSnackAlert("info", "No se encontró la imagen de perfil", true);
+                } else {
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
+                }
+            }
+        };
+
+        getProfilePicture();
+
         const getJoinInfo = async () => {
             try {
                 const response = await fetch(`${getApiUrl()}/get_join_info`, {
@@ -110,14 +142,16 @@ const HomeView = () => {
                     setDetalles(data.data[0]);
                     setOpenModal(true);
                 } else {
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true);
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
                 }
             } catch (error) {
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
             }
         };
+
         getJoinInfo();
     };
+
     const handleCloseModal = () => {
         setOpenModal(false);
         setEdit(true);
@@ -165,7 +199,7 @@ const HomeView = () => {
                 setTableData(data.info.data);
             }
         } catch (error) {
-            setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+            setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
         }
     };
 
@@ -231,6 +265,8 @@ const HomeView = () => {
                         setShowSnackAlert={setShowSnackAlert}
                         permissions={permissions}
                         edit={edit}
+                        profilePicture={profilePicture}
+                        setProfilePicture={setProfilePicture}
                         cedulaDetails={cedulaDetails}
                         handleChange={handleChange}
                         setDetalles={setDetalles}
