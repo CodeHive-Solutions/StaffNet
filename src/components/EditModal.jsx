@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { getApiUrl } from "../assets/getApi.js";
 import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
@@ -18,6 +18,8 @@ import Avatar from "@mui/material/Avatar";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import { useState } from "react";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
 const EditModal = ({
     arrayData,
@@ -39,6 +41,7 @@ const EditModal = ({
     setDetalles,
     profilePicture,
     setProfilePicture,
+    getProfilePicture,
 }) => {
     const submitEdit = (event) => {
         setProgressBar(true);
@@ -81,12 +84,51 @@ const EditModal = ({
         setProfilePicture(false);
     };
 
+    const fileInputRef = useRef(null);
+
+    const handleFileInputChange = (e) => {
+        const selectedFile = e.target.files[0];
+
+        if (selectedFile) {
+            // Here you can perform actions with the selected file, such as uploading it to a server or displaying a preview.
+            const formData = new FormData();
+            formData.append("image", selectedFile); // Use a field name like "profilePicture" in the form data
+
+            const replaceProfilePicture = async () => {
+                try {
+                    const response = await fetch(`${getApiUrl()}/profile-picture/${cedulaDetails}`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+                    console.log(data);
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    if (response.status === 200) {
+                        getProfilePicture(cedulaDetails);
+                        setShowSnackAlert("success", "Edición realizada correctamente");
+                    }
+                } catch (error) {
+                    console.log(error);
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
+                }
+            };
+            replaceProfilePicture();
+        }
+    };
+
+    const handleUploadButtonClick = () => fileInputRef.current.click();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <>
             <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <DialogContent>
+                    {/* <img style={{ width: 500, height: 500, objectFit: "contain" }} src={profilePicture} alt="" /> */}
                     <Avatar
                         alt="profile picture"
                         src={profilePicture}
@@ -99,6 +141,13 @@ const EditModal = ({
                             },
                         }}
                     />
+                    <input type="file" accept="image/*" style={{ display: "none" }} ref={fileInputRef} onChange={handleFileInputChange} />
+
+                    <Box sx={{ textAlign: "center", mt: "1rem" }}>
+                        <Button variant="contained" onClick={handleUploadButtonClick} startIcon={<FileUploadIcon />}>
+                            {profilePicture ? "Cambiar foto de perfil" : "Subir foto de perfil"}
+                        </Button>
+                    </Box>
                 </DialogContent>
             </Dialog>
 

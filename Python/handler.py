@@ -18,6 +18,7 @@ from mysql.connector import pooling
 import redis
 from werkzeug.utils import secure_filename
 import pandas as pd
+from flask import jsonify, make_response
 
 # Evitar logs innecesarios
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
@@ -29,7 +30,7 @@ logging.basicConfig(
 )
 
 if not os.path.isfile("/var/env/StaffNet.env"):
-    logging.critical(f"The env file was not found", exc_info=True)
+    logging.critical("The env file was not found", exc_info=True)
     raise FileNotFoundError("The env file was not found.")
 else:
     load_dotenv("/var/env/StaffNet.env")
@@ -56,7 +57,7 @@ app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 # app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
+# app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
 app.config["PICTURES_FOLDER"] = "/var/www/StaffNet/src/images/profile_pictures"
 app.secret_key = os.getenv("SECRET_KEY") or os.urandom(24)
 
@@ -331,6 +332,7 @@ def handle_error(error):
     elif error.code == 405:
         return {"status": "False", "error": "Método no permitido"}
     else:
+        logging.warning(error)
         logging.warning("Petición: {}" % error, exc_info=True)
         response = {"status": "False", "error": str(error)}
         return response
@@ -745,38 +747,44 @@ def download():
             return Response(status=500)
 
 
-@app.route("/profile-picture", methods=["POST"])  # type: ignore
-def upload_image():
-    """Upload the profile picture of an employee"""
-    if ("create" not in session or session["create"] is False) and (
-        "edit" not in session or session["edit"] is False
-    ):
-        return Response("No tienes permisos", 403)
+@app.route("/profile-picture/<cedula>", methods=["POST"])  # type: ignore
+def upload_image(cedula):
+    """Upload a profile picture"""
+    if not ("create" in session or "edit" in session):
+        return Response("You don't have permission to upload a profile picture", 403)
+
     if "image" not in request.files:
-        return Response("No file included", 400)
+        return Response("No file included in the request", 400)
 
-    image = request.files["image"]
+    uploaded_image = request.files["image"]
 
-    if image.filename == "":
+    if uploaded_image.filename == "":
         return Response("No selected file", 400)
 
-    if image:
-        filename = secure_filename(str(image.filename))
-        # Check the file type
+    if uploaded_image:
+        filename = secure_filename(uploaded_image.filename)
+
         if not filename.endswith(".webp"):
-            return Response("Invalid file type have to be a .webp file.", 400)
+            return make_response(jsonify({"detail": "Invalid file type. Only .webp files are allowed."}), 400)
 
-        # Check the file size
-        file_content = image.read()
+        file_content = uploaded_image.read()
         max_file_size_bytes = 5 * 1024 * 1024  # 5 MB
+
         if len(file_content) > max_file_size_bytes or len(file_content) == 0:
-            return Response("File size exceeds the allowed limit (5 MB)", 400)
+            return Response(
+                "File size exceeds the allowed limit (5 MB) or is empty.", 400
+            )
 
-        # Reset the file pointer to the beginning
-        image.seek(0)
+        filename = cedula + ".webp"
 
-        image.save(os.path.join(app.config["PICTURES_FOLDER"], filename))
-        return Response("File uploaded successfully", 200)
+        image_path = os.path.join(app.config["PICTURES_FOLDER"], filename)
+
+        uploaded_image.seek(0)
+
+        # Save the image, overwriting if it already exists
+        uploaded_image.save(image_path)
+
+        return make_response(jsonify({"detail": "File uploaded successfully."}), 200)
 
 
 @app.route("/profile-picture/<filename>", methods=["GET"])

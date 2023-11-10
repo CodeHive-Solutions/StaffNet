@@ -89,40 +89,38 @@ const HomeView = () => {
             console.error("error:", message);
         }
     };
+    
+    const getProfilePicture = async (identificador) => {
+        try {
+            const response = await fetch(`${getApiUrl()}/profile-picture/${identificador}`, {
+                method: "GET",
+                credentials: "include",
+            });
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw 404;
+                }
+                throw new Error("Network response was not ok");
+            }
+
+            if (response.status === 200) {
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                setProfilePicture(imageUrl);
+            } else {
+                setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
+            }
+        } catch (error) {
+            if (!error === 404) {
+                setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
+            }
+        }
+    };
+
     const handleOpenModal = (identificador) => {
         setCedulaDetails(identificador);
         setProgressBar(true);
-
-        const getProfilePicture = async () => {
-            try {
-                const response = await fetch(`${getApiUrl()}/profile-picture/${identificador}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw 404;
-                    }
-                    throw new Error("Network response was not ok");
-                }
-
-                if (response.status === 200) {
-                    const blob = await response.blob();
-                    const imageUrl = URL.createObjectURL(blob);
-                    setProfilePicture(imageUrl);
-                } else {
-                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
-                }
-            } catch (error) {
-                if (error === 404) {
-                    setShowSnackAlert("info", "No se encontró la imagen de perfil", true);
-                } else {
-                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
-                }
-            }
-        };
-
-        getProfilePicture();
+        getProfilePicture(identificador);
 
         const getJoinInfo = async () => {
             try {
@@ -213,6 +211,7 @@ const HomeView = () => {
         bgcolor: "background.paper",
         p: 4,
         overflow: "auto",
+        borderRadius: "8px",
     };
 
     const handleChange = useCallback(
@@ -271,6 +270,7 @@ const HomeView = () => {
                         handleChange={handleChange}
                         setDetalles={setDetalles}
                         setEdit={setEdit}
+                        getProfilePicture={getProfilePicture}
                     />
 
                     <AddModal

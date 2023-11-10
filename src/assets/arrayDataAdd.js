@@ -1,24 +1,24 @@
-export const arrayData = [
+export const arrayDataAdd = [
         // Inputs Pagina Información Personal
         {
             title: "Información Personal",
             inputs: [
                 {
-                    id: "1",
                     label: "Cedula",
                     name: "cedula",
+                    initialValue: "",
                     type: "text",
                 },
                 {
-                    id: "2",
                     label: "Nombre completo",
                     name: "nombre",
+                    initialValue: "",
                     type: "text",
                 },
                 {
-                    id: "tipo_documento",
                     label: "Tipo de documento",
                     name: "tipo_documento",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "CC", label: "CC" },
@@ -27,43 +27,41 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "3",
                     label: "Fecha de nacimiento",
                     name: "fecha_nacimiento",
-                    type: "date",
+                    initialValue: "",
                     shrink: true,
-                    value: "",
+                    type: "date",
                 },
 
                 {
-                    id: "lugar_expedicion",
                     label: "Lugar Expedicíon",
                     name: "lugar_expedicion",
+                    initialValue: "",
                     type: "text",
                 },
                 {
-                    id: "fecha_expedicion",
                     label: "Fecha de expedición",
                     name: "fecha_expedicion",
-                    type: "date",
+                    initialValue: "",
                     shrink: true,
+                    type: "date",
                 },
 
                 {
-                    id: "4",
                     label: "Genero",
                     name: "genero",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "FEMENINO", label: "Femenino" },
                         { value: "MASCULINO", label: "Masculino" },
                     ],
                 },
-                { id: "5", label: "Edad", name: "edad", type: "text" },
                 {
-                    id: "7",
                     label: "RH",
                     name: "rh",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "O+", label: "O+" },
@@ -77,9 +75,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "8",
                     label: "Estado civil",
                     name: "estado_civil",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "CASADO(A)", label: "Casado(a)" },
@@ -91,9 +89,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "hijos",
                     label: "Hijos",
                     name: "hijos",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: 0, label: "0" },
@@ -105,9 +103,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "510",
                     label: "Personas a cargo",
                     name: "personas_a_cargo",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: 0, label: "0" },
@@ -119,9 +117,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "10",
                     label: "Estrato",
                     name: "estrato",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: 1, label: "Estrato 1" },
@@ -133,31 +131,41 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "11",
                     label: "Telefono fijo",
                     name: "tel_fijo",
+                    initialValue: "",
                     type: "number",
+                    required: false,
                 },
-                { id: "12", label: "Celular", name: "celular", type: "text" },
-                { id: "13", label: "Correo", name: "correo", type: "email" },
+                { label: "Celular", name: "celular",
+                initialValue: "", type: "text" },
+                { label: "Correo", name: "correo",
+                initialValue: "", type: "email" },
                 {
-                    id: "correo_corporativo",
                     label: "Correo corporativo",
                     name: "correo_corporativo",
+                    initialValue: "",
                     type: "email",
+                    required: false,
                 },
 
                 {
-                    id: "14",
                     label: "Dirección",
                     name: "direccion",
+                    initialValue: "",
                     type: "text",
                 },
-                { id: "15", label: "Barrio", name: "barrio", type: "text" },
                 {
-                    id: "localidad",
+                    label: "Barrio",
+                    name: "barrio",
+                    initialValue: "",
+                    type: "text",
+                    required: false
+                },
+                {
                     label: "Localidad/Region",
                     name: "localidad",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "Usaquén", label: "Usaquén" },
@@ -195,16 +203,18 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "16",
                     label: "Contacto de emergencia",
                     name: "contacto_emergencia",
+                    initialValue: "",
                     type: "text",
+                    required: false,
                 },
                 {
-                    id: "17",
                     label: "Parentesco",
                     name: "parentesco",
+                    initialValue: "",
                     type: "select",
+                    required: false,
                     options: [
                         { value: "", label: "Seleccione una opción" },
                         { value: "ABUELO(A)", label: "Abuelo(a)" },
@@ -221,29 +231,21 @@ export const arrayData = [
                     ].filter((option) => option.value !== ""),
                 },
                 {
-                    id: "18",
                     label: "Telefono de contacto",
                     name: "tel_contacto",
+                    initialValue: "",
                     type: "number",
+                    required: false
                 },
             ],
         },
         {
-            title: "Acciones Disciplinarias",
-            inputs: [
-                { id: "memorando_1", label: "Memorando 1", name: "memorando_1", type: "text" },
-                { id: "memorando_2", label: "Memorando 2", name: "memorando_2", type: "text" },
-                { id: "memorando_3", label: "Memorando 3", name: "memorando_3", type: "text" },
-            ],
-        },
-        // Inputs Pagina Información Educativa
-        {
             title: "Información Educativa",
             inputs: [
                 {
-                    id: "19",
                     label: "Nivel de escolaridad",
                     name: "nivel_escolaridad",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "PRIMARIA", label: "Primaria" },
@@ -257,15 +259,16 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "20",
                     label: "Profesión",
                     name: "profesion",
+                    initialValue: "",
                     type: "text",
+                    required: false,
                 },
                 {
-                    id: "21",
                     label: "Estudios en curso",
                     name: "estudios_en_curso",
+                    initialValue: "",
                     type: "text",
                 },
             ],
@@ -276,17 +279,19 @@ export const arrayData = [
             title: "Información Empleado",
             inputs: [
                 {
-                    id: "fecha_afiliacion_eps",
                     label: "Fecha de afiliación",
                     name: "fecha_afiliacion_eps",
-                    type: "date",
+                    initialValue: "",
                     shrink: true,
+                    required: false,
+                    type: "date",
                 },
                 {
-                    id: "eps",
                     label: "EPS",
                     name: "eps",
+                    initialValue: "",
                     type: "select",
+                    required: false,
                     options: [
                         { value: "NINGUNA", label: "NINGUNA" },
                         { value: "A.I.C.", label: "A.I.C." },
@@ -331,25 +336,12 @@ export const arrayData = [
                         { value: "SAVIA SALUD ", label: "SAVIA SALUD " },
                     ],
                 },
-
                 {
-                    id: "antiguedad",
-                    label: "Antiguedad",
-                    name: "antiguedad",
-                    type: "text",
-                    shrink: true,
-                },
-                {
-                    id: "cambio_eps_legado",
-                    label: "Cambio EPS legado",
-                    name: "cambio_eps_legado",
-                    type: "text",
-                },
-                {
-                    id: "pension",
                     label: "Pension",
                     name: "pension",
+                    initialValue: "",
                     type: "select",
+                    required: false,
                     options: [
                         { value: "NINGUNA", label: "NINGUNA" },
                         { value: "CAXDAC", label: "CAXDAC" },
@@ -365,10 +357,11 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "caja_compensacion",
                     label: "Caja de Compensación",
                     name: "caja_compensacion",
+                    initialValue: "",
                     type: "select",
+                    required: false,
                     options: [
                         {value: "COMPENSAR", label: "COMPENSAR"},
                         {value: "COMFENALCO ANTIOQUIA", label: "COMFENALCO ANTIOQUIA"},
@@ -379,10 +372,11 @@ export const arrayData = [
                     ]
                 },
                 {
-                    id: "cesantias",
                     label: "Cesantias",
                     name: "cesantias",
+                    initialValue: "",
                     type: "select",
+                    required: false,
                     options: [
                         { value: "COLFONDOS", label: "COLFONDOS" },
                         { value: "FNA", label: "FNA" },
@@ -392,16 +386,16 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "cuenta_nomina",
                     label: "Cuenta nomina",
                     name: "cuenta_nomina",
+                    initialValue: "",
                     type: "number",
                 },
 
                 {
-                    id: "sede",
                     label: "Sede",
                     name: "sede",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "BOGOTÁ", label: "Bogotá D.C" },
@@ -412,9 +406,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "cargo",
                     label: "Cargo",
                     name: "cargo",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
@@ -477,22 +471,18 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "fecha_nombramiento",
                     label: "Fecha de nombramiento",
                     name: "fecha_nombramiento",
+                    initialValue: "",
                     type: "date",
                     shrink: true,
+                    required: false,
+
                 },
                 {
-                    id: "fecha_nombramiento_legado",
-                    label: "Fecha de nombramiento legado",
-                    name: "fecha_nombramiento_legado",
-                    type: "text",
-                },
-                {
-                    id: "gerencia",
                     label: "Gerencia",
                     name: "gerencia",
+                    initialValue: "",
                     type: "select",
                     options: [
                         {
@@ -662,9 +652,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "campana_general",
                     label: "Campaña general",
                     name: "campana_general",
+                    initialValue: "",
                     type: "select",
                     options: [
                         {
@@ -834,9 +824,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "area_negocio",
                     label: "Area de negocio",
                     name: "area_negocio",
+                    initialValue: "",
                     type: "select",
                     options: [
                         { value: "OPERATIVOS", label: "Operativos" },
@@ -844,9 +834,9 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "tipo_contrato",
                     label: "Tipo de contrato",
                     name: "tipo_contrato",
+                    initialValue: "",
                     type: "select",
                     options: [
                         {
@@ -872,52 +862,49 @@ export const arrayData = [
                     ],
                 },
                 {
-                    id: "fecha_ingreso",
                     label: "Fecha de ingreso",
                     name: "fecha_ingreso",
+                    initialValue: "",
                     type: "date",
                     shrink: true,
                 },
                 {
-                    id: "salario",
                     label: "Salario",
                     name: "salario",
+                    initialValue: "",
                     type: "number",
                 },
                 {
-                    id: "subsidio_transporte",
                     label: "Subsidio de transporte",
                     name: "subsidio_transporte",
+                    initialValue: "",
                     type: "number",
                 },
                 {
-                    id: "cambio_campaña_legado",
-                    label: "Cambio campaña legado",
-                    name: "cambio_campaña_legado",
-                    type: "text",
-                },
-                {
-                    id: "aplica_teletrabajo",
                     label: "Aplica para teletrabajo",
                     name: "aplica_teletrabajo",
+                    initialValue: "",
                     type: "select",
+                    required: false,
                     options: [
                         { value: 1, label: "Si" },
                         { value: 0, label: "No" },
                     ]
                 },
                 {
-                    id: "fecha_aplica_teletrabajo",
                     label: "Fecha de aplicacion de teletrabajo",
                     name: "fecha_aplica_teletrabajo",
+                    initialValue: "",
                     type: "date",
                     shrink: true,
+                    required: false,
                 },
                 {
-                    id: 'talla_camisa',
                     label: 'Talla de camisa',
                     name: 'talla_camisa',
+                    initialValue: "",
                     type: 'select',
+                    required: false,
                     options: [
                         { value: 'XS', label: 'XS' },
                         { value: 'S', label: 'S' },
@@ -929,10 +916,11 @@ export const arrayData = [
                     ]
                 },
                 {
-                    id: 'talla_pantalon',
                     label: 'Talla de pantalon',
                     name: 'talla_pantalon',
+                    initialValue: "",
                     type: 'select',
+                    required: false,
                     options: [
                         { value: 6, label: 6 },
                         { value: 8, label: 8 },
@@ -955,10 +943,11 @@ export const arrayData = [
                     ]
                 },
                 {
-                    id: 'talla_zapatos',
                     label: 'Talla de zapatos',
                     name: 'talla_zapatos',
+                    initialValue: "",
                     type: 'select',
+                    required: false,
                     options: [
                         { value: 32, label: 32 },
                         { value: 33, label: 33 },
@@ -977,88 +966,11 @@ export const arrayData = [
                     ]
                 },
                 {
-                    id: "observaciones",
                     label: "Observaciones",
                     name: "observaciones",
+                    initialValue: "",
                     type: "text",
-                },
-            ],
-        },
-        // Inputs Pagina Información Retiro
-        {
-            title: "Información de Retiro",
-            inputs: [
-                {
-                    id: "58",
-                    label: "Fecha de retiro",
-                    name: "fecha_retiro",
-                    type: "date",
-                    shrink: true,
-                },
-                {
-                    id: "59",
-                    label: "Tipo de retiro",
-                    name: "tipo_retiro",
-                    type: "select",
-                    options: [
-                        { value: "VOLUNTARIO", label: "Voluntario" },
-                        { value: "INVOLUNTARIO", label: "Involuntario" },
-                    ],
-                },
-                {
-                    id: "60",
-                    label: "Motivo del retiro",
-                    name: "motivo_retiro",
-                    type: "select",
-                    options: [
-                        { value: "BAJA REMUNERACIÓN", label: "Baja remuneración" },
-                        { value: "CALAMIDAD FAMILIAR", label: "Calamidad familiar" },
-                        { value: "CAMBIO DE ACTIVIDAD", label: "Cambio de actividad" },
-                        { value: "CONFLICTOS EN RELACIONES LABORALES", label: "Conflictos en relaciones laborales" },
-                        { value: "DESPLAZAMIENTO", label: "Desplazamiento" },
-                        { value: "ESTRÉS LABORAL", label: "Estrés laboral" },
-                        { value: "FALTA DE HERRAMIENTAS PARA  DESEMPEÑAR LA LABOR", label: "Falta de herramientas para  desempeñar la labor" },
-                        { value: "FALTA DE INDUCCIÓN AL INGRESAR", label: "Falta de inducción al ingresar" },
-                        { value: "FALTA DE RECONOCIMIENTO", label: "Falta de reconocimiento" },
-                        { value: "HORARIO LABORAL", label: "Horario laboral" },
-                        { value: "INCOMPATIBILIDAD CON EL JEFE", label: "Incompatibilidad con el jefe" },
-                        { value: "MAL AMBIENTE LABORAL", label: "Mal ambiente laboral" },
-                        { value: "MOTIVOS DE ESTUDIO", label: "Motivos de estudio" },
-                        { value: "MOTIVOS DE SALUD", label: "Motivos de salud" },
-                        { value: "MOTIVOS DE VIAJE", label: "Motivos de viaje" },
-                        { value: "MOTIVOS PERSONALES", label: "Motivos personales" },
-                        { value: "NO HAY OPORTUNIDADES DE CRECIMIENTO LABORAL", label: "No hay oportunidades de crecimiento laboral" },
-                        { value: "NO HAY OPORTUNIDADES DE ESTUDIAR", label: "No hay oportunidades de estudiar" },
-                        { value: "OTRA OFERTA LABORAL", label: "Otra oferta laboral" },
-                        { value: "OTRO", label: "Otro" },
-                        { value: "PROBLEMAS PERSONALES", label: "Problemas personales" },
-                        { value: "TERMINACIÓN DE CONTRATO APRENDIZAJE", label: "Terminación de contrato aprendizaje" },
-                        { value: "TERMINACIÓN DE CONTRATO CON JUSTA CAUSA", label: "Terminación de contrato con justa causa" },
-                        { value: "TERMINACIÓN DE CONTRATO POR PERIODO DE PRUEBA", label: "Terminación de contrato por periodo de prueba" },
-                        { value: "TERMINACIÓN DE CONTRATO SIN JUSTA CAUSA", label: "Terminación de contrato sin justa causa" },
-                        { value: "TERMINACIÓN POR ABANDONO DE PUESTO", label: "Terminación por abandono de puesto" },
-                        { value: "TERMINACIÓN POR OBRA O LABOR CONTRATADA ", label: "Terminación por obra o labor contratada " },
-                    ],
-                },
-                {
-                    id: "aplica_recontratacion",
-                    label: "Aplica para recontratacion",
-                    name: "aplica_recontratacion",
-                    type: "select",
-                    options: [
-                        { value: 1, label: "Si" },
-                        { value: 0, label: "No" },
-                    ],
-                },
-                {
-                    id: "61",
-                    label: "Estado",
-                    name: "estado",
-                    type: "select",
-                    options: [
-                        { value: 1, label: "Activo" },
-                        { value: 0, label: "Retirado" },
-                    ],
+                    required: false,
                 },
             ],
         },

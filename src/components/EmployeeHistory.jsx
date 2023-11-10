@@ -33,14 +33,12 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
                     }));
 
                     setEmployeeHistory(rows);
-                } else if (data.error === "Registro no encontrado") {
-                    setShowSnackAlert("info", "Este empleado no posee un historico actualmente", true);
-                } else {
-                    setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + data.error, true);
+                } else if (data.error != "Registro no encontrado") {
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
                 }
             } catch (error) {
                 console.error(error);
-                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+                setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
             }
         };
 
@@ -86,7 +84,7 @@ const EmployeeHistory = ({ setShowSnackAlert, cedulaDetails }) => {
     } else {
         return (
             <Typography sx={{ textAlign: "center", color: "gray", mt: "30px" }} variant="h8" component="h6">
-                Este empleado no posee un historico actualmente
+                Este empleado no posee un histórico actualmente
             </Typography>
         );
     }
