@@ -9,6 +9,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import LoginView from "./components/LoginView";
 import DirectionField from "./components/DirectionField";
 import Test from "./components/Test";
+import FormikTest from "./components/FormikTest";
 
 const theme = createTheme({
     typography: {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
     {
         path: "test",
         element: <Test />,
+    },
+    {
+        path: "formik-test",
+        element: <FormikTest />,
     },
 ]);
 
