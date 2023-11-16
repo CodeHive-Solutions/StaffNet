@@ -157,7 +157,7 @@ class DateEncoder(json.JSONEncoder):
 
 
 def join_tables(
-    conexion, table_names, select_columns, join_columns, id_column=None, id_value=None
+    conexion, table_names, select_columns, join_columns, where=None, id_column=None, id_value=None
 ):
     """Just a simple function to join tables and return a JSON string of the results"""
     cursor = conexion.cursor()
@@ -171,7 +171,10 @@ def join_tables(
     if id_column and id_value:
         # Add a WHERE clause to filter results by the specified column and value
         query += f" WHERE {table_names[0]}.{id_column} = {id_value}"
+    if where:
+        query += f" {where}"
     try:
+        logging.info(f"query: {query}")
         # Execute the query
         cursor.execute(query)
         # Fetch the results

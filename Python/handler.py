@@ -18,6 +18,7 @@ from mysql.connector import pooling
 import redis
 from werkzeug.utils import secure_filename
 import pandas as pd
+from flask import jsonify, make_response
 
 # Evitar logs innecesarios
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
@@ -29,7 +30,7 @@ logging.basicConfig(
 )
 
 if not os.path.isfile("/var/env/StaffNet.env"):
-    logging.critical(f"The env file was not found", exc_info=True)
+    logging.critical("The env file was not found", exc_info=True)
     raise FileNotFoundError("The env file was not found.")
 else:
     load_dotenv("/var/env/StaffNet.env")
@@ -56,8 +57,8 @@ app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 # app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
-app.config["PICTURES_FOLDER"] = "/var/www/StaffNet/src/Images/profile_pictures"
+# app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
+app.config["PICTURES_FOLDER"] = "/var/www/StaffNet/src/images/profile_pictures"
 app.secret_key = os.getenv("SECRET_KEY") or os.urandom(24)
 
 s = Session()
@@ -215,7 +216,7 @@ db_config = {
 
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="StaffNet_pool",
-    pool_size=1,  # Number of connections in the pool
+    pool_size=2,  # Number of connections in the pool
     pool_reset_session=True,
     **db_config,  # Pass the database connection parameters
 )
@@ -227,7 +228,7 @@ def conexion_mysql():
         g.mysql_conn = connection_pool.get_connection()
     except Exception as err:
         logging.critical(f"Error getting MySQL connection: {err}", exc_info=True)
-        raise
+        raise Exception
     return g.mysql_conn
 
 
@@ -235,7 +236,6 @@ def conexion_mysql():
 def teardown_request(exception):
     if hasattr(g, "mysql_conn") and g.mysql_conn is not None:
         try:
-            logging.info("Closing MySQL connection...")
             g.mysql_conn.close()
         except Exception as e:
             logging.error("Error closing MySQL connection: %s", e)
@@ -328,10 +328,11 @@ def handle_error(error):
     if str(error) == "'username'":
         return {"status": "False", "error": "Usuario no ha iniciado sesión."}
     elif error.code == 404:
-        return {"status": "False", "error": "No encontrado"}
+        return {"status": "False", "error": "Pagina no encontrada."}
     elif error.code == 405:
         return {"status": "False", "error": "Método no permitido"}
     else:
+        logging.warning(error)
         logging.warning("Petición: {}" % error, exc_info=True)
         response = {"status": "False", "error": str(error)}
         return response
@@ -746,57 +747,88 @@ def download():
             return Response(status=500)
 
 
-@app.route("/profile-picture", methods=["POST"])  # type: ignore
-def upload_image():
-    """Upload the profile picture of an employee"""
-    if ("create" not in session or session["create"] is False) and (
-        "edit" not in session or session["edit"] is False
-    ):
-        return Response("No tienes permisos", 403)
+@app.route("/profile-picture/<cedula>", methods=["POST"])  # type: ignore
+def upload_image(cedula):
+    """Upload a profile picture"""
+    if not ("create" in session or "edit" in session):
+        return Response("You don't have permission to upload a profile picture", 403)
+
     if "image" not in request.files:
-        return Response("No file included", 400)
+        return Response("No file included in the request", 400)
 
-    file = request.files["image"]
+    uploaded_image = request.files["image"]
 
-    if file.filename == "":
+    if uploaded_image.filename == "":
         return Response("No selected file", 400)
 
-    if file:
-        filename = secure_filename(str(file.filename))
-        # Check the file type
-        allowed_file_types = ["webp"]
-        if (
-            "." not in filename
-            or filename.split(".")[-1].lower() not in allowed_file_types
-        ):
-            return Response("Invalid file type", 400)
+    if uploaded_image:
+        filename = secure_filename(uploaded_image.filename)
 
-        # Check the file size
-        file_content = file.read()
+        if not filename.endswith(".webp"):
+            return make_response(jsonify({"detail": "Invalid file type. Only .webp files are allowed."}), 400)
+
+        file_content = uploaded_image.read()
         max_file_size_bytes = 5 * 1024 * 1024  # 5 MB
+
         if len(file_content) > max_file_size_bytes or len(file_content) == 0:
-            return Response("File size exceeds the allowed limit (5 MB)", 400)
+            return Response(
+                "File size exceeds the allowed limit (5 MB) or is empty.", 400
+            )
 
-        # Reset the file pointer to the beginning
-        file.seek(0)
+        filename = cedula + ".webp"
 
-        file.save(os.path.join(app.config["PICTURES_FOLDER"], filename))
-        return Response("File uploaded successfully", 200)
+        image_path = os.path.join(app.config["PICTURES_FOLDER"], filename)
+
+        uploaded_image.seek(0)
+
+        # Save the image, overwriting if it already exists
+        uploaded_image.save(image_path)
+
+        return make_response(jsonify({"detail": "File uploaded successfully."}), 200)
 
 
 @app.route("/profile-picture/<filename>", methods=["GET"])
 def get_profile_picture(filename):
     """Get the profile picture of an employee"""
     body = get_request_body()
-    if "consult" in session and session["consult"] is False:
-        return Response("No tienes permisos", 403)
-    elif "picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY:
-        return Response("Invalid picture key", 403)
+    if ("picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY) and (
+        "consult" not in session or session["consult"] is False
+    ):
+        return Response("Permission denied.", 403)
     try:
         filename = secure_filename(str(filename))
+        filename += ".webp"
         return send_file(
             f"{app.config['PICTURES_FOLDER']}/{filename}", mimetype="image/webp"
         )
+    except FileNotFoundError:
+        return Response("File not found", 404)
+    except Exception as e:
+        logging.exception(e)
+        return Response("Internal server error", status=500)
+
+
+@app.route("/profile-picture/birthday", methods=["GET"])
+def get_birthday_pictures():
+    """Get the profile pictures of the employees with birthday today"""
+    body = get_request_body()
+    if ("picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY) and (
+        "consult" not in session or session["consult"] is False
+    ):
+        return Response("Permission denied.", 403)
+    try:
+        conexion = conexion_mysql()
+        response = join_tables(
+            conexion,
+            ["personal_information", "leave_information"],
+            ["cedula"],
+            ["cedula"],
+            where="WHERE MONTH(personal_information.fecha_nacimiento) = MONTH(CURDATE()) AND DAY(personal_information.fecha_nacimiento) = DAY(CURDATE()) AND leave_information.estado = 1",
+        )
+        if response["status"] == "success":
+            if response["data"].__len__ == 0:
+                return Response("No employees with birthday today", 404)
+        # return Response(response, 200)
     except FileNotFoundError:
         return Response("File not found", 404)
     except Exception as e:
