@@ -2,9 +2,19 @@
 import logging
 from io import BytesIO, StringIO
 import re
-import datetime
+from datetime import datetime, timedelta
 import os
-from flask import Flask, Response, request, session, g, send_file
+from urllib.parse import urlparse
+from flask import (
+    Flask,
+    Response,
+    request,
+    session,
+    g,
+    send_file,
+    jsonify,
+    make_response,
+)
 from flask_compress import Compress
 from flask_session import Session
 from insert import insert
@@ -18,13 +28,14 @@ from mysql.connector import pooling
 import redis
 from werkzeug.utils import secure_filename
 import pandas as pd
-from flask import jsonify, make_response
+from PIL import Image
+
 
 # Evitar logs innecesarios
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 logging.basicConfig(
-    filename=f"/var/www/StaffNet/logs/Registros_{datetime.datetime.now().year}.log",
+    filename=f"/var/www/StaffNet/logs/Registros_{datetime.now().year}.log",
     level=logging.INFO,
     format="%(asctime)s:%(levelname)s:%(message)s",
 )
@@ -45,6 +56,11 @@ except:
     logging.critical(f"Connection to redis failed", exc_info=True)
     raise
 
+if os.environ["DEBUG"] == "True":
+    DEBUG = True
+else:
+    DEBUG = False
+
 PROFILE_PICTURE_KEY = os.environ["PROFILE_PICTURE_KEY"]
 
 app = Flask(__name__)
@@ -55,10 +71,12 @@ app.config["SESSION_REDIS"] = REDIS_CLIENT
 app.config["SESSION_COOKIE_NAME"] = "StaffNet"
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-# app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
-# app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
-app.config["PICTURES_FOLDER"] = "/var/www/StaffNet/src/images/profile_pictures"
+if DEBUG:
+    app.config["SESSION_COOKIE_SAMESITE"] = "None"
+else:
+    app.config["SESSION_COOKIE_SAMESITE"] = "lax"
+    app.config["SESSION_COOKIE_DOMAIN"] = ".cyc-bpo.com"
+app.config["PROFILE_PICTURES_FOLDER"] = os.environ["PROFILE_PICTURES_FOLDER"]
 app.secret_key = os.getenv("SECRET_KEY") or os.urandom(24)
 
 s = Session()
@@ -207,8 +225,7 @@ def login():
 
 
 db_config = {
-    "host": "172.16.0.115",
-    # "host":'172.16.0.118',
+    "host": "172.16.0.115" if DEBUG else "172.16.0.118",
     "user": "StaffNetuser",
     "password": os.environ["StaffNetmysql"],
     "database": "staffnet",
@@ -216,7 +233,7 @@ db_config = {
 
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="StaffNet_pool",
-    pool_size=2,  # Number of connections in the pool
+    pool_size=10,  # Number of connections in the pool
     pool_reset_session=True,
     **db_config,  # Pass the database connection parameters
 )
@@ -226,10 +243,10 @@ def conexion_mysql():
     """Get a connection from the connection pool"""
     try:
         g.mysql_conn = connection_pool.get_connection()
+        return g.mysql_conn
     except Exception as err:
-        logging.critical(f"Error getting MySQL connection: {err}", exc_info=True)
-        raise Exception
-    return g.mysql_conn
+        logging.critical("Error getting MySQL connection: %s", err, exc_info=True)
+        raise Exception from err
 
 
 @app.teardown_request
@@ -244,11 +261,11 @@ def teardown_request(exception):
 @app.before_request
 def logs():
     """Logs of the request"""
+    petition = urlparse(request.url).path
     if request.method == "OPTIONS":
         pass
     elif request.content_type == "application/json":
         body = get_request_body()
-        petition = request.url.split("/")[3]
         if petition == "login":
             logging.info({"User": body["user"], "Petición": petition})
         elif petition == "download":
@@ -265,15 +282,13 @@ def logs():
     elif request.content_type == "text/csv":
         logging.info({"User": session["username"], "Petición": "download"})
     else:
-        petition = request.url.split("/")[3]
-        if petition == "loged" or petition == "favicon.ico":
+        if petition == "logged" or petition == "favicon.ico":
             pass
         elif "username" in session:
-            petition = request.url.split("/")[3]
             if petition != "login":
                 logging.info({"User": session["username"], "Petición": petition})
             else:
-                logging.info({"User": session["username"], "Petición": request.url})
+                logging.info({"User": session["username"], "Petición": petition})
         else:
             logging.info({"User": "Anonymous", "Petición": petition})
 
@@ -281,9 +296,10 @@ def logs():
 @app.after_request
 def after_request(response):
     """Logs of the response and CORS"""
+    petition = urlparse(request.url).path
     # Logs de respuesta
     if response.json is not None:
-        if request.url.split("/")[3] == "search_employees":
+        if petition == "search_employees":
             if "info" in response.json:
                 logging.info(
                     {"Respuesta: ": {"status": response.json["info"]["status"]}}
@@ -291,7 +307,9 @@ def after_request(response):
             else:
                 logging.info({"Respuesta: ": response.json})
         elif (
-            response.json["status"] == "False" and request.url.split("/")[3] != "loged"
+            "status" in response.json
+            and response.json["status"] == "False"
+            and petition != "logged"
         ):
             logging.info(
                 {
@@ -301,19 +319,24 @@ def after_request(response):
                     }
                 }
             )
-        elif request.url.split("/")[3] == "loged":
+        elif petition == "logged":
             pass
         else:
-            logging.info({"Respuesta: ": response.json["status"]})
+            logging.info({"Respuesta: ": response.json})
     # CORS
-    url_permitidas = [
-        "https://staffnet.cyc-bpo.com",
-        "https://staffnet-dev.cyc-bpo.com",
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://172.16.5.11:3000",
-        "http://172.16.0.115:3000",
-    ]
+    if DEBUG:
+        url_permitidas = [
+            "https://staffnet-dev.cyc-bpo.com",
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://172.16.5.11:3000",
+            "http://172.16.0.115:3000",
+            "http://172.16.0.115:8000",
+        ]
+    else:
+        url_permitidas = [
+            "https://staffnet.cyc-bpo.com",
+        ]
     if request.origin in url_permitidas:
         response.headers.add("Access-Control-Allow-Origin", request.origin)
         response.headers.add("Access-Control-Allow-Credentials", "true")
@@ -333,13 +356,13 @@ def handle_error(error):
         return {"status": "False", "error": "Método no permitido"}
     else:
         logging.warning(error)
-        logging.warning("Petición: {}" % error, exc_info=True)
+        logging.warning("Petición: %s", error, exc_info=True)
         response = {"status": "False", "error": str(error)}
         return response
 
 
-@app.route("/loged", methods=["POST"])
-def loged():
+@app.route("/logged", methods=["POST"])
+def logged():
     """Check if the user is logged in"""
     response = {"status": "False"}
     if "username" in session:
@@ -475,6 +498,7 @@ def edit_admin():
 
 @app.route("/search_employees", methods=["POST"])
 def search_employees():
+    """Function to get permissions"""
     if session["consult"] == True:
         rol_tables = get_rol_tables(session["rol"])
         if not rol_tables:
@@ -765,7 +789,10 @@ def upload_image(cedula):
         filename = secure_filename(uploaded_image.filename)
 
         if not filename.endswith(".webp"):
-            return make_response(jsonify({"detail": "Invalid file type. Only .webp files are allowed."}), 400)
+            return make_response(
+                jsonify({"detail": "Invalid file type. Only .webp files are allowed."}),
+                400,
+            )
 
         file_content = uploaded_image.read()
         max_file_size_bytes = 5 * 1024 * 1024  # 5 MB
@@ -777,12 +804,18 @@ def upload_image(cedula):
 
         filename = cedula + ".webp"
 
-        image_path = os.path.join(app.config["PICTURES_FOLDER"], filename)
+        image_path = secure_filename(
+            os.path.join(app.config["PROFILE_PICTURES_FOLDER"], filename)
+        )
 
         uploaded_image.seek(0)
 
         # Save the image, overwriting if it already exists
-        uploaded_image.save(image_path)
+        try:
+            image = Image.open(BytesIO(file_content))
+            image.save(image_path, format="WEBP")
+        except IOError:
+            return Response("Invalid image content.", 400)
 
         return make_response(jsonify({"detail": "File uploaded successfully."}), 200)
 
@@ -790,47 +823,106 @@ def upload_image(cedula):
 @app.route("/profile-picture/<filename>", methods=["GET"])
 def get_profile_picture(filename):
     """Get the profile picture of an employee"""
-    body = get_request_body()
-    if ("picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY) and (
-        "consult" not in session or session["consult"] is False
-    ):
-        return Response("Permission denied.", 403)
+    # body = get_request_body()
+    # if ("picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY) and (
+    # "consult" not in session or session["consult"] is False
+    # ):
+    # return Response("Permission denied.", 403)
     try:
         filename = secure_filename(str(filename))
         filename += ".webp"
         return send_file(
-            f"{app.config['PICTURES_FOLDER']}/{filename}", mimetype="image/webp"
+            f"{app.config['PROFILE_PICTURES_FOLDER']}/{filename}", mimetype="image/webp"
         )
     except FileNotFoundError:
         return Response("File not found", 404)
     except Exception as e:
         logging.exception(e)
         return Response("Internal server error", status=500)
+
+
+# CODIGO QUE SI FUNCA, SIN SEPARAR POR FECHAS
 
 
 @app.route("/profile-picture/birthday", methods=["GET"])
 def get_birthday_pictures():
-    """Get the profile pictures of the employees with birthday today"""
-    body = get_request_body()
-    if ("picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY) and (
-        "consult" not in session or session["consult"] is False
-    ):
-        return Response("Permission denied.", 403)
+    """Get the profile pictures of the employees with birthday today, yesterday, and tomorrow"""
+    # body = get_request_body()
+    # if ("picture_key" not in body or body["picture_key"] != PROFILE_PICTURE_KEY) and (
+    # "consult" not in session or session["consult"] is False
+    # ):
+    # return jsonify({"message": "Permission denied."}), 403
     try:
         conexion = conexion_mysql()
+        today = datetime.now()
+        yesterday = today - timedelta(days=1)
+        tomorrow = today + timedelta(days=1)
+
+        today_birthdays = []
+        yesterday_birthdays = []
+        tomorrow_birthdays = []
+
+        condition = (
+            f"WHERE (MONTH(personal_information.fecha_nacimiento) = MONTH('{today}') "
+            f"AND DAY(personal_information.fecha_nacimiento) = DAY('{today}') "
+            f"AND leave_information.estado = 1)"
+            f"OR (MONTH(personal_information.fecha_nacimiento) = MONTH('{yesterday}') "
+            f"AND DAY(personal_information.fecha_nacimiento) = DAY('{yesterday}')"
+            "AND leave_information.estado = 1)"
+            f"OR (MONTH(personal_information.fecha_nacimiento) = MONTH('{tomorrow}') "
+            f"AND DAY(personal_information.fecha_nacimiento) = DAY('{tomorrow}')"
+            "AND leave_information.estado = 1)"
+        )
+
         response = join_tables(
             conexion,
-            ["personal_information", "leave_information"],
-            ["cedula"],
-            ["cedula"],
-            where="WHERE MONTH(personal_information.fecha_nacimiento) = MONTH(CURDATE()) AND DAY(personal_information.fecha_nacimiento) = DAY(CURDATE()) AND leave_information.estado = 1",
+            ["personal_information", "employment_information", "leave_information"],
+            ["cedula", "nombre", "fecha_nacimiento", "campana_general"],
+            ["cedula", "cedula"],
+            where=condition,
         )
-        if response["status"] == "success":
-            if response["data"].__len__ == 0:
-                return Response("No employees with birthday today", 404)
-        # return Response(response, 200)
+
+        if response["status"] == "False":
+            return (
+                jsonify(
+                    {"message": "Internal server error", "error": response["error"]}
+                ),
+                500,
+            )
+
+        if response["status"] == "success" and response["data"].__len__() == 0:
+            return (
+                jsonify(
+                    {
+                        "message": "No employees with birthday today, yesterday, or tomorrow"
+                    }
+                ),
+                404,
+            )
+
+        for employee in response["data"]:
+            birthday = datetime.strptime(employee["fecha_nacimiento"], "%Y-%m-%d")
+            if (birthday.month, birthday.day) == (today.month, today.day):
+                today_birthdays.append(employee)
+            elif (birthday.month, birthday.day) == (yesterday.month, yesterday.day):
+                yesterday_birthdays.append(employee)
+            elif (birthday.month, birthday.day) == (tomorrow.month, tomorrow.day):
+                tomorrow_birthdays.append(employee)
+
+        response_data = {
+            "yesterday": yesterday_birthdays,
+            "today": today_birthdays,
+            "tomorrow": tomorrow_birthdays,
+        }
+
+        response = {
+            "status": "success",
+            "data": response_data,
+        }
+
+        return jsonify(response), 200
     except FileNotFoundError:
-        return Response("File not found", 404)
+        return jsonify({"message": "File not found"}), 404
     except Exception as e:
         logging.exception(e)
-        return Response("Internal server error", status=500)
+        return jsonify({"message": "Internal server error"}), 500

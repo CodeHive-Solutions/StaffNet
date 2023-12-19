@@ -431,9 +431,11 @@ export const arrayData = [
                         { value: "ASESOR(A) DE NEGOCIACIÓN JR", label: "Asesor(a) de Negociación jr" },
                         { value: "ASESOR(A) SENIOR", label: "Asesor(a) Senior" },
                         { value: "AUXILIAR ADMINISTRATIVO", label: "Auxiliar Administrativo" },
+                        { value: "AUXILIAR ADMINISTRATIVO", label: "Auxiliar Administrativo" },
                         { value: "AUXILIAR DE CONTROL DE ACCESOS", label: "Auxiliar de Control de Accesos" },
                         { value: "AUXILIAR DE LICITACIÓN", label: "Auxiliar de Licitación" },
                         { value: "AUXILIAR DE RECURSOS FÍSICOS", label: "Auxiliar de Recursos Físicos" },
+                        { value: "AUXILIAR DE SOPORTE", label: "Auxiliar de Soporte" },
                         { value: "AUXILIAR OPERATIVO", label: "Auxiliar Operativo" },
                         { value: "BACK OFFICE", label: "Back Office" },
                         { value: "COORDINADOR DE CAPACITACIÓN", label: "Coordinador de Capacitación" },
@@ -506,6 +508,10 @@ export const arrayData = [
                         {
                             value: "BBVA",
                             label: "BBVA",
+                        },
+                        {
+                            value: "CARTERA PROPIA",
+                            label: "Cartera Propia",
                         },
                         {
                             value: "CLARO",
@@ -608,6 +614,14 @@ export const arrayData = [
                             label: "Mi Banco",
                         },
                         {
+                            value: "MINUTO DE DIOS",
+                            label: "MINUTO DE DIOS",
+                        },
+                        {
+                            value: "NUBANK",
+                            label: "NuBank",
+                        },
+                        {
                             value: "NUEVA EPS",
                             label: "Nueva EPS",
                         },
@@ -680,6 +694,10 @@ export const arrayData = [
                             label: "BBVA",
                         },
                         {
+                            value: "CARTERA PROPIA",
+                            label: "Cartera Propia",
+                        },
+                        {
                             value: "CLARO",
                             label: "Claro",
                         },
@@ -706,10 +724,6 @@ export const arrayData = [
                         {
                             value: "CREDIBANCO",
                             label: "Credibanco",
-                        },
-                        {
-                            value: "DINERUM",
-                            label: "Dinerum",
                         },
                         {
                             value: "BANCO FALABELLA",
