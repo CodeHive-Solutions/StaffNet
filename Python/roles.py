@@ -40,8 +40,7 @@ roles = {
             "fecha_nacimiento": "",
             "lugar_expedicion": "",
             "fecha_expedicion": "",
-            "genero": "",
-            "estado_civil": "",
+             "estado_civil": "",
             "tel_fijo": "",
             "celular": "",
             "correo": "",
@@ -203,6 +202,9 @@ roles = {
                 "CODENSA",
                 "NUEVA EPS",
                 "SCOTIABANK COLPATRIA",
+                "SEGUROS BOLIVAR",
+                "GERENCIA DE OPERACIONES",
+                "CARTERA PROPIA",
             ],
             "fecha_ingreso": "",
         },
@@ -212,6 +214,8 @@ roles = {
         "personal_information": {
             "cedula": "",
             "nombre": "",
+            "genero": "",
+            "fecha_nacimiento": "",
         },
         "employment_information": {
             "cargo": "",

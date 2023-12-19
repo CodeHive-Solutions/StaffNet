@@ -157,15 +157,25 @@ class DateEncoder(json.JSONEncoder):
 
 
 def join_tables(
-    conexion, table_names, select_columns, join_columns, where=None, id_column=None, id_value=None
+    conexion,
+    table_names,
+    select_columns,
+    join_columns,
+    where=None,
+    id_column=None,
+    id_value=None,
 ):
     """Just a simple function to join tables and return a JSON string of the results"""
+    if conexion is None:
+        return {"status": "False", "error": "No se pudo conectar a la base de datos"}
     cursor = conexion.cursor()
 
     # Define the final query
     query = f"SELECT {', '.join(select_columns)} FROM {table_names[0]}"
 
     for i in range(1, len(table_names)):
+        logging.info("i: %s", i)
+        logging.info("table_names: %s", table_names[i])
         query += f" JOIN {table_names[i]} USING ({join_columns[i-1]})"
 
     if id_column and id_value:
@@ -174,7 +184,7 @@ def join_tables(
     if where:
         query += f" {where}"
     try:
-        logging.info(f"query: {query}")
+        logging.info("query: %s", query)
         # Execute the query
         cursor.execute(query)
         # Fetch the results
@@ -187,7 +197,7 @@ def join_tables(
         data = json.loads(json_str)
         return {"status": "success", "data": data}
     except Exception as error:
-        logging.error(f"Error: {error}")
+        logging.error("Error: %s", error)
         return {"status": "False", "error": str(error)}
     finally:
         conexion.close()
