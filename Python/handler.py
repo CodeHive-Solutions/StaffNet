@@ -786,19 +786,27 @@ def download():
 def upload_image(cedula):
     """Upload a profile picture"""
     if not ("create" in session or "edit" in session):
-        return Response("You don't have permission to upload a profile picture", 403)
+        return make_response(
+            jsonify({"detail": "Permission denied."}),
+            403,
+        )
 
     if "image" not in request.files:
-        return Response("No file included in the request", 400)
+        return make_response(
+            jsonify({"detail": "No file selected."}),
+            400,
+        )
 
     uploaded_image = request.files["image"]
 
     if uploaded_image.filename == "":
-        return Response("No selected file", 400)
+        return make_response(
+            jsonify({"detail": "No file selected."}),
+            400,
+        )
 
     if uploaded_image:
         filename = secure_filename(uploaded_image.filename)
-
         if not filename.endswith(".webp"):
             return make_response(
                 jsonify({"detail": "Invalid file type. Only .webp files are allowed."}),
@@ -809,24 +817,30 @@ def upload_image(cedula):
         max_file_size_bytes = 5 * 1024 * 1024  # 5 MB
 
         if len(file_content) > max_file_size_bytes or len(file_content) == 0:
-            return Response(
-                "File size exceeds the allowed limit (5 MB) or is empty.", 400
+            return make_response(
+                jsonify(
+                    {"detail": f"Invalid file size. The file must be less than 5MB."}
+                ),
+                400,
             )
 
         filename = cedula + ".webp"
 
-        image_path = secure_filename(
-            os.path.join(app.config["PROFILE_PICTURES_FOLDER"], filename)
-        )
+        image_path = os.path.join(app.config["PROFILE_PICTURES_FOLDER"], filename)
 
         uploaded_image.seek(0)
 
         # Save the image, overwriting if it already exists
         try:
             image = Image.open(BytesIO(file_content))
+            if os.path.exists(image_path):
+                os.remove(image_path)
             image.save(image_path, format="WEBP")
         except IOError:
-            return Response("Invalid image content.", 400)
+            return make_response(
+                jsonify({"detail": "Unable to save image."}),
+                500,
+            )
 
         return make_response(jsonify({"detail": "File uploaded successfully."}), 200)
 
@@ -850,9 +864,6 @@ def get_profile_picture(filename):
     except Exception as e:
         logging.exception(e)
         return Response("Internal server error", status=500)
-
-
-# CODIGO QUE SI FUNCA, SIN SEPARAR POR FECHAS
 
 
 @app.route("/profile-picture/birthday", methods=["GET"])

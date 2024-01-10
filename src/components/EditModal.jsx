@@ -105,10 +105,15 @@ const EditModal = ({
                     const data = await response.json();
                     console.log(data);
                     if (!response.ok) {
+                        if (response.status === 400) {
+                            setShowSnackAlert("error", data.detail);
+                            return;
+                        }
                         throw Error(response.statusText);
                     }
                     if (response.status === 200) {
-                        getProfilePicture(cedulaDetails);
+                        // getProfilePicture(cedulaDetails);
+                        setProfilePicture(`${getApiUrl()}/profile-picture/${cedulaDetails}`);
                         setShowSnackAlert("success", "Edición realizada correctamente");
                     }
                 } catch (error) {
@@ -141,7 +146,7 @@ const EditModal = ({
                             },
                         }}
                     />
-                    <input type="file" accept="image/*" style={{ display: "none" }} ref={fileInputRef} onChange={handleFileInputChange} />
+                    <input type="file" accept="image/webp" style={{ display: "none" }} ref={fileInputRef} onChange={handleFileInputChange} />
 
                     <Box sx={{ textAlign: "center", mt: "1rem" }}>
                         <Button variant="contained" onClick={handleUploadButtonClick} startIcon={<FileUploadIcon />}>
@@ -224,7 +229,6 @@ const EditModal = ({
                             </Typography>
                             <Box sx={{ width: "100%", display: "flex", justifyContent: "center", mt: "1rem" }}>
                                 <Avatar
-                                    alt="profile picture"
                                     src={profilePicture}
                                     onClick={() => setIsModalOpen(true)}
                                     sx={{
