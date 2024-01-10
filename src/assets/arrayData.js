@@ -506,6 +506,18 @@ export const arrayData = [
                             label: "Banco Agrario",
                         },
                         {
+                            value: "BANCO FALABELLA",
+                            label: "Banco Falabella",
+                        },
+                        {
+                            value: "BANCO FALABELLA MEDELLÍN",
+                            label: "Banco Falabella Medellín",
+                        },
+                        {
+                            value: "BANCO SANTANDER",
+                            label: "Banco Santander",
+                        },
+                        {
                             value: "BBVA",
                             label: "BBVA",
                         },
@@ -541,18 +553,7 @@ export const arrayData = [
                             value: "CREDIBANCO",
                             label: "Credibanco",
                         },
-                        {
-                            value: "DINERUM",
-                            label: "Dinerum",
-                        },
-                        {
-                            value: "BANCO FALABELLA",
-                            label: "Banco Falabella",
-                        },
-                        {
-                            value: "BANCO FALABELLA MEDELLÍN",
-                            label: "Banco Falabella Medellín",
-                        },
+                        
                         {
                             value: "DINERUM",
                             label: "Dinerum",
@@ -615,7 +616,7 @@ export const arrayData = [
                         },
                         {
                             value: "MINUTO DE DIOS",
-                            label: "MINUTO DE DIOS",
+                            label: "Minuto de Dios",
                         },
                         {
                             value: "NUBANK",
@@ -690,6 +691,18 @@ export const arrayData = [
                             label: "Banco Agrario",
                         },
                         {
+                            value: "BANCO FALABELLA",
+                            label: "Banco Falabella",
+                        },
+                        {
+                            value: "BANCO FALABELLA MEDELLÍN",
+                            label: "Banco Falabella Medellín",
+                        },
+                        {
+                            value: "BANCO SANTANDER",
+                            label: "Banco Santander",
+                        },
+                        {
                             value: "BBVA",
                             label: "BBVA",
                         },
@@ -724,14 +737,6 @@ export const arrayData = [
                         {
                             value: "CREDIBANCO",
                             label: "Credibanco",
-                        },
-                        {
-                            value: "BANCO FALABELLA",
-                            label: "Banco Falabella",
-                        },
-                        {
-                            value: "BANCO FALABELLA MEDELLÍN",
-                            label: "Banco Falabella Medellín",
                         },
                         {
                             value: "DINERUM",
@@ -790,8 +795,16 @@ export const arrayData = [
                             label: "MetLife",
                         },
                         {
+                            value: "MINUTO DE DIOS",
+                            label: "Minuto de Dios",
+                        },
+                        {
                             value: "MI BANCO",
                             label: "Mi Banco",
+                        },
+                        {
+                            value: "NUBANK",
+                            label: "NuBank",
                         },
                         {
                             value: "NUEVA EPS",

@@ -78,11 +78,9 @@ def search_transaction(conexion, table_info):
 
             sql += " WHERE " + join_conditions + " AND (" + campana_condition + ")"
             campana_value = f"%{campana_filter}%"
-            logging.info(f"campana_value: {campana_value}")
 
             campana_values = [f"%{value}%" for value in campana_filter]
             cursor.execute(sql, tuple((campana_values)))
-            logging.info(f"sql: {sql} values: {tuple((campana_values))}")
         else:
             sql += " WHERE " + join_conditions
             cursor.execute(sql)
@@ -174,8 +172,6 @@ def join_tables(
     query = f"SELECT {', '.join(select_columns)} FROM {table_names[0]}"
 
     for i in range(1, len(table_names)):
-        logging.info("i: %s", i)
-        logging.info("table_names: %s", table_names[i])
         query += f" JOIN {table_names[i]} USING ({join_columns[i-1]})"
 
     if id_column and id_value:
@@ -184,7 +180,6 @@ def join_tables(
     if where:
         query += f" {where}"
     try:
-        logging.info("query: %s", query)
         # Execute the query
         cursor.execute(query)
         # Fetch the results

@@ -261,7 +261,7 @@ def teardown_request(exception):
 @app.before_request
 def logs():
     """Logs of the request"""
-    petition = urlparse(request.url).path
+    petition = urlparse(request.url).path.split("/")[-1]
     if request.method == "OPTIONS":
         pass
     elif request.content_type == "application/json":
@@ -296,7 +296,7 @@ def logs():
 @app.after_request
 def after_request(response):
     """Logs of the response and CORS"""
-    petition = urlparse(request.url).path
+    petition = urlparse(request.url).path.split("/")[-1]
     # Logs de respuesta
     if response.json is not None:
         if petition == "search_employees":
@@ -327,6 +327,7 @@ def after_request(response):
     if DEBUG:
         url_permitidas = [
             "https://staffnet-dev.cyc-bpo.com",
+            "https://insights-dev.cyc-bpo.com",
             "http://localhost:5173",
             "http://localhost:3000",
             "http://172.16.5.11:3000",
@@ -336,6 +337,7 @@ def after_request(response):
     else:
         url_permitidas = [
             "https://staffnet.cyc-bpo.com",
+            "https://insights.cyc-bpo.com",
         ]
     if request.origin in url_permitidas:
         response.headers.add("Access-Control-Allow-Origin", request.origin)
@@ -365,10 +367,19 @@ def handle_error(error):
 def logged():
     """Check if the user is logged in"""
     response = {"status": "False"}
+    logging.info({"Petición": "logged12"})
     if "username" in session:
-        if session["consult"] is True:
+        logging.info(
+            {
+                "User": session["username"],
+                "Petición": "logged",
+                "consult": session["consult"],
+                "create_admins": session["create_admins"],
+            }
+        )
+        if session["consult"]:
             response = {"status": "success", "access": "home"}
-        elif session["create_admins"] is True:
+        elif session["create_admins"]:
             response = {"status": "success", "access": "permissions"}
     return response
 

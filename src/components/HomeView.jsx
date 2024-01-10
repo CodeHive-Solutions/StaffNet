@@ -89,7 +89,7 @@ const HomeView = () => {
             console.error("error:", message);
         }
     };
-    
+
     const getProfilePicture = async (identificador) => {
         try {
             const response = await fetch(`${getApiUrl()}/profile-picture/${identificador}`, {
@@ -104,9 +104,8 @@ const HomeView = () => {
             }
 
             if (response.status === 200) {
-                const blob = await response.blob();
-                const imageUrl = URL.createObjectURL(blob);
-                setProfilePicture(imageUrl);
+                // const imageUrl = URL.createObjectURL(blob);
+                setProfilePicture(`${getApiUrl()}/profile-picture/${identificador}`);
             } else {
                 setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
             }
@@ -120,7 +119,8 @@ const HomeView = () => {
     const handleOpenModal = (identificador) => {
         setCedulaDetails(identificador);
         setProgressBar(true);
-        getProfilePicture(identificador);
+        // getProfilePicture(identificador);
+        setProfilePicture(`${getApiUrl()}/profile-picture/${identificador}`);
 
         const getJoinInfo = async () => {
             try {
