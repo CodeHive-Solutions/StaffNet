@@ -40,7 +40,7 @@ roles = {
             "fecha_nacimiento": "",
             "lugar_expedicion": "",
             "fecha_expedicion": "",
-             "estado_civil": "",
+            "estado_civil": "",
             "tel_fijo": "",
             "celular": "",
             "correo": "",
@@ -228,6 +228,22 @@ roles = {
             "motivo_retiro": "",
             "estado": "",
         },
+    },
+    "comunicaciones": {
+        "personal_information": {
+            "tipo_documento": "",
+            "cedula": "",
+            "nombre": "",
+            "correo": "",
+            "correo_corporativo": "",
+            "celular": "",
+        },
+        "employment_information": {
+            "campana_general": "",
+            "fecha_ingreso": "",
+            "sede": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
     },
 }
 

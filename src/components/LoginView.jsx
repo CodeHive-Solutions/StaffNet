@@ -78,7 +78,7 @@ const LoginView = () => {
         setCurrentIndex(newIndex);
         const checkLogin = async () => {
             try {
-                const response = await fetch(`${getApiUrl()}/loged`, {
+                const response = await fetch(`${getApiUrl()}/logged`, {
                     method: "POST",
                     credentials: "include",
                     contentEncoding: "br",
