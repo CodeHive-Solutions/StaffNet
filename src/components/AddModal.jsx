@@ -318,6 +318,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                             "59",
                                             "60",
                                             "61",
+                                            "aplica_recontratacion",
                                             "fecha_nombramiento_legado",
                                             "cambio_campaña_legado",
                                             "cambio_eps_legado",
