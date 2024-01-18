@@ -102,8 +102,6 @@ const EditModal = ({
                         body: formData,
                     });
 
-                    const data = await response.json();
-                    console.log(data);
                     if (!response.ok) {
                         if (response.status === 400) {
                             setShowSnackAlert("error", data.detail);
@@ -112,9 +110,8 @@ const EditModal = ({
                         throw Error(response.statusText);
                     }
                     if (response.status === 200) {
-                        // getProfilePicture(cedulaDetails);
-                        setProfilePicture(`${getApiUrl()}/profile-picture/${cedulaDetails}`);
                         setShowSnackAlert("success", "Edición realizada correctamente");
+                        getProfilePicture(cedulaDetails);
                     }
                 } catch (error) {
                     console.log(error);

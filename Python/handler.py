@@ -24,7 +24,7 @@ from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
 from dotenv import load_dotenv
 from roles import get_rol_tables, get_rol_columns
-from mysql.connector import pooling
+import mysql.connector
 import redis
 from werkzeug.utils import secure_filename
 import pandas as pd
@@ -199,6 +199,10 @@ def bd_info():
 def login():
     """Login to the StaffNet API"""
     body = get_request_body()
+    if "password" not in body:
+        return jsonify({"status": "False", "error": "Contraseña no encontrada"}), 400
+    elif "user" not in body:
+        return jsonify({"status": "False", "error": "Usuario no encontrado"}), 400
     conexion = conexion_mysql()
     response = consulta_login(body, conexion)
     if response["status"] == "success":
@@ -231,43 +235,31 @@ db_config = {
     "database": "staffnet",
 }
 
-connection_pool = pooling.MySQLConnectionPool(
-    pool_name="StaffNet_pool",
-    pool_size=10,  # Number of connections in the pool
-    pool_reset_session=True,
-    **db_config,  # Pass the database connection parameters
-)
-
 
 def conexion_mysql():
-    """Get a connection from the connection pool"""
+    """Get a connection from the connection"""
     try:
-        g.mysql_conn = connection_pool.get_connection()
-        return g.mysql_conn
-    except Exception as err:
-        logging.critical("Error getting MySQL connection: %s", err, exc_info=True)
-        raise Exception from err
-
-
-@app.teardown_request
-def teardown_request(exception):
-    if hasattr(g, "mysql_conn") and g.mysql_conn is not None:
-        try:
-            g.mysql_conn.close()
-        except Exception as e:
-            logging.error("Error closing MySQL connection: %s", e)
+        g.connection = mysql.connector.connect(**db_config)
+        return g.connection
+    except Exception as e:
+        logging.error("Error connecting to MySQL: %s", e)
+        raise Exception from e
 
 
 @app.before_request
 def logs():
-    """Logs of the request"""
-    petition = urlparse(request.url).path.split("/")[-1]
+    """Logs of the request and db connection"""
+    if "profile-picture" in request.url:
+        petition = "profile-picture" + "/" + request.url.split("/")[-1]
+    else:
+        petition = urlparse(request.url).path.split("/")[-1]
     if request.method == "OPTIONS":
         pass
     elif request.content_type == "application/json":
         body = get_request_body()
         if petition == "login":
-            logging.info({"User": body["user"], "Petición": petition})
+            if "user" in body:
+                logging.info({"User": body["user"], "Petición": petition})
         elif petition == "download":
             logging.info({"User": session["username"], "Petición": petition})
         else:
@@ -295,7 +287,10 @@ def logs():
 
 @app.after_request
 def after_request(response):
-    """Logs of the response and CORS"""
+    """Logs of the response CORS, and close DB"""
+    if "connection" in g and g.connection is not None:
+        g.connection.close()
+        g.connection = None
     petition = urlparse(request.url).path.split("/")[-1]
     # Logs de respuesta
     if response.json is not None:
@@ -351,15 +346,15 @@ def after_request(response):
 def handle_error(error):
     """Logs of the application errors"""
     if str(error) == "'username'":
-        return {"status": "False", "error": "Usuario no ha iniciado sesión."}
-    elif error.code == 404:
-        return {"status": "False", "error": "Pagina no encontrada."}
-    elif error.code == 405:
-        return {"status": "False", "error": "Método no permitido"}
+        return jsonify({"status": "False", "error": "Usuario no encontrado"}), 401
+    elif hasattr(error, "code") and error.code == 404:
+        return jsonify({"status": "False", "error": "Pagina no encontrada"}), 404
+    elif hasattr(error, "code") and error.code == 405:
+        return jsonify({"status": "False", "error": "Método no permitido"}), 405
     else:
         logging.warning(error)
         logging.warning("Petición: %s", error, exc_info=True)
-        response = {"status": "False", "error": str(error)}
+        response = jsonify({"status": "False", "error": "Error interno"}), 500
         return response
 
 
@@ -860,10 +855,10 @@ def get_profile_picture(filename):
             f"{app.config['PROFILE_PICTURES_FOLDER']}/{filename}", mimetype="image/webp"
         )
     except FileNotFoundError:
-        return Response("File not found", 404)
+        return jsonify({"message": "File not found"}), 404
     except Exception as e:
         logging.exception(e)
-        return Response("Internal server error", status=500)
+        return jsonify({"message": "Internal server error"}), 500
 
 
 @app.route("/profile-picture/birthday", methods=["GET"])
@@ -948,3 +943,116 @@ def get_birthday_pictures():
     except Exception as e:
         logging.exception(e)
         return jsonify({"message": "Internal server error"}), 500
+
+
+@app.route("/massive-update", methods=["POST"])
+def massive_update():
+    """Update the data in the database from a xlsx file to each user"""
+    if session["edit"] == True:
+        body = get_request_body()
+        conexion = conexion_mysql()
+        if conexion is None:
+            return (
+                jsonify(
+                    {
+                        "status": "False",
+                        "error": "No se pudo conectar con la base de datos",
+                    }
+                ),
+                500,
+            )
+        if not request.files:
+            return (
+                jsonify(
+                    {"status": "False", "error": "No se ha enviado ningun archivo"}
+                ),
+                400,
+            )
+        # Read the xlsx file
+        file = request.files["file"]
+        try:
+            csv_df = pd.read_excel(file, keep_default_na=False, na_values=[""])
+        except Exception as e:
+            logging.exception(e)
+            return (
+                jsonify(
+                    {"status": "False", "error": "El archivo no es un xlsx valido"}
+                ),
+                400,
+            )
+        # Get the columns of the xlsx file
+        all_columns = csv_df.columns.tolist()
+        # Check if the columns are valid
+        if "Cedula" not in all_columns:
+            return (
+                jsonify(
+                    {
+                        "status": "False",
+                        "error": "La columna 'Cedula' no fue encontrada.",
+                    }
+                ),
+                400,
+            )
+        if "Tabla" not in all_columns:
+            return (
+                jsonify(
+                    {
+                        "status": "False",
+                        "error": "La columna 'Tabla' no  fue encontrada.",
+                    }
+                ),
+                400,
+            )
+        if "Columna" not in all_columns:
+            return jsonify(
+                {
+                    "status": "False",
+                    "error": "Debes especificar la columna mediante una columna llamada 'columna'.",
+                },
+                400,
+            )
+        if "Valor" not in all_columns:
+            return (
+                jsonify(
+                    {"status": "False", "error": "La columna 'Valor' no se encuentra."}
+                ),
+                400,
+            )
+        # Get the values of the xlsx file
+        cedula_values = csv_df["Cedula"].tolist()
+        tabla_values = csv_df["Tabla"].tolist()
+        columna_values = csv_df["Columna"].tolist()
+        valor_values = csv_df["Valor"].tolist()
+        if (
+            len(cedula_values)
+            != len(tabla_values)
+            != len(columna_values)
+            != len(valor_values)
+        ):
+            return jsonify(
+                {
+                    "status": "False",
+                    "error": "La cantidad de información en las columnas no es la coincide",
+                },
+                400,
+            )
+        # Update the data in the database
+        if conexion is None:
+            return (
+                jsonify(
+                    {
+                        "status": "False",
+                        "error": "No se pudo conectar con la base de datos2",
+                    }
+                ),
+                500,
+            )
+        for i, _ in enumerate(cedula_values):
+            update(
+                tabla_values[i],
+                (columna_values[i],),
+                (valor_values[i], cedula_values[i]),
+                "WHERE cedula = %s",
+                conexion,
+            )
+        return jsonify({"status": "success"}), 200

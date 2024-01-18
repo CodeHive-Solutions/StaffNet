@@ -104,7 +104,9 @@ const HomeView = () => {
             }
 
             if (response.status === 200) {
-                setProfilePicture(`${getApiUrl()}/profile-picture/${identificador}`);
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                setProfilePicture(imageUrl);
             } else {
                 setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error, true);
             }
