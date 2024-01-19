@@ -878,11 +878,11 @@ export const arrayData = [
                     options: [
                         {
                             value: "TÉRMINO INDEFINIDO",
-                            label: "término indefinido",
+                            label: "Término indefinido",
                         },
                         {
                             value: "TÉRMINO FIJO",
-                            label: "término fijo",
+                            label: "Término fijo",
                         },
                         {
                             value: "OBRA O LABOR",
