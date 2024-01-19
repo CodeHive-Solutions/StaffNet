@@ -351,7 +351,7 @@ export const arrayData = [
                     name: "pension",
                     type: "select",
                     options: [
-                        { value: "NINGUNA", label: "NINGUNA" },
+                        { value: "N/A", label: "N/A" },
                         { value: "CAXDAC", label: "CAXDAC" },
                         { value: "COLFONDOS", label: "COLFONDOS" },
                         { value: "COLPENSIONES", label: "COLPENSIONES" },
