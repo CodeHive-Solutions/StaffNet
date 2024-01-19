@@ -948,8 +948,11 @@ def get_birthday_pictures():
 @app.route("/massive-update", methods=["POST"])
 def massive_update():
     """Update the data in the database from a xlsx file to each user"""
-    if session["edit"] == True:
-        body = get_request_body()
+    if (
+        "edit" in session
+        and session["edit"]
+        and session["username"] == "heibert.mogollon"
+    ):
         conexion = conexion_mysql()
         if conexion is None:
             return (
@@ -964,7 +967,7 @@ def massive_update():
         if not request.files:
             return (
                 jsonify(
-                    {"status": "False", "error": "No se ha enviado ningun archivo"}
+                    {"status": "False", "error": "No se ha enviado ningún archivo"}
                 ),
                 400,
             )
@@ -1048,6 +1051,8 @@ def massive_update():
                 500,
             )
         for i, _ in enumerate(cedula_values):
+            if valor_values[i] == "None" or valor_values[i] == "":
+                valor_values[i] = None
             update(
                 tabla_values[i],
                 (columna_values[i],),
