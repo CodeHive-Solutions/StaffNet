@@ -894,7 +894,7 @@ def get_birthday_pictures():
         response = join_tables(
             conexion,
             ["personal_information", "employment_information", "leave_information"],
-            ["cedula", "nombre", "fecha_nacimiento", "campana_general"],
+            ["cedula", "descripcion", "nombre", "fecha_nacimiento", "campana_general"],
             ["cedula", "cedula"],
             where=condition,
         )
@@ -907,7 +907,7 @@ def get_birthday_pictures():
                 500,
             )
 
-        if response["status"] == "success" and response["data"].__len__() == 0:
+        if response["status"] == "success" and len(response["data"]) == 0:
             return (
                 jsonify(
                     {
