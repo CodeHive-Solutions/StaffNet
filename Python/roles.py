@@ -76,7 +76,6 @@ roles = {
             "parentesco": "",
             "tel_contacto": "",
         },
-        "leave_information": {"estado": ""},
         "employment_information": {
             "eps": "",
             "pension": "",
@@ -89,7 +88,11 @@ roles = {
             "tipo_contrato": "",
             "aplica_teletrabajo": "",
             "fecha_aplica_teletrabajo": "",
+            "talla_camisa": "",
+            "talla_pantalon": "",
+            "talla_zapatos": "",
         },
+        "leave_information": {"estado": ""},
     },
     "gestion": {
         "personal_information": {
