@@ -212,7 +212,7 @@ const HomeView = () => {
         bgcolor: "background.paper",
         p: 4,
         overflow: "auto",
-        borderRadius: "8px",
+        // borderRadius: "8px",
     };
 
     const handleChange = useCallback(

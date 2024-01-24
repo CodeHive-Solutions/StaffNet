@@ -37,13 +37,13 @@ export const arrayData = [
 
                 {
                     id: "lugar_expedicion",
-                    label: "Lugar Expedicion",
+                    label: "Lugar Expedición",
                     name: "lugar_expedicion",
                     type: "text",
                 },
                 {
                     id: "fecha_expedicion",
-                    label: "Fecha de expedicion",
+                    label: "Fecha de expedición",
                     name: "fecha_expedicion",
                     type: "date",
                     shrink: true,
@@ -134,7 +134,7 @@ export const arrayData = [
                 },
                 {
                     id: "11",
-                    label: "Telefono fijo",
+                    label: "Teléfono fijo",
                     name: "tel_fijo",
                     type: "number",
                 },
@@ -149,7 +149,7 @@ export const arrayData = [
 
                 {
                     id: "14",
-                    label: "Direccion",
+                    label: "Dirección",
                     name: "direccion",
                     type: "text",
                 },
@@ -206,7 +206,7 @@ export const arrayData = [
                     name: "parentesco",
                     type: "select",
                     options: [
-                        { value: "", label: "Seleccione una opcion" },
+                        { value: "", label: "Seleccione una opción" },
                         { value: "ABUELO(A)", label: "Abuelo(a)" },
                         { value: "AMIGO(A)", label: "Amigo(a)" },
                         { value: "ESPOSO(A)", label: "Esposo(a)" },
@@ -222,7 +222,7 @@ export const arrayData = [
                 },
                 {
                     id: "18",
-                    label: "Telefono de contacto",
+                    label: "Teléfono de contacto",
                     name: "tel_contacto",
                     type: "number",
                 },
@@ -258,7 +258,7 @@ export const arrayData = [
                 },
                 {
                     id: "20",
-                    label: "Profesion",
+                    label: "Profesión",
                     name: "profesion",
                     type: "text",
                 },
@@ -271,13 +271,13 @@ export const arrayData = [
             ],
         },
 
-        // Inputs Pagina Informacion Empleado
+        // Inputs Pagina Información Empleado
         {
             title: "Información Empleado",
             inputs: [
                 {
                     id: "fecha_afiliacion_eps",
-                    label: "Fecha de afiliacion",
+                    label: "Fecha de afiliación",
                     name: "fecha_afiliacion_eps",
                     type: "date",
                     shrink: true,
@@ -418,7 +418,6 @@ export const arrayData = [
                     name: "cargo",
                     type: "select",
                     options: [
-                        { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
                         { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
                         { value: "ABOGADO(A) JUNIOR", label: "Abogado(a) Junior" },
                         { value: "ANALISTA DE BD Y APLICACIONES", label: "Analista de BD y Aplicaciones" },
@@ -878,12 +877,12 @@ export const arrayData = [
                     type: "select",
                     options: [
                         {
-                            value: "CONTRATO A TERMINO INDEFINIDO",
-                            label: "Contrato a termino indefinido",
+                            value: "TERMINO INDEFINIDO",
+                            label: "Termino Indefinido",
                         },
                         {
-                            value: "CONTRATO A TERMINO FIJO",
-                            label: "Contrato a termino fijo",
+                            value: "TERMINO FIJO",
+                            label: "Termino Fijo",
                         },
                         {
                             value: "OBRA O LABOR",
@@ -1014,7 +1013,7 @@ export const arrayData = [
         },
         // Inputs Pagina Informacion Retiro
         {
-            title: "Informacion de Retiro",
+            title: "Información de Retiro",
             inputs: [
                 {
                     id: "58",
