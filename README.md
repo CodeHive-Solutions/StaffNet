@@ -1,6 +1,6 @@
 # StaffNet 🚀
 
-StaffNet is a web application that allows staff members to manage their tasks, projects, and schedules. It is built with Python, Flask, Redis, MySQL, and Vite. It is a collaborative project by CodeHive Solutions, a software development company that provides innovative solutions for various domains.
+StaffNet is a web application that allows staff members to manage their tasks, projects, and schedules. It is built with Python, Flask, Redis, MySQL, and Vite.
 
 ## Features 🌟
 
