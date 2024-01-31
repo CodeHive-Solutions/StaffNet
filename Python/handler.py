@@ -332,7 +332,7 @@ def after_request(response):
     else:
         url_permitidas = [
             "https://staffnet.cyc-bpo.com",
-            "https://insights.cyc-bpo.com",
+            "https://intranet.cyc-bpo.com",
         ]
     if request.origin in url_permitidas:
         response.headers.add("Access-Control-Allow-Origin", request.origin)
@@ -964,7 +964,7 @@ def massive_update():
                 ),
                 500,
             )
-        if not request.files:
+        if not request.files or "file" not in request.files:
             return (
                 jsonify(
                     {"status": "False", "error": "No se ha enviado ningún archivo"}

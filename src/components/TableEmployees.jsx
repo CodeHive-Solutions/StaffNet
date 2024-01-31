@@ -20,6 +20,10 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const TableEmployees = ({
     arrayData,
@@ -296,6 +300,10 @@ const TableEmployees = ({
         setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
     };
 
+    const openWindowsUserDialog = () => {
+        setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
+    };
+
     const CustomToolbar = (props) => {
         const apiRef = useGridApiContext();
         const handleExport = async () => {
@@ -368,6 +376,9 @@ const TableEmployees = ({
                 </Button>
                 <Button size="small" startIcon={<LastPageIcon />} onClick={() => handleLastPage()}>
                     Last Page
+                </Button>
+                <Button size="small" startIcon={<AccountCircleIcon />} onClick={() => handleLastPage()}>
+                    Windows User
                 </Button>
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />
