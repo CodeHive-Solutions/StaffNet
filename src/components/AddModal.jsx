@@ -305,6 +305,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         [
                                             "5",
                                             "antiguedad",
+                                            "usuario_windows",
                                             "desempeño",
                                             "falta",
                                             "tipo_sancion",

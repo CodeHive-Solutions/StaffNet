@@ -266,6 +266,9 @@ const EditModal = ({
                                         </Typography>
                                         {section.inputs.map((input) => {
                                             const getInputComponent = () => {
+                                                if (input.name === "usuario_windows") {
+                                                    return null;
+                                                }
                                                 if (
                                                     input.name === "salario" ||
                                                     input.name === "cuenta_nomina" ||

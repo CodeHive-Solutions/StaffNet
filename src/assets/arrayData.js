@@ -1010,6 +1010,12 @@ export const arrayData = [
                     name: "observaciones",
                     type: "text",
                 },
+                {
+                    id: "usuario_windows",
+                    label: "Usuario de Windows",
+                    name: "usuario_windows",
+                    type: "text",
+                }
             ],
         },
         // Inputs Pagina Informacion Retiro

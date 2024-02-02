@@ -39,6 +39,7 @@ const TableEmployees = ({
     checked,
     tableData,
     setTableData,
+    handleOpenDialog,
 }) => {
     const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
@@ -251,6 +252,23 @@ const TableEmployees = ({
                 );
             },
         });
+    } else if (rol === "soporte") {
+        filteredColumns.push({
+            field: "windows-user-action",
+            headerName: "Usuario Windows",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Usuario de Windows">
+                        <IconButton color="primary" onClick={() => handleOpenDialog(row.usuario_windows, row.cedula)}>
+                            <AccountCircleIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
     }
 
     let columnVisibilityModel;
@@ -297,10 +315,6 @@ const TableEmployees = ({
     };
 
     const handleLastPage = () => {
-        setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
-    };
-
-    const openWindowsUserDialog = () => {
         setPaginationModel((prev) => ({ ...prev, page: Math.ceil(rows.length / prev.pageSize) - 1 }));
     };
 
@@ -376,9 +390,6 @@ const TableEmployees = ({
                 </Button>
                 <Button size="small" startIcon={<LastPageIcon />} onClick={() => handleLastPage()}>
                     Last Page
-                </Button>
-                <Button size="small" startIcon={<AccountCircleIcon />} onClick={() => handleLastPage()}>
-                    Windows User
                 </Button>
                 <Box sx={{ textAlign: "end", flex: "1" }}>
                     <GridToolbarQuickFilter />

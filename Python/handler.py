@@ -1,4 +1,5 @@
 """The main handler for the StaffNet API"""
+
 import logging
 from io import BytesIO, StringIO
 import re
@@ -85,7 +86,7 @@ s.init_app(app)
 
 def get_request_body():
     """Get the request body as a dictionary"""
-    if request.content_type == "application/json":
+    if request.content_type == "application/json" and request.data:
         return request.get_json()
     else:
         return {}
@@ -338,7 +339,7 @@ def after_request(response):
         response.headers.add("Access-Control-Allow-Origin", request.origin)
         response.headers.add("Access-Control-Allow-Credentials", "true")
     response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "POST")
+    response.headers.add("Access-Control-Allow-Methods", "POST,PATCH")
     return response
 
 
@@ -767,9 +768,9 @@ def download():
                 excel_data.getvalue(),
                 content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
-            response.headers[
-                "Content-Disposition"
-            ] = 'attachment; filename="Exporte_StaffNet.xlsx"'
+            response.headers["Content-Disposition"] = (
+                'attachment; filename="Exporte_StaffNet.xlsx"'
+            )
             response.headers["Cache-Control"] = "no-cache"
             return response
         except Exception as e:
@@ -1045,7 +1046,7 @@ def massive_update():
                 jsonify(
                     {
                         "status": "False",
-                        "error": "No se pudo conectar con la base de datos2",
+                        "error": "No se pudo conectar con la base de datos",
                     }
                 ),
                 500,
@@ -1061,3 +1062,22 @@ def massive_update():
                 conexion,
             )
         return jsonify({"status": "success"}), 200
+
+
+# Little update
+@app.route("/update", methods=["PATCH"])
+def patch_update():
+    """Update the data in the database"""
+    if session["edit"] == True:
+        body = request.get_json()
+        conexion = conexion_mysql()
+        response = update(
+            body["table"],
+            (body["column"],),
+            (body["value"], body["cedula"]),
+            "WHERE cedula = %s",
+            conexion,
+        )
+        return jsonify(response)
+    else:
+        return jsonify({"status": "False", "error": "No tienes permisos"}), 403

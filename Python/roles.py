@@ -257,6 +257,7 @@ roles = {
             "cargo": "",
             "campana_general": "",
             "fecha_ingreso": "",
+            "usuario_windows": "",
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
     },
