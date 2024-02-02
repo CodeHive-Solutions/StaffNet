@@ -20,6 +20,10 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const TableEmployees = ({
     arrayData,
@@ -35,6 +39,7 @@ const TableEmployees = ({
     checked,
     tableData,
     setTableData,
+    handleOpenDialog,
 }) => {
     const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
@@ -242,6 +247,23 @@ const TableEmployees = ({
                     <Tooltip title="Detalles">
                         <IconButton color="primary" onClick={() => handleOpenModal(row.cedula)}>
                             <MoreIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
+    } else if (rol === "soporte") {
+        filteredColumns.push({
+            field: "windows-user-action",
+            headerName: "Usuario Windows",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Usuario de Windows">
+                        <IconButton color="primary" onClick={() => handleOpenDialog(row.usuario_windows, row.cedula)}>
+                            <AccountCircleIcon />
                         </IconButton>
                     </Tooltip>
                 );

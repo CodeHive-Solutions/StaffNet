@@ -16,6 +16,8 @@ import { arrayData } from "../assets/arrayData";
 import AddModal from "./AddModal";
 import { getApiUrl } from "../assets/getApi.js";
 import EditModal from "./EditModal";
+import { styled } from "@mui/material/styles";
+import WindowsUserDialog from "./WindowsUserDialog.jsx";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -36,9 +38,22 @@ const HomeView = () => {
     const [seniority, setSeniority] = useState("");
     const [severityAlert, setSeverityAlert] = useState("info");
     const [cedulaDetails, setCedulaDetails] = useState(0);
+    const [cedulaWindows, setCedulaWindows] = useState(0);
     const [checked, setChecked] = useState(true);
     const [originalData, setOriginalData] = useState(rows);
     const [profilePicture, setProfilePicture] = useState();
+    const [openWindowsUserDialog, setOpenWindowsUserDialog] = useState(false);
+    const [windowsUser, setWindowsUser] = useState("");
+
+    const handleOpenDialog = (usuario_windows, cedula) => {
+        setWindowsUser(usuario_windows);
+        setCedulaWindows(cedula);
+        setOpenWindowsUserDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenWindowsUserDialog(false);
+    };
 
     const calculateAge = (birthdate) => {
         // Split birthday string into array of year, month, and day
@@ -347,6 +362,8 @@ const HomeView = () => {
                             checked={checked}
                             tableData={tableData}
                             setTableData={setTableData}
+                            handleOpenDialog={handleOpenDialog}
+                            searchEmployeesUpdate={searchEmployeesUpdate}
                         />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>
@@ -354,6 +371,15 @@ const HomeView = () => {
                     </Box>
                 </Container>
             </Fade>
+            <WindowsUserDialog
+                searchEmployeesUpdate={searchEmployeesUpdate}
+                setShowSnackAlert={setShowSnackAlert}
+                setOpenWindowsUserDialog={setOpenWindowsUserDialog}
+                windowsUser={windowsUser}
+                openWindowsUserDialog={openWindowsUserDialog}
+                handleCloseDialog={handleCloseDialog}
+                cedula={cedulaWindows}
+            />
         </>
     );
 };

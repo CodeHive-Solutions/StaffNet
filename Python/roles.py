@@ -248,6 +248,19 @@ roles = {
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
     },
+    "soporte": {
+        "personal_information": {
+            "cedula": "",
+            "nombre": "",
+        },
+        "employment_information": {
+            "cargo": "",
+            "campana_general": "",
+            "fecha_ingreso": "",
+            "usuario_windows": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    },
 }
 
 

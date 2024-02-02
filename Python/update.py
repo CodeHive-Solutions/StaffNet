@@ -14,7 +14,6 @@ def update(tabla, columna, params, where_clause, conexion):
     """Recuerda mandar los datos encerrados por comillas dobles y no simples, recuerda que si necesitas un WHERE incluirlo en la variable where_clause, si no necesitas un WHERE, mandar un string vacio."""
     results = run_update(tabla, columna, params, where_clause, conexion)
     response = process_query(results)
-    # conexion.close()
     return response
 
 

@@ -456,6 +456,7 @@ export const arrayData = [
                         { value: "DIRECTOR(A) JURIDICO", label: "Director(a) Juridico" },
                         { value: "FORMADOR", label: "Formador" },
                         { value: "GERENTE ADMINISTRATIVA", label: "Gerente Administrativa" },
+                        { value: "GERENTE COMERCIAL Y DE LICITACIONES", label: "Gerente Comercial y de Licitaciones" },
                         { value: "GERENTE DE CONTROL INTERNO", label: "Gerente de Control Interno" },
                         { value: "GERENTE DE CUENTAS", label: "Gerente de cuentas" },
                         { value: "GERENTE DE GESTION HUMANA", label: "Gerente de Gestion Humana" },
@@ -1009,6 +1010,12 @@ export const arrayData = [
                     name: "observaciones",
                     type: "text",
                 },
+                {
+                    id: "usuario_windows",
+                    label: "Usuario de Windows",
+                    name: "usuario_windows",
+                    type: "text",
+                }
             ],
         },
         // Inputs Pagina Informacion Retiro
