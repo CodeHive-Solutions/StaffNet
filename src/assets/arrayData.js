@@ -420,6 +420,7 @@ export const arrayData = [
                     options: [
                         { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
                         { value: "ABOGADO(A) JUNIOR", label: "Abogado(a) Junior" },
+                        { value: "ANALISTA BI", label: "Analista BI" },
                         { value: "ANALISTA DE BD Y APLICACIONES", label: "Analista de BD y Aplicaciones" },
                         { value: "ANALISTA DE CALIDAD", label: "Analista de Calidad" },
                         { value: "ANALISTA DE SANEAMIENTO", label: "Analista de Saneamiento" },
@@ -449,6 +450,7 @@ export const arrayData = [
                         { value: "DATA MARSHALL", label: "Data Marshall" },
                         { value: "DIRECTOR(A) DE CALIDAD", label: "Director(a) de Calidad" },
                         { value: "DIRECTOR(A) FINANCIERO", label: "Director(a) Financiero" },
+                        { value: "DIRECTOR(A) DE FORMACION Y DESARROLLO DEL TALENTO", label: "Director(a) de Formación y Desarrollo del Talento"},
                         { value: "DIRECTOR(A) DE INVESTIGACIONES", label: "Director(a) de Investigaciones" },
                         { value: "DIRECTOR(A) DE PROYECTO", label: "Director(a) de Proyecto" },
                         { value: "DIRECTOR(A) DE RECURSOS FISICOS", label: "Director(a) de Recursos Fisicos" },
@@ -469,6 +471,7 @@ export const arrayData = [
                         { value: "GERENTE JR INFRAESTRUCTURA Y REDES", label: "Gerente Jr Infraestructura y Redes" },
                         { value: "GERENTE JR. DE APLICACIONES DE CONTACT CENTER", label: "Gerente jr.de Aplicaciones de Contact Center" },
                         { value: "GERENTE JR. DE MESA DE SERVICIO", label: "Gerente jr.de Mesa de Servicio" },
+                        { value: "INVESTIGADOR(A) DE CAMPO", label: "Investigador(a) de Campo" },
                         { value: "OPERADOR LOGISTICO", label: "Operador Logistico" },
                         { value: "PRESIDENTE", label: "Presidente" },
                         { value: "SENA LECTIVA", label: "Sena Lectiva" },
@@ -515,9 +518,14 @@ export const arrayData = [
                             label: "Banco Falabella Medellin",
                         },
                         {
+                            value: "BANCO PICHINCHA",
+                            label: "Banco Pichincha",
+                        },
+                        {
                             value: "BANCO SANTANDER",
                             label: "Banco Santander",
                         },
+                        
                         {
                             value: "BBVA",
                             label: "BBVA",
@@ -588,6 +596,10 @@ export const arrayData = [
                             label: "Gerencia de Planeacion",
                         },
                         {
+                            value: "GERENCIA DE RECURSOS FISICOS ",
+                            label: "Recursos Fisicos",
+                        },
+                        {
                             value: "GERENCIA DE RIESGO Y CONTROL INTERNO",
                             label: "Gerencia de Riesgo y Control Interno",
                         },
@@ -634,14 +646,6 @@ export const arrayData = [
                         {
                             value: "PRESIDENCIAL",
                             label: "Presidencial",
-                        },
-                        {
-                            value: "BANCO PICHINCHA",
-                            label: "Banco Pichincha",
-                        },
-                        {
-                            value: "GERENCIA DE RECURSOS FISICOS ",
-                            label: "Recursos Fisicos ",
                         },
                         {
                             value: "SCOTIABANK COLPATRIA",
