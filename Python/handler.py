@@ -952,7 +952,7 @@ def massive_update():
     if (
         "edit" in session
         and session["edit"]
-        and session["username"] == "heibert.mogollon"
+        and session["username"] in ["heibert.mogollon", "juan.carreno", "daniela.ospina.c"]
     ):
         conexion = conexion_mysql()
         if conexion is None:
@@ -1062,6 +1062,8 @@ def massive_update():
                 conexion,
             )
         return jsonify({"status": "success"}), 200
+    else:
+        return jsonify({"status": "False", "error": "No tienes permisos"}), 403
 
 
 # Little update
