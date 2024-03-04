@@ -10,8 +10,8 @@ else:
     load_dotenv("/var/env/StaffNet.env")
 
 connection = mysql.connector.connect(
-    # host='172.16.0.115',
-    host='172.16.0.118',
+    #host='172.16.0.118',
+    host='172.16.0.115',
     user='StaffNetuser',
     password=os.environ['StaffNetmysql'],
     database='staffnet'
@@ -25,11 +25,11 @@ cursor = connection.cursor()
 
 # Iterate through the rows of the Excel data
 for index, row in df.iterrows():
-    cedula = row["Cedula"]
-    new_value = row["Sede"]  # Replace with the actual column name you want to update
+    cedula = row["cedula"]
+    new_value = row["fecha_expedicion"]  # Replace with the actual column name you want to update
     
     # Perform the MySQL update
-    update_query = f"UPDATE employment_information SET sede = '{new_value}' WHERE cedula = '{cedula}'"
+    update_query = f"UPDATE personal_information SET fecha_expedicion = '{new_value}' WHERE cedula = '{cedula}'"
     cursor.execute(update_query)
     print(f"Updated {cedula} to {new_value}")
 connection.commit()
