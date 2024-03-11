@@ -303,6 +303,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         return renderSelectInput(input, formData, handleFormChange);
                                     } else if (
                                         [
+                                            "nombre_completo",
                                             "5",
                                             "antiguedad",
                                             "usuario_windows",

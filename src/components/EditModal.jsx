@@ -266,7 +266,7 @@ const EditModal = ({
                                         </Typography>
                                         {section.inputs.map((input) => {
                                             const getInputComponent = () => {
-                                                if (input.name === "usuario_windows") {
+                                                if (input.name === "usuario_windows" || input.name === "nombre_completo") {
                                                     return null;
                                                 }
                                                 if (

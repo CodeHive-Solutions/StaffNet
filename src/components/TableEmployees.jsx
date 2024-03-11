@@ -118,9 +118,15 @@ const TableEmployees = ({
         const newData = tableData.map((item) => {
             const age = item.fecha_nacimiento ? calculateAge(item.fecha_nacimiento) : undefined;
             const seniority = item.fecha_ingreso ? calculateSeniority(item.fecha_ingreso) : undefined;
+            const completeName = item.apellidos && item.nombres ? item.apellidos + " " + item.nombres : item.nombres;
+
+            // ignore the items nombres y apellidos
+            delete item.nombres;
+            delete item.apellidos;
 
             return {
                 ...item,
+                nombre_completo: completeName,
                 ...(item.fecha_nacimiento && item.fecha_ingreso
                     ? { edad: age, antiguedad: seniority }
                     : item.fecha_nacimiento
@@ -226,7 +232,7 @@ const TableEmployees = ({
 
                 return seniorityToMonths(v1) - seniorityToMonths(v2);
             };
-        } else if (key === "nombre") {
+        } else if (key === "nombre_completo") {
             column.width = 270;
         }
 
@@ -276,7 +282,7 @@ const TableEmployees = ({
         columnVisibilityModel = {
             ...Object.fromEntries(hiddenColumns.map((field) => [field, false])),
             cedula: true,
-            nombre: true,
+            nombre_completo: true,
             cargo: true,
             fecha_ingreso: true,
             salario: true,

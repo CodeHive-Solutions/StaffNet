@@ -10,8 +10,14 @@ export const arrayDataAdd = [
                     type: "text",
                 },
                 {
-                    label: "Nombre completo",
-                    name: "nombre",
+                    label: "Apellidos",
+                    name: "apellidos",
+                    initialValue: "",
+                    type: "text",
+                },
+                {
+                    label: "Nombres",
+                    name: "nombres",
                     initialValue: "",
                     type: "text",
                 },
