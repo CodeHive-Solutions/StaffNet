@@ -2,7 +2,8 @@ roles = {
     "formacion": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "tipo_documento": "",
             "fecha_nacimiento": "",
             "genero": "",
@@ -35,7 +36,8 @@ roles = {
     "seleccion": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "tipo_documento": "",
             "fecha_nacimiento": "",
             "lugar_expedicion": "",
@@ -59,7 +61,8 @@ roles = {
     "sst": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "tipo_documento": "",
             "fecha_nacimiento": "",
             "genero": "",
@@ -97,7 +100,8 @@ roles = {
     "gestion": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "tipo_documento": "",
             "fecha_nacimiento": "",
             "lugar_expedicion": "",
@@ -159,7 +163,8 @@ roles = {
     "coordinador_falabella": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
         },
         "employment_information": {
             "campana_general": ["BANCO FALABELLA"],
@@ -171,7 +176,8 @@ roles = {
     "gerente_comercial": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "genero": "",
             "fecha_nacimiento": "",
         },
@@ -185,7 +191,8 @@ roles = {
     "gerente_operaciones": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "genero": "",
             "fecha_nacimiento": "",
         },
@@ -216,7 +223,8 @@ roles = {
     "BI": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "genero": "",
             "fecha_nacimiento": "",
         },
@@ -236,7 +244,8 @@ roles = {
         "personal_information": {
             "tipo_documento": "",
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
             "correo": "",
             "correo_corporativo": "",
             "celular": "",
@@ -251,7 +260,8 @@ roles = {
     "soporte": {
         "personal_information": {
             "cedula": "",
-            "nombre": "",
+            "nombres": "",
+            "apellidos": "",
         },
         "employment_information": {
             "cargo": "",

@@ -1,11 +1,14 @@
 """The main handler for the StaffNet API"""
 
 import logging
-from io import BytesIO, StringIO
 import re
-from datetime import datetime, timedelta
 import os
+import mysql.connector
+import pandas as pd
+from io import BytesIO, StringIO
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
+import redis
 from flask import (
     Flask,
     Response,
@@ -25,10 +28,7 @@ from search import search
 from transaction import search_transaction, insert_transaction, join_tables, update_data
 from dotenv import load_dotenv
 from roles import get_rol_tables, get_rol_columns
-import mysql.connector
-import redis
 from werkzeug.utils import secure_filename
-import pandas as pd
 from PIL import Image
 
 
@@ -110,7 +110,8 @@ def bd_info():
             info_tables = {
                 "personal_information": {
                     "cedula": clean_value(body.get("cedula")),
-                    "nombre": clean_value(body.get("nombre")),
+                    "nombres": clean_value(body.get("nombres")),
+                    "apellidos": clean_value(body.get("apellidos")),
                     "tipo_documento": clean_value(body.get("tipo_documento")),
                     "fecha_expedicion": clean_value(body.get("fecha_expedicion")),
                     "lugar_expedicion": clean_value(body.get("lugar_expedicion")),
@@ -178,7 +179,7 @@ def bd_info():
                 # "vacation_information": {
                 #     "cedula": body.get("cedula").upper(),
                 #     "licencia_no_remunerada": body.get("licencia_no_remunerada").upper(),
-                #     "dias_utilizados": "0",
+                #     "dia_utilizados": "0",
                 #     "fecha_salida_vacaciones": body.get("fecha_salida_vacaciones").upper(),
                 #     "fecha_ingreso_vacaciones": body.get("fecha_ingreso_vacaciones".upper())
                 # },
@@ -192,7 +193,7 @@ def bd_info():
                 },
             }
         except Exception as error:
-            logging.exception(f"Campo no encontrado: {error}")
+            logging.exception(f"Campo no encontrado: %s", {error})
         return info_tables
 
 
@@ -529,6 +530,7 @@ def search_employees():
 
 @app.route("/get_join_info", methods=["POST"])
 def get_join_info():
+    """ "Get the information of the user"""
     conexion = conexion_mysql()
     body = get_request_body()
     if session["consult"] == True:
@@ -554,6 +556,7 @@ def get_join_info():
 
 @app.route("/employee_history", methods=["POST"])
 def get_historico():
+    """Get the historical data of the user"""
     conexion = conexion_mysql()
     body = get_request_body()
     if session["consult"] == True:
@@ -571,6 +574,7 @@ def get_historico():
 
 @app.route("/change_state", methods=["POST"])
 def change_state():
+    """Change the state of the user"""
     if session["disable"] == True:
         body = get_request_body()
         conexion = conexion_mysql()
@@ -815,7 +819,7 @@ def upload_image(cedula):
         if len(file_content) > max_file_size_bytes or len(file_content) == 0:
             return make_response(
                 jsonify(
-                    {"detail": f"Invalid file size. The file must be less than 5MB."}
+                    {"detail": "Invalid file size. The file must be less than 5MB."}
                 ),
                 400,
             )
@@ -895,7 +899,7 @@ def get_birthday_pictures():
         response = join_tables(
             conexion,
             ["personal_information", "employment_information", "leave_information"],
-            ["cedula", "descripcion", "nombre", "fecha_nacimiento", "campana_general"],
+            ["cedula", "descripcion", "nombres", "apellidos", "fecha_nacimiento", "campana_general"],
             ["cedula", "cedula"],
             where=condition,
         )
@@ -952,7 +956,8 @@ def massive_update():
     if (
         "edit" in session
         and session["edit"]
-        and session["username"] in ["heibert.mogollon", "juan.carreno", "daniela.ospina.c"]
+        and session["username"]
+        in ["heibert.mogollon", "daniela.ospina.c", "juan.carreno"]
     ):
         conexion = conexion_mysql()
         if conexion is None:
