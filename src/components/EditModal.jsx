@@ -81,7 +81,7 @@ const EditModal = ({
         setOpenModal(false);
         setEdit(true);
         setDetalles({});
-        setProfilePicture(false);
+        setProfilePicture("");
     };
 
     const fileInputRef = useRef(null);

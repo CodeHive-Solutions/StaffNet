@@ -82,18 +82,18 @@ const TableEmployees = ({
         return () => clearTimeout(intervalId);
     }, []);
 
-    function calculateAge(birthday) {
+    const calculateAge = (birthday) => {
         const birthDate = new Date(birthday);
         const currentDate = new Date();
         const age = currentDate.getFullYear() - birthDate.getFullYear();
         const monthDiff = currentDate.getMonth() - birthDate.getMonth();
 
         if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
-            return age - 1;
+            return age - 1 + " AÑOS";
         } else {
-            return age;
+            return age + " AÑOS";
         }
-    }
+    };
 
     const calculateSeniority = (affiliationDate) => {
         if (affiliationDate === undefined) return;

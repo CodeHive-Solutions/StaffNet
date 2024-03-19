@@ -55,18 +55,17 @@ const HomeView = () => {
         setOpenWindowsUserDialog(false);
     };
 
-    const calculateAge = (birthdate) => {
-        // Split birthday string into array of year, month, and day
-        const [year, month, day] = birthdate.split("-");
-        // Calculate today's date
-        const today = new Date();
-        // Calculate the age based on birthdate and today's date
-        let age = today.getFullYear() - year;
-        const monthDiff = today.getMonth() - (month - 1);
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
-            age--;
+    const calculateAge = (birthday) => {
+        const birthDate = new Date(birthday);
+        const currentDate = new Date();
+        const age = currentDate.getFullYear() - birthDate.getFullYear();
+        const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
+            return age - 1 + " AÑOS";
+        } else {
+            return age + " AÑOS";
         }
-        return age + " años";
     };
 
     const calculateSeniority = (affiliationDate) => {
@@ -79,13 +78,13 @@ const HomeView = () => {
         const years = Math.floor(monthsDiff / 12);
         const months = monthsDiff % 12;
 
-        const yearText = years === 1 ? "año" : "años";
-        const monthText = months === 1 ? "mes" : "meses";
+        const yearText = years === 1 ? "AÑO" : "AÑOS";
+        const monthText = months === 1 ? "MES" : "MESES";
 
         const yearString = years > 0 ? `${years} ${yearText}` : "";
         const monthString = months > 0 ? `${months} ${monthText}` : "";
 
-        return `${yearString}${yearString && monthString ? " y " : ""}${monthString}`;
+        return `${yearString}${yearString && monthString ? " Y " : ""}${monthString}`;
     };
 
     const handleOpenModalAdd = () => {
@@ -210,11 +209,37 @@ const HomeView = () => {
             }
             const data = await response.json();
             if (data.info.status === "success") {
-                setTableData(data.info.data);
+                addFields(data.info.data);
             }
         } catch (error) {
             setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + error, true);
         }
+    };
+
+    const addFields = (tableData) => {
+        const newData = tableData.map((item) => {
+            let age = item.fecha_nacimiento ? calculateAge(item.fecha_nacimiento) : undefined;
+            let seniority = item.fecha_ingreso ? calculateSeniority(item.fecha_ingreso) : undefined;
+            let completeName = item.apellidos && item.nombres ? item.apellidos + " " + item.nombres : item.nombres;
+
+            // ignore the items nombres y apellidos
+            delete item.nombres;
+            delete item.apellidos;
+
+            return {
+                ...item,
+                nombre_completo: completeName,
+                ...(item.fecha_nacimiento && item.fecha_ingreso
+                    ? { edad: age, antiguedad: seniority }
+                    : item.fecha_nacimiento
+                    ? { edad: age }
+                    : item.fecha_ingreso
+                    ? { antiguedad: seniority }
+                    : {}),
+            };
+        });
+
+        setTableData(newData);
     };
 
     const stylesModal = {
