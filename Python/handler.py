@@ -899,7 +899,14 @@ def get_birthday_pictures():
         response = join_tables(
             conexion,
             ["personal_information", "employment_information", "leave_information"],
-            ["cedula", "descripcion", "nombres", "apellidos", "fecha_nacimiento", "campana_general"],
+            [
+                "cedula",
+                "descripcion",
+                "nombres",
+                "apellidos",
+                "fecha_nacimiento",
+                "campana_general",
+            ],
             ["cedula", "cedula"],
             where=condition,
         )
