@@ -94,7 +94,7 @@ def get_request_body():
 
 def clean_value(value):
     """Clean the value to be inserted in the database"""
-    if value is None or value == "":
+    if value is None or str(value).strip() == "" or str(value).upper() == "NAN":
         return None
     if isinstance(value, int):
         return value
@@ -510,8 +510,7 @@ def search_employees():
     if session["consult"] == True:
         rol_tables = get_rol_tables(session["rol"])
         if not rol_tables:
-            response = {"status": "False", "error": "Rol no encontrado"}
-            return response
+            return Response(f"Rol no encontrado {session['rol']}", 404)
         conexion = conexion_mysql()
         response = search_transaction(conexion, rol_tables.items())
         response = {
