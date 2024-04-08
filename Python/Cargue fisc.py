@@ -118,7 +118,7 @@ df = pd.read_excel("massive_template 1.xlsx")
 db_config = {
     "host": "172.16.0.118",
     "user": "StaffNetuser",
-    "password": "qlVF3liVBswi$@4",
+    "password": "",
     "database": "staffnet",
 }
 
