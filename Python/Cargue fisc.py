@@ -8,7 +8,7 @@ from mysql.connector import Error
 
 def clean_value(value):
     """Clean the value to be inserted in the database"""
-    if value is None or value == "" or str(value).upper() == "NAN":
+    if value is None or str(value).strip() == "" or str(value).upper() == "NAN":
         return None
     if isinstance(value, int):
         return value
@@ -116,7 +116,7 @@ df = pd.read_excel("massive_template 1.xlsx")
 
 # Connect to the database
 db_config = {
-    "host": "172.16.0.115",
+    "host": "172.16.0.118",
     "user": "StaffNetuser",
     "password": "qlVF3liVBswi$@4",
     "database": "staffnet",
@@ -131,26 +131,25 @@ try:
         for index, row in df.iterrows():
             # print(row)
             info = bd_info()
-            print(index)
             # print(row)
             # print(row.values)
             for table, columns in info.items():
-                print(table)
-                print(columns)
+                # print(table)
+                # print(columns)
                 # The name of the columns of the db and the columns of the xlsx file must be the same
                 columns = list(columns.keys())
-                print(columns)
+                # print(columns)
                 values = [clean_value(row.get(column)) for column in columns]
-                print(values)
+                # print(values)
                 cursor.execute(
                     f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(columns))})",
                     values,
                 )
-                connection.commit()
+        connection.commit()
 except Error as e:
     print("Error while connecting to MySQL", e)
 finally:
-    #    if connection.is_connected():
-    #        cursor.close()
-    #        connection.close()
+    # if connection.is_connected():
+    #     cursor.close()
+    #     connection.close()
     print("MySQL connection is closed")

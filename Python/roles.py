@@ -188,6 +188,21 @@ roles = {
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
     },
+    "jefe_operaciones_fiscalia": {
+        "personal_information": {
+            "cedula": "",
+            "nombres": "",
+            "apellidos": "",
+            "genero": "",
+            "fecha_nacimiento": "",
+        },
+        "employment_information": {
+            "cargo": "",
+            "campana_general": ["Fiscalia General de la Nacion"],
+            "fecha_ingreso": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    },
     "gerente_operaciones": {
         "personal_information": {
             "cedula": "",
