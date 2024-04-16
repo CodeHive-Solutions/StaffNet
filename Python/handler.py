@@ -149,6 +149,7 @@ def bd_info():
                     "caja_compensacion": clean_value(body.get("caja_compensacion")),
                     "cesantias": clean_value(body.get("cesantias")),
                     "cuenta_nomina": clean_value(body.get("cuenta_nomina")),
+                    "banco": clean_value(body.get("banco")),
                     "fecha_nombramiento": clean_value(body.get("fecha_nombramiento")),
                     "fecha_ingreso": clean_value(body.get("fecha_ingreso")),
                     "sede": clean_value(body.get("sede")),

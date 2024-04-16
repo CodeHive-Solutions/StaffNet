@@ -137,7 +137,8 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                         input.name === "talla_camisa" ||
                                         input.name === "talla_pantalon" ||
                                         input.name === "talla_zapatos" ||
-                                        input.name === "aplica_teletrabajo"
+                                        input.name === "aplica_teletrabajo" ||
+                                        input.name === "banco"
                                     ) {
                                         return (
                                             <TextField

@@ -136,6 +136,7 @@ roles = {
             "caja_compensacion": "",
             "cesantias": "",
             "cuenta_nomina": "",
+            "banco": "",
             "sede": "",
             "cargo": "",
             "fecha_nombramiento": "",
