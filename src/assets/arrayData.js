@@ -409,7 +409,16 @@ export const arrayData = [
                 name: "cuenta_nomina",
                 type: "number",
             },
-
+            {
+                id: "banco",
+                label: "Banco",
+                name: "banco",
+                type: "select",
+                options: [
+                    { value: "BANCO CAJA SOCIAL", label: "Banco Caja Social" },
+                    { value: "BANCO FALABELLA", label: "Banco Falabella" },
+                ],
+            },
             {
                 id: "sede",
                 label: "Sede",
@@ -434,6 +443,7 @@ export const arrayData = [
                     { value: "AGENTE PROFESIONAL MINERO DE DATOS", label: "Agente Profesional Minero De Datos" },
                     { value: "AGENTE PROFESIONAL PSICOLOGA", label: "Agente Profesional Psicologa" },
                     { value: "AGENTE TECNICO", label: "Agente Tecnico" },
+                    { value: "AGENTE TECNICO MANTENIMIENTO", label: "Agente Tecnico Mantenimiento" },
                     { value: "AGENTE VIDEOLLAMADA Y LENGUAJE DE SEÑAS", label: "Agente Videollamada y Lenguaje de Señas" },
                     { value: "ANALISTA DE APLICACIONES DE CONTACT CENTER", label: "Analista de Aplicaciones de Contact Center" },
                     { value: "ABOGADO(A) JUNIOR", label: "Abogado(a) Junior" },
