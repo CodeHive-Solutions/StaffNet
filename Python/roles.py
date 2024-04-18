@@ -184,7 +184,7 @@ roles = {
         },
         "employment_information": {
             "cargo": "",
-            "campana_general": ["SURA", "COOMEVA", "METLIFE", "LIBERTY"],
+            "campana_general": ["SURA", "COOMEVA", "METLIFE", "LIBERTY","Fiscalia General de la Nacion"],
             "fecha_ingreso": "",
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
