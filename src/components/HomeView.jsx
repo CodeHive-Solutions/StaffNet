@@ -16,7 +16,6 @@ import { arrayData } from "../assets/arrayData";
 import AddModal from "./AddModal";
 import { getApiUrl } from "../assets/getApi.js";
 import EditModal from "./EditModal";
-import { styled } from "@mui/material/styles";
 import WindowsUserDialog from "./WindowsUserDialog.jsx";
 
 const HomeView = () => {

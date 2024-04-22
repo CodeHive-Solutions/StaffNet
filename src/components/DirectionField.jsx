@@ -11,6 +11,8 @@ const AddressForm = ({ handleFormChange }) => {
     const [option2Value, setOption2Value] = useState("");
     const [option3Value, setOption3Value] = useState("");
 
+    const concatenatedValue = `${selectedOption ? selectedOption.value : ""} ${option1Value} ${option2Value} ${option3Value}`;
+
     const options = [
         { value: "AD", label: "Administración" },
         { value: "AG", label: "Agencia" },
@@ -107,40 +109,48 @@ const AddressForm = ({ handleFormChange }) => {
 
     const handleOptionChange = (event, newValue) => {
         setSelectedOption(newValue);
+        let concatenatedValue = `${newValue ? newValue.value : ""} ${option1Value} ${option2Value} ${option3Value}`;
+        const eventDirection = { target: { value: concatenatedValue, name: "direction" } };
+        handleFormChange(eventDirection);
     };
 
     const handleOption1Change = (event) => {
         setOption1Value(event.target.value);
+        let concatenatedValue = `${selectedOption ? selectedOption.value : ""} ${event.target.value} ${option2Value} ${option3Value}`;
+        const eventDirection = { target: { value: concatenatedValue, name: "direction" } };
+        handleFormChange(eventDirection);
     };
 
     const handleOption2Change = (event) => {
         setOption2Value(event.target.value);
+        let concatenatedValue = `${selectedOption ? selectedOption.value : ""} ${option1Value} ${event.target.value} ${option3Value}`;
+        const eventDirection = { target: { value: concatenatedValue, name: "direction" } };
+        handleFormChange(eventDirection);
     };
 
     const handleOption3Change = (event) => {
         setOption3Value(event.target.value);
+        let concatenatedValue = `${selectedOption ? selectedOption.value : ""} ${option1Value} ${option2Value} ${event.target.value}`;
+        const eventDirection = { target: { value: concatenatedValue, name: "direction" } };
+        handleFormChange(eventDirection);
     };
-
-    const concatenatedValue = `${selectedOption ? selectedOption.value : ""} ${option1Value} ${option2Value} ${option3Value}`;
 
     return (
         <>
-            <Box sx={{ width: "100%", display: "flex", gap: "2rem", justifyContent: "center", alignItems: "center", flexWrap: "wrap", padding: "2rem" }}>
-                <Autocomplete
-                    isOptionEqualToValue={(option, value) => option.value === value.value}
-                    disablePortal
-                    id="directions-textfield"
-                    options={options}
-                    sx={{ width: "100%" }}
-                    onChange={handleOptionChange}
-                    renderInput={(params) => <TextField {...params} label="Dirección" />}
-                />
-                <TextField onChange={handleOption1Change} label={"Opcion 1"} sx={{ width: "350px" }} />
-                <TextField onChange={handleOption2Change} label={"Opcion 2"} sx={{ width: "350px" }} />
-                <TextField onChange={handleOption3Change} label={"Opcion 3"} sx={{ width: "350px" }} />
-                <Box>
-                    <TextField name="direccion" value={concatenatedValue} onChange={handleFormChange} label={"Dirección Formato Dian"} />
-                </Box>
+            <Autocomplete
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                disablePortal
+                id="directions-textfield"
+                options={options}
+                sx={{ width: "20rem" }}
+                onChange={handleOptionChange}
+                renderInput={(params) => <TextField required {...params} label="Dirección" />}
+            />
+            <TextField required onChange={handleOption1Change} label={"Opción 1"} sx={{ width: "20rem" }} />
+            <TextField required onChange={handleOption2Change} label={"Opción 2"} sx={{ width: "20rem" }} />
+            <TextField required onChange={handleOption3Change} label={"Opción 3"} sx={{ width: "20rem" }} />
+            <Box>
+                <TextField sx={{ width: "20rem" }} name="direccion" value={concatenatedValue} onChange={handleFormChange} label={"Dirección Formato Dian"} />
             </Box>
         </>
     );
