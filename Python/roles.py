@@ -184,7 +184,13 @@ roles = {
         },
         "employment_information": {
             "cargo": "",
-            "campana_general": ["SURA", "COOMEVA", "METLIFE", "LIBERTY","Fiscalia General de la Nacion"],
+            "campana_general": [
+                "SURA",
+                "COOMEVA",
+                "METLIFE",
+                "LIBERTY",
+                "Fiscalia General de la Nacion",
+            ],
             "fecha_ingreso": "",
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
@@ -231,6 +237,7 @@ roles = {
                 "SEGUROS BOLIVAR",
                 "GERENCIA DE OPERACIONES",
                 "CARTERA PROPIA",
+                "BANCO SANTANDER",
             ],
             "fecha_ingreso": "",
         },
