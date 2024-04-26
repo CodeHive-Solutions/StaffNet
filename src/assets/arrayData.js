@@ -539,6 +539,10 @@ export const arrayData = [
                 type: "select",
                 options: [
                     {
+                        value: "ALIANZAFONDOS",
+                        label: "Alianzafondos",
+                    },
+                    {
                         value: "AZTECA",
                         label: "Azteca",
                     },
@@ -728,6 +732,10 @@ export const arrayData = [
                 name: "campana_general",
                 type: "select",
                 options: [
+                    {
+                        value: "ALIANZAFONDOS",
+                        label: "Alianzafondos",
+                    },
                     {
                         value: "AZTECA",
                         label: "Azteca",

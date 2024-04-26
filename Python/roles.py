@@ -36,6 +36,7 @@ roles = {
     "seleccion": {
         "personal_information": {
             "cedula": "",
+            "rh": "",
             "nombres": "",
             "apellidos": "",
             "tipo_documento": "",
@@ -55,8 +56,9 @@ roles = {
         "employment_information": {
             "campana_general": "",
             "cargo": "",
+            "fecha_ingreso": "",
         },
-        "leave_information": {"estado": ""},
+        "leave_information": {"estado": "", "motivo_retiro": ""},
     },
     "sst": {
         "personal_information": {

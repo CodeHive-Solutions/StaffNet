@@ -25,37 +25,36 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
 
     const submitAdd = (event) => {
         event.preventDefault();
-        console.log("Form data", formData);
-        // setProgressBar(true);
-        // const insertTransaction = async (formData) => {
-        //     try {
-        //         const response = await fetch(`${getApiUrl()}/insert_transaction`, {
-        //             method: "POST",
-        //             credentials: "include",
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //             },
-        //             body: JSON.stringify(formData),
-        //             contentEncoding: "br",
-        //         });
-        //         setProgressBar(false);
-        //         if (!response.ok) {
-        //             throw new Error("Network response was not ok");
-        //         }
-        //         const data = await response.json();
-        //         if (data.status === "success") {
-        //             searchEmployeesUpdate();
-        //             handleCloseModalAdd();
-        //             setShowSnackAlert("success", "Empleado añadido correctamente");
-        //         } else {
-        //             console.error(data.error + "error alert");
-        //             setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error.toString(), true);
-        //         }
-        //     } catch (error) {
-        //         setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
-        //     }
-        // };
-        // insertTransaction(formData);
+        setProgressBar(true);
+        const insertTransaction = async (formData) => {
+            try {
+                const response = await fetch(`${getApiUrl()}/insert_transaction`, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                    contentEncoding: "br",
+                });
+                setProgressBar(false);
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const data = await response.json();
+                if (data.status === "success") {
+                    searchEmployeesUpdate();
+                    handleCloseModalAdd();
+                    setShowSnackAlert("success", "Empleado añadido correctamente");
+                } else {
+                    console.error(data.error + "error alert");
+                    setShowSnackAlert("error", "Por favor envía este error a desarrollo: " + data.error.toString(), true);
+                }
+            } catch (error) {
+                setShowSnackAlert("error", "Por favor envia este error a desarrollo: " + error, true);
+            }
+        };
+        insertTransaction(formData);
     };
 
     const handleCloseModalAdd = () => setOpenModalAdd(false);
@@ -189,9 +188,9 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                 };
 
                                 const renderTextInput = (input, formData, handleFormChange) => {
-                                    if (input.name == "direccion") {
-                                        return <DirectionField key={input.id} handleFormChange={handleFormChange}></DirectionField>;
-                                    }
+                                    // if (input.name == "direccion") {
+                                    //     return <DirectionField key={input.id} handleFormChange={handleFormChange}></DirectionField>;
+                                    // }
 
                                     if (input.name == "salario" || input.name == "cuenta_nomina" || input.name == "subsidio_transporte" || input.name === "celular") {
                                         return (
