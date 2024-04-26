@@ -176,7 +176,7 @@ def bd_info():
                     "memorando_1": clean_value(body.get("memorando_1")),
                     "memorando_2": clean_value(body.get("memorando_2")),
                     "memorando_3": clean_value(body.get("memorando_3")),
-                },
+                }, 
                 # "vacation_information": {
                 #     "cedula": body.get("cedula").upper(),
                 #     "licencia_no_remunerada": body.get("licencia_no_remunerada").upper(),
