@@ -1045,7 +1045,7 @@ def massive_update():
             != len(columna_values)
             != len(valor_values)
         ):
-            return jsonify(
+            return jsonify( 
                 {
                     "status": "False",
                     "error": "La cantidad de información en las columnas no es la coincide",
