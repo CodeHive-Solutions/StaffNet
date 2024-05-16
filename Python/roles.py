@@ -296,6 +296,26 @@ roles = {
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
     },
+    "aprendiz": {
+        "personal_information": {
+            "cedula": "",
+            "nombres": "",
+            "apellidos": "",
+            "celular": "",
+            "correo": "",
+        },
+        "employment_information": {
+            "sede": "",
+            "cargo": "",
+            "gerencia": "",
+            "campana_general": "",
+            "fecha_ingreso": "",
+        },
+        "leave_information": {
+            "fecha_retiro": "",
+            "estado": "",
+        },
+    },
 }
 
 
