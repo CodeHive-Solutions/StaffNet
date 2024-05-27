@@ -21,6 +21,7 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import PregnantWomanIcon from "@mui/icons-material/PregnantWoman";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -40,6 +41,7 @@ const TableEmployees = ({
     tableData,
     setTableData,
     handleOpenDialog,
+    handleOpenMaternityDialog
 }) => {
     const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
@@ -258,7 +260,7 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "soporte") {
+    } else if (rol === "test") {
         filteredColumns.push({
             field: "windows-user-action",
             headerName: "Usuario Windows",
@@ -270,6 +272,26 @@ const TableEmployees = ({
                     <Tooltip title="Usuario de Windows">
                         <IconButton color="primary" onClick={() => handleOpenDialog(row.usuario_windows, row.cedula)}>
                             <AccountCircleIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
+    } else if (rol === "soporte") {
+        filteredColumns.push({
+            field: "maternity-action",
+            headerName: "Maternidad",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Maternidad">
+                        <IconButton
+                            color="primary"
+                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico_especial, row.embarazo, row.licencia_maternidad, row.lactancia)}
+                        >
+                            <PregnantWomanIcon />
                         </IconButton>
                     </Tooltip>
                 );

@@ -17,6 +17,7 @@ import AddModal from "./AddModal";
 import { getApiUrl } from "../assets/getApi.js";
 import EditModal from "./EditModal";
 import WindowsUserDialog from "./WindowsUserDialog.jsx";
+import MaternityDialog from "./MaternityDialog.jsx";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -42,7 +43,12 @@ const HomeView = () => {
     const [originalData, setOriginalData] = useState(rows);
     const [profilePicture, setProfilePicture] = useState();
     const [openWindowsUserDialog, setOpenWindowsUserDialog] = useState(false);
+    const [openMaternityDialog, setOpenMaternityDialog] = useState(false);
     const [windowsUser, setWindowsUser] = useState("");
+    const [casoMedicoEspecial, setCasoMedicoEspecial] = useState("");
+    const [embarazo, setEmbarazo] = useState("");
+    const [licenciaMaternidad, setLicenciaMaternidad] = useState("");
+    const [lactancia, setLactancia] = useState("");
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -50,8 +56,21 @@ const HomeView = () => {
         setOpenWindowsUserDialog(true);
     };
 
+    const handleOpenMaternityDialog = (cedula, caso_medico_especial, embarazo, licencia_maternidad, lactancia) => {
+        setOpenMaternityDialog(true);
+        setCedulaWindows(cedula);
+        setCasoMedicoEspecial(caso_medico_especial);
+        setEmbarazo(embarazo);
+        setLicenciaMaternidad(licencia_maternidad);
+        setLactancia(lactancia);
+    };
+
     const handleCloseDialog = () => {
         setOpenWindowsUserDialog(false);
+    };
+
+    const handleCloseMaternityDialog = () => {
+        setOpenMaternityDialog(false);
     };
 
     const calculateAge = (birthday) => {
@@ -387,6 +406,7 @@ const HomeView = () => {
                             tableData={tableData}
                             setTableData={setTableData}
                             handleOpenDialog={handleOpenDialog}
+                            handleOpenMaternityDialog={handleOpenMaternityDialog}
                             searchEmployeesUpdate={searchEmployeesUpdate}
                         />
                     </Box>
@@ -403,6 +423,18 @@ const HomeView = () => {
                 openWindowsUserDialog={openWindowsUserDialog}
                 handleCloseDialog={handleCloseDialog}
                 cedula={cedulaWindows}
+            />
+            <MaternityDialog
+                searchEmployeesUpdate={searchEmployeesUpdate}
+                setShowSnackAlert={setShowSnackAlert}
+                openMaternityDialog={openMaternityDialog}
+                handleCloseMaternityDialog={handleCloseMaternityDialog}
+                cedula={cedulaWindows}
+                casoMedicoEspecial={casoMedicoEspecial}
+                embarazo={embarazo}
+                licenciaMaternidad={licenciaMaternidad}
+                lactancia={lactancia}
+
             />
         </>
     );
