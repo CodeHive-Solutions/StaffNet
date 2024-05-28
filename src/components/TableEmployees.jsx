@@ -41,7 +41,7 @@ const TableEmployees = ({
     tableData,
     setTableData,
     handleOpenDialog,
-    handleOpenMaternityDialog
+    handleOpenMaternityDialog,
 }) => {
     const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
@@ -66,6 +66,9 @@ const TableEmployees = ({
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
+                    // log just the item with the id === 1001185399
+                    const item = data.info.data.find((item) => item.cedula === 1001185389);
+                    console.log(item);
                     setRole(data.rol);
                     addFields(data.info.data);
                     setPermissions(data.permissions);
@@ -277,7 +280,7 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "soporte") {
+    } else if (rol === "sst-maternity") {
         filteredColumns.push({
             field: "maternity-action",
             headerName: "Maternidad",
@@ -289,7 +292,17 @@ const TableEmployees = ({
                     <Tooltip title="Maternidad">
                         <IconButton
                             color="primary"
-                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico_especial, row.embarazo, row.licencia_maternidad, row.lactancia)}
+                            onClick={() =>
+                                handleOpenMaternityDialog(
+                                    row.cedula,
+                                    row.caso_medico_especial,
+                                    row.fecha_inicio_embarazo,
+                                    row.fecha_fin_embarazo,
+                                    row.licencia_maternidad,
+                                    row.fecha_inicio_licencia,
+                                    row.fecha_fin_licencia
+                                )
+                            }
                         >
                             <PregnantWomanIcon />
                         </IconButton>
@@ -467,6 +480,10 @@ const TableEmployees = ({
                         "fecha_aplica_teletrabajo",
                         "fecha_afiliacion_eps",
                         "fecha_nombramiento",
+                        "fecha_inicio_embarazo",
+                        "fecha_fin_embarazo",
+                        "fecha_inicio_licencia",
+                        "fecha_fin_licencia",
                     ].includes(key)
                 ) {
                     // Format the date property

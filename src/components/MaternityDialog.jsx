@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { Dialog, DialogTitle, TextField, Button, Box, MenuItem, Collapse } from "@mui/material";
 import { getApiUrl } from "../assets/getApi";
 
@@ -9,15 +9,28 @@ const MaternityDialog = ({
     handleCloseMaternityDialog,
     cedula,
     casoMedicoEspecial,
-    embarazo,
+    fechaInicioEmbarazo,
+    fechaFinEmbarazo,
     licenciaMaternidad,
-    lactancia,
+    fechaInicioLicencia,
+    fechaFinLicencia,
 }) => {
     const inputCasoMedicoEspecial = useRef(null);
-    const inputEmbarazo = useRef(null);
+    const inputFechaInicioEmbarazo = useRef(null);
+    const inputFechaFinEmbarazo = useRef(null);
     const inputLicenciaMaternidad = useRef(null);
-    const inputLactancia = useRef(null);
+    const inputFechaInicioLicencia = useRef(null);
+    const inputFechaFinLicencia = useRef(null);
+
     const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
+
+    const formatDate = (date) => {
+        if (date) {
+            const dateArray = date.split("-");
+            return `${dateArray[2]}/${dateArray[1]}/${dateArray[0]}`;
+        }
+        return "";
+    };
 
     const handleChangeInput = (event) => {
         if (event.target.value === "EMBARAZO") {
@@ -58,9 +71,15 @@ const MaternityDialog = ({
         <Dialog open={openMaternityDialog} onClose={handleCloseMaternityDialog} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
             <DialogTitle id="editar-campos-maternidad">{"Editar campos"}</DialogTitle>
             <Box onSubmit={submitMaternityData} component="form" sx={{ flexDirection: "column", p: "1rem 1.5rem ", display: "flex", alignItems: "start" }}>
-                <TextField select onChange={handleChangeInput} inputRef={inputCasoMedicoEspecial} sx={{ width: "400px", mb: "1rem" }} defaultValue={casoMedicoEspecial} label="Caso Medico Especial">
+                <TextField
+                    select
+                    onChange={handleChangeInput}
+                    inputRef={inputCasoMedicoEspecial}
+                    sx={{ width: "400px", mb: "1rem" }}
+                    defaultValue={casoMedicoEspecial}
+                    label="Caso Medico Especial"
+                >
                     <MenuItem value={"EMBARAZO"}>Embarazo</MenuItem>
-                    <MenuItem value={"LICENCIA MATERNIDAD"}>Licencia Maternidad</MenuItem>
                     <MenuItem value={"LICENCIA PATERNIDAD"}>Licencia Paternidad</MenuItem>
                     <MenuItem value={"LACTANCIA 6 MESES"}>Lactancia 6 Meses</MenuItem>
                     <MenuItem value={"LACTANCIA 6-12 MESES"}>Lactancia 6-12 Meses</MenuItem>
@@ -69,9 +88,9 @@ const MaternityDialog = ({
                 <Collapse in={openPregnantCollapse}>
                     <TextField
                         type="date"
-                        inputRef={inputLicenciaMaternidad}
+                        inputRef={inputFechaInicioEmbarazo}
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad}
+                        defaultValue={fechaInicioEmbarazo}
                         label="Fecha de inicio de Embarazo"
                         InputLabelProps={{
                             shrink: true,
@@ -79,9 +98,9 @@ const MaternityDialog = ({
                     ></TextField>
                     <TextField
                         type="date"
-                        inputRef={inputLicenciaMaternidad}
+                        inputRef={inputFechaFinEmbarazo}
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad}
+                        defaultValue={fechaFinEmbarazo}
                         label="Fecha de fin de Embarazo"
                         InputLabelProps={{
                             shrink: true,
@@ -94,14 +113,14 @@ const MaternityDialog = ({
                         defaultValue={licenciaMaternidad}
                         label="Licencia de Maternidad"
                     >
-                        <MenuItem value={"SI"}>Si</MenuItem>
-                        <MenuItem value={"NO"}>No</MenuItem>
+                        <MenuItem value={1}>Si</MenuItem>
+                        <MenuItem value={0}>No</MenuItem>
                     </TextField>
                     <TextField
                         type="date"
-                        inputRef={inputLicenciaMaternidad}
+                        inputRef={inputFechaInicioLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad}
+                        defaultValue={fechaInicioLicencia}
                         label="Fecha de inicio de licencia"
                         InputLabelProps={{
                             shrink: true,
@@ -109,9 +128,9 @@ const MaternityDialog = ({
                     ></TextField>
                     <TextField
                         type="date"
-                        inputRef={inputLicenciaMaternidad}
+                        inputRef={inputFechaFinLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad}
+                        defaultValue={fechaFinLicencia}
                         label="Fecha de fin de licencia"
                         InputLabelProps={{
                             shrink: true,

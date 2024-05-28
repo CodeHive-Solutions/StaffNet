@@ -46,9 +46,11 @@ const HomeView = () => {
     const [openMaternityDialog, setOpenMaternityDialog] = useState(false);
     const [windowsUser, setWindowsUser] = useState("");
     const [casoMedicoEspecial, setCasoMedicoEspecial] = useState("");
-    const [embarazo, setEmbarazo] = useState("");
+    const [fechaInicioEmbarazo, setFechaInicioEmbarazo] = useState("");
+    const [fechaFinEmbarazo, setFechaFinEmbarazo] = useState("");
     const [licenciaMaternidad, setLicenciaMaternidad] = useState("");
-    const [lactancia, setLactancia] = useState("");
+    const [fechaInicioLicencia, setFechaInicioLicencia] = useState("");
+    const [fechaFinLicencia, setFechaFinLicencia] = useState("");
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -56,13 +58,39 @@ const HomeView = () => {
         setOpenWindowsUserDialog(true);
     };
 
-    const handleOpenMaternityDialog = (cedula, caso_medico_especial, embarazo, licencia_maternidad, lactancia) => {
+    // format the dates like 'Fri, 04 Aug 2023 00:00:00 GMT' to a yyyy-mm-dd format
+    const formatDate = (date) => {
+        console.log(date);
+        if (date) {
+            console.log(date);
+            const dateObject = new Date(date);
+            console.log(dateObject);
+            const year = dateObject.getFullYear();
+            const month = String(dateObject.getMonth() + 1).padStart(2, "0");
+            const day = String(dateObject.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+        return "";
+    };
+
+    const handleOpenMaternityDialog = (
+        cedula,
+        caso_medico_especial,
+        fecha_inicio_embarazo,
+        fecha_fin_embarazo,
+        licencia_maternidad,
+        fecha_inicio_licencia,
+        fecha_fin_licencia
+    ) => {
+        let fechaInicioEmbarazo = formatDate(fecha_inicio_embarazo);
         setOpenMaternityDialog(true);
         setCedulaWindows(cedula);
         setCasoMedicoEspecial(caso_medico_especial);
-        setEmbarazo(embarazo);
+        setFechaInicioEmbarazo(fechaInicioEmbarazo);
+        setFechaFinEmbarazo(fecha_fin_embarazo);
         setLicenciaMaternidad(licencia_maternidad);
-        setLactancia(lactancia);
+        setFechaInicioLicencia(fecha_inicio_licencia);
+        setFechaFinLicencia(fecha_fin_licencia);
     };
 
     const handleCloseDialog = () => {
@@ -431,10 +459,11 @@ const HomeView = () => {
                 handleCloseMaternityDialog={handleCloseMaternityDialog}
                 cedula={cedulaWindows}
                 casoMedicoEspecial={casoMedicoEspecial}
-                embarazo={embarazo}
+                fechaInicioEmbarazo={fechaInicioEmbarazo}
+                fechaFinEmbarazo={fechaFinEmbarazo}
                 licenciaMaternidad={licenciaMaternidad}
-                lactancia={lactancia}
-
+                fechaInicioLicencia={fechaInicioLicencia}
+                fechaFinLicencia={fechaFinLicencia}
             />
         </>
     );
