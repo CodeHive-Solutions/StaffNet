@@ -458,6 +458,7 @@ export const arrayData = [
                     { value: "ASESOR(A) DE NEGOCIACION", label: "Asesor(a) de Negociacion" },
                     { value: "ASESOR(A) DE NEGOCIACION JR", label: "Asesor(a) de Negociacion jr" },
                     { value: "ASESOR(A) SENIOR", label: "Asesor(a) Senior" },
+                    { value: "AUXILIAR BI", label: "Auxiliar BI" },
                     { value: "AUXILIAR ADMINISTRATIVO", label: "Auxiliar Administrativo" },
                     { value: "AUXILIAR CONTABLE", label: "Auxiliar Contable" },
                     { value: "AUXILIAR DE CONTROL DE ACCESOS", label: "Auxiliar de Control de Accesos" },
@@ -493,7 +494,7 @@ export const arrayData = [
                     { value: "GERENTE DE CONTROL INTERNO", label: "Gerente de Control Interno" },
                     { value: "GERENTE DE CUENTAS", label: "Gerente de cuentas" },
                     { value: "GERENTE DE GESTION HUMANA", label: "Gerente de Gestion Humana" },
-                    { value: "GERENTE DE LEGAL Y DE RIESGO", label: "Gerente de Legal y de Riesgo" },
+                    { value: "GERENTE DE LEGAL", label: "Gerente de Legal" },
                     { value: "GERENTE DE MERCADEO", label: "Gerente de Mercadeo" },
                     { value: "GERENTE DE OPERACIONES", label: "Gerente de Operaciones" },
                     { value: "GERENTE DE PLANEACION", label: "Gerente de Planeacion" },
@@ -625,8 +626,8 @@ export const arrayData = [
                         label: "Gerencia Financiera",
                     },
                     {
-                        value: "GERENCIA DE LEGAL RIESGO",
-                        label: "Gerencia de Legal y Riesgo",
+                        value: "GERENCIA DE LEGAL",
+                        label: "Gerencia de Legal",
                     },
                     {
                         value: "GERENCIA DE MERCADEO",
@@ -813,10 +814,9 @@ export const arrayData = [
                         label: "Gerencia Financiera",
                     },
                     {
-                        value: "GERENCIA DE LEGAL RIESGO",
-                        label: "Gerencia de Legal y Riesgo",
-                    },
-                    {
+                        value: "GERENCIA DE LEGAL",
+                        label: "Gerencia de Legal",
+                    },                   {
                         value: "GERENCIA DE MERCADEO",
                         label: "Gerencia de Mercadeo",
                     },

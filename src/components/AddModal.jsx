@@ -188,9 +188,9 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                                 };
 
                                 const renderTextInput = (input, formData, handleFormChange) => {
-                                    if (input.name == "direccion") {
-                                        return <DirectionField key={input.id} handleFormChange={handleFormChange}></DirectionField>;
-                                    }
+                                    // if (input.name == "direccion") {
+                                    //     return <DirectionField key={input.id} handleFormChange={handleFormChange}></DirectionField>;
+                                    // }
 
                                     if (input.name == "salario" || input.name == "cuenta_nomina" || input.name == "subsidio_transporte" || input.name === "celular") {
                                         return (
