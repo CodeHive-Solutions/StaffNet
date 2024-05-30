@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Dialog, DialogTitle, TextField, Button, Box, MenuItem, Collapse } from "@mui/material";
 import { getApiUrl } from "../assets/getApi";
 
@@ -24,14 +24,6 @@ const MaternityDialog = ({
 
     const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
 
-    const formatDate = (date) => {
-        if (date) {
-            const dateArray = date.split("-");
-            return `${dateArray[2]}/${dateArray[1]}/${dateArray[0]}`;
-        }
-        return "";
-    };
-
     const handleChangeInput = (event) => {
         if (event.target.value === "EMBARAZO") {
             setOpenPregnantCollapse(true);
@@ -39,6 +31,12 @@ const MaternityDialog = ({
             setOpenPregnantCollapse(false);
         }
     };
+
+    useEffect(() => {
+        if (casoMedicoEspecial === "EMBARAZO") {
+            setOpenPregnantCollapse(true);
+        }
+    }, []);
 
     const submitMaternityData = async (event) => {
         event.preventDefault();
@@ -76,7 +74,7 @@ const MaternityDialog = ({
                     onChange={handleChangeInput}
                     inputRef={inputCasoMedicoEspecial}
                     sx={{ width: "400px", mb: "1rem" }}
-                    defaultValue={casoMedicoEspecial}
+                    defaultValue={casoMedicoEspecial || ""}
                     label="Caso Medico Especial"
                 >
                     <MenuItem value={"EMBARAZO"}>Embarazo</MenuItem>
@@ -90,7 +88,7 @@ const MaternityDialog = ({
                         type="date"
                         inputRef={inputFechaInicioEmbarazo}
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={fechaInicioEmbarazo}
+                        defaultValue={fechaInicioEmbarazo || ""}
                         label="Fecha de inicio de Embarazo"
                         InputLabelProps={{
                             shrink: true,
@@ -110,7 +108,7 @@ const MaternityDialog = ({
                         inputRef={inputLicenciaMaternidad}
                         select
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad}
+                        defaultValue={licenciaMaternidad || ""}
                         label="Licencia de Maternidad"
                     >
                         <MenuItem value={1}>Si</MenuItem>

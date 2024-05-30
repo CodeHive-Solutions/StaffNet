@@ -175,6 +175,12 @@ roles = {
             "contacto_emergencia": "",
             "parentesco": "",
             "tel_contacto": "",
+            "caso_medico_especial": "",
+            "fecha_inicio_embarazo": "",
+            "fecha_fin_embarazo": "",
+            "licencia_maternidad": "",
+            "fecha_inicio_licencia": "",
+            "fecha_fin_licencia": "",
         },
         "educational_information": {
             "nivel_escolaridad": "",

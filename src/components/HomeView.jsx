@@ -58,16 +58,13 @@ const HomeView = () => {
         setOpenWindowsUserDialog(true);
     };
 
-    // format the dates like 'Fri, 04 Aug 2023 00:00:00 GMT' to a yyyy-mm-dd format
+    // format the maternity dates to the yyyy-mm-dd format
     const formatDate = (date) => {
-        console.log(date);
         if (date) {
-            console.log(date);
             const dateObject = new Date(date);
-            console.log(dateObject);
-            const year = dateObject.getFullYear();
-            const month = String(dateObject.getMonth() + 1).padStart(2, "0");
-            const day = String(dateObject.getDate()).padStart(2, "0");
+            const year = dateObject.getUTCFullYear();
+            const month = String(dateObject.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(dateObject.getUTCDate()).padStart(2, "0");
             return `${year}-${month}-${day}`;
         }
         return "";
@@ -82,15 +79,14 @@ const HomeView = () => {
         fecha_inicio_licencia,
         fecha_fin_licencia
     ) => {
-        let fechaInicioEmbarazo = formatDate(fecha_inicio_embarazo);
         setOpenMaternityDialog(true);
         setCedulaWindows(cedula);
         setCasoMedicoEspecial(caso_medico_especial);
-        setFechaInicioEmbarazo(fechaInicioEmbarazo);
-        setFechaFinEmbarazo(fecha_fin_embarazo);
+        setFechaInicioEmbarazo(formatDate(fecha_inicio_embarazo));
+        setFechaFinEmbarazo(formatDate(fecha_fin_embarazo));
         setLicenciaMaternidad(licencia_maternidad);
-        setFechaInicioLicencia(fecha_inicio_licencia);
-        setFechaFinLicencia(fecha_fin_licencia);
+        setFechaInicioLicencia(formatDate(fecha_inicio_licencia));
+        setFechaFinLicencia(formatDate(fecha_fin_licencia));
     };
 
     const handleCloseDialog = () => {

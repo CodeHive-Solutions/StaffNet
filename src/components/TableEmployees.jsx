@@ -68,7 +68,6 @@ const TableEmployees = ({
                 } else if ("info" in data) {
                     // log just the item with the id === 1001185399
                     const item = data.info.data.find((item) => item.cedula === 1001185389);
-                    console.log(item);
                     setRole(data.rol);
                     addFields(data.info.data);
                     setPermissions(data.permissions);
@@ -141,7 +140,7 @@ const TableEmployees = ({
                     : {}),
             };
         });
-
+        // log the whole data from the register with the cedula 1001185389
         setTableData(newData);
     };
 
@@ -168,7 +167,6 @@ const TableEmployees = ({
     // Generate columns based on filtered keys
     const filteredColumns = filteredKeys.map((key) => {
         const inputItem = arrayData.find((item) => item.inputs.some((input) => input.name === key));
-
         const input = inputItem.inputs.find((input) => input.name === key);
 
         let column = {
@@ -263,6 +261,35 @@ const TableEmployees = ({
                 );
             },
         });
+        filteredColumns.push({
+            field: "maternity-action",
+            headerName: "Maternidad",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="Maternidad">
+                        <IconButton
+                            color="primary"
+                            onClick={() =>
+                                handleOpenMaternityDialog(
+                                    row.cedula,
+                                    row.caso_medico_especial,
+                                    row.fecha_inicio_embarazo,
+                                    row.fecha_fin_embarazo,
+                                    row.licencia_maternidad,
+                                    row.fecha_inicio_licencia,
+                                    row.fecha_fin_licencia
+                                )
+                            }
+                        >
+                            <PregnantWomanIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
     } else if (rol === "test") {
         filteredColumns.push({
             field: "windows-user-action",
@@ -280,7 +307,7 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "sst-maternity") {
+    } else if (rol === "sst-maternity" || rol === "gestion") {
         filteredColumns.push({
             field: "maternity-action",
             headerName: "Maternidad",
@@ -480,10 +507,6 @@ const TableEmployees = ({
                         "fecha_aplica_teletrabajo",
                         "fecha_afiliacion_eps",
                         "fecha_nombramiento",
-                        "fecha_inicio_embarazo",
-                        "fecha_fin_embarazo",
-                        "fecha_inicio_licencia",
-                        "fecha_fin_licencia",
                     ].includes(key)
                 ) {
                     // Format the date property

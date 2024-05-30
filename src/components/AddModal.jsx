@@ -62,7 +62,6 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
     const handleFormChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-        console.log(formData);
     };
 
     return (

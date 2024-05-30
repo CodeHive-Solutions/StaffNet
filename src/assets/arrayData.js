@@ -264,7 +264,7 @@ export const arrayData = [
             },
             {
                 id: "fecha_inicio_embarazo",
-                label: "Fecha de inicio de Embarazo",
+                label: "Fecha de inicio de embarazo",
                 name: "fecha_inicio_embarazo",
                 type: "date",
                 shrink: true,
