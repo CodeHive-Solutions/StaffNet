@@ -51,6 +51,7 @@ const HomeView = () => {
     const [licenciaMaternidad, setLicenciaMaternidad] = useState("");
     const [fechaInicioLicencia, setFechaInicioLicencia] = useState("");
     const [fechaFinLicencia, setFechaFinLicencia] = useState("");
+    const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -72,7 +73,7 @@ const HomeView = () => {
 
     const handleOpenMaternityDialog = (
         cedula,
-        caso_medico_especial,
+        caso_medico,
         fecha_inicio_embarazo,
         fecha_fin_embarazo,
         licencia_maternidad,
@@ -80,8 +81,13 @@ const HomeView = () => {
         fecha_fin_licencia
     ) => {
         setOpenMaternityDialog(true);
+        if (caso_medico == "EMBARAZO") {
+            setOpenPregnantCollapse(true);
+        } else {
+            setOpenPregnantCollapse(false);
+        }
         setCedulaWindows(cedula);
-        setCasoMedicoEspecial(caso_medico_especial);
+        setCasoMedicoEspecial(caso_medico);
         setFechaInicioEmbarazo(formatDate(fecha_inicio_embarazo));
         setFechaFinEmbarazo(formatDate(fecha_fin_embarazo));
         setLicenciaMaternidad(licencia_maternidad);
@@ -449,6 +455,8 @@ const HomeView = () => {
                 cedula={cedulaWindows}
             />
             <MaternityDialog
+                setOpenPregnantCollapse={setOpenPregnantCollapse}
+                openPregnantCollapse={openPregnantCollapse}
                 searchEmployeesUpdate={searchEmployeesUpdate}
                 setShowSnackAlert={setShowSnackAlert}
                 openMaternityDialog={openMaternityDialog}

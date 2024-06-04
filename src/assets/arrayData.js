@@ -239,9 +239,9 @@ export const arrayData = [
                 type: "number",
             },
             {
-                id: "caso_medico_especial",
-                label: "Caso medico especial",
-                name: "caso_medico_especial",
+                id: "caso_medico",
+                label: "Caso medico",
+                name: "caso_medico",
                 type: "select",
                 options: [
                     { value: "EMBARAZO", label: "Embarazo" },
@@ -250,68 +250,10 @@ export const arrayData = [
                     { value: "LACTANCIA 6 MESES", label: "Lactancia 6 Meses" },
                     { value: "LACTANCIA 6-12 MESES", label: "Lactancia 6-12 Meses" },
                     { value: "LACTANCIA 12-18 MESES", label: "Lactancia 12-18 Meses" },
+                    { value: "CASO MEDICO ESPECIAL", label: "Caso Medico Especial" },
+                    { value: "INCAPACIDADES LARGAS", label: "Incapacidades Largas" },
                 ]
             },
-            {
-                id: "embarazo",
-                label: "Embarazo",
-                name: "embarazo",
-                type: "select",
-                options: [
-                    { value: "SI", label: "Si" },
-                    { value: "NO", label: "No" },
-                ],
-            },
-            {
-                id: "fecha_inicio_embarazo",
-                label: "Fecha de inicio de embarazo",
-                name: "fecha_inicio_embarazo",
-                type: "date",
-                shrink: true,
-            },
-            {
-                id: "fecha_fin_embarazo",
-                label: "Fecha de fin de embarazo",
-                name: "fecha_fin_embarazo",
-                type: "date",
-                shrink: true,
-            },
-            {
-                id: "licencia_maternidad",
-                label: "Licencia de maternidad",
-                name: "licencia_maternidad",
-                type: "select",
-                options: [
-                    { value: "SI", label: "Si" },
-                    { value: "NO", label: "No" },
-                ],
-            },
-            {
-                id: "fecha_inicio_licencia",
-                label: "Fecha de inicio de licencia",
-                name: "fecha_inicio_licencia",
-                type: "date",
-                shrink: true,
-            },
-            {
-                id: "fecha_fin_licencia",
-                label: "Fecha de fin de licencia",
-                name: "fecha_fin_licencia",
-                type: "date",
-                shrink: true,
-            },
-            {
-                id: "lactancia",
-                label: "Lactancia",
-                name: "lactancia",
-                type: "select",
-                options: [
-                    { value: "6 MESES", label: "6 Meses" },
-                    { value: "6-12 MESES", label: "6-12 Meses" },
-                    { value: "12-24 MESES", label: "12-24 Meses" },
-
-                ]
-            }
         ],
     },
     {

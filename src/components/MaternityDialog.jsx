@@ -3,6 +3,8 @@ import { Dialog, DialogTitle, TextField, Button, Box, MenuItem, Collapse } from 
 import { getApiUrl } from "../assets/getApi";
 
 const MaternityDialog = ({
+    openPregnantCollapse,
+    setOpenPregnantCollapse,
     searchEmployeesUpdate,
     setShowSnackAlert,
     openMaternityDialog,
@@ -22,8 +24,6 @@ const MaternityDialog = ({
     const inputFechaInicioLicencia = useRef(null);
     const inputFechaFinLicencia = useRef(null);
 
-    const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
-
     const handleChangeInput = (event) => {
         if (event.target.value === "EMBARAZO") {
             setOpenPregnantCollapse(true);
@@ -32,37 +32,33 @@ const MaternityDialog = ({
         }
     };
 
-    useEffect(() => {
-        if (casoMedicoEspecial === "EMBARAZO") {
-            setOpenPregnantCollapse(true);
-        }
-    }, []);
-
     const submitMaternityData = async (event) => {
         event.preventDefault();
-        const usuario = usuarioWindows.current.value;
+        console.log(inputCasoMedicoEspecial.current.value);
+        console.log("submitMaternityData");
+        // const usuario = usuarioWindows.current.value;
 
-        const jsonData = {
-            cedula: cedula,
-            value: usuario,
-            column: "usuario_windows",
-            table: "employment_information",
-        };
+        // const jsonData = {
+        //     cedula: cedula,
+        //     value: usuario,
+        //     column: "usuario_windows",
+        //     table: "employment_information",
+        // };
 
-        const response = await fetch(`${getApiUrl()}/update`, {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(jsonData),
-        });
+        // const response = await fetch(`${getApiUrl()}/update`, {
+        //     method: "PATCH",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(jsonData),
+        // });
 
-        if (response.status === 200) {
-            searchEmployeesUpdate();
-            handleCloseMaternityDialog();
-            setShowSnackAlert("success", "Empleado añadido correctamente");
-        }
+        // if (response.status === 200) {
+        //     searchEmployeesUpdate();
+        //     handleCloseMaternityDialog();
+        //     setShowSnackAlert("success", "Empleado añadido correctamente");
+        // }
     };
 
     return (
@@ -75,17 +71,20 @@ const MaternityDialog = ({
                     inputRef={inputCasoMedicoEspecial}
                     sx={{ width: "400px", mb: "1rem" }}
                     defaultValue={casoMedicoEspecial || ""}
-                    label="Caso Medico Especial"
+                    label="Caso Medico"
                 >
                     <MenuItem value={"EMBARAZO"}>Embarazo</MenuItem>
                     <MenuItem value={"LICENCIA PATERNIDAD"}>Licencia Paternidad</MenuItem>
                     <MenuItem value={"LACTANCIA 6 MESES"}>Lactancia 6 Meses</MenuItem>
                     <MenuItem value={"LACTANCIA 6-12 MESES"}>Lactancia 6-12 Meses</MenuItem>
                     <MenuItem value={"LACTANCIA 12-18 MESES"}>Lactancia 12-18 Meses</MenuItem>
+                    <MenuItem value={"CASO MEDICO ESPECIAL"}>Caso Medico Especial</MenuItem>
+                    <MenuItem value={"INCAPACIDADES LARGAS"}>Incapacidades Largas</MenuItem>
                 </TextField>
-                <Collapse in={openPregnantCollapse}>
+                <Collapse sx={{ width: "min-content" }} unmountOnExit in={openPregnantCollapse}>
                     <TextField
                         type="date"
+                        required
                         inputRef={inputFechaInicioEmbarazo}
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={fechaInicioEmbarazo || ""}
@@ -96,6 +95,7 @@ const MaternityDialog = ({
                     ></TextField>
                     <TextField
                         type="date"
+                        required
                         inputRef={inputFechaFinEmbarazo}
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={fechaFinEmbarazo}
@@ -106,6 +106,7 @@ const MaternityDialog = ({
                     ></TextField>
                     <TextField
                         inputRef={inputLicenciaMaternidad}
+                        required
                         select
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={licenciaMaternidad || ""}
@@ -116,6 +117,7 @@ const MaternityDialog = ({
                     </TextField>
                     <TextField
                         type="date"
+                        required={inputFechaInicioLicencia === 1 ? true : false}
                         inputRef={inputFechaInicioLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={fechaInicioLicencia}
@@ -126,6 +128,7 @@ const MaternityDialog = ({
                     ></TextField>
                     <TextField
                         type="date"
+                        required={inputFechaInicioLicencia === 1 ? true : false}
                         inputRef={inputFechaFinLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={fechaFinLicencia}

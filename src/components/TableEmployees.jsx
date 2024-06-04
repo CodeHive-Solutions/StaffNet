@@ -21,7 +21,7 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import PregnantWomanIcon from "@mui/icons-material/PregnantWoman";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -269,13 +269,13 @@ const TableEmployees = ({
             renderCell: (params) => {
                 const { row } = params;
                 return (
-                    <Tooltip title="Maternidad">
+                    <Tooltip title="SST">
                         <IconButton
                             color="primary"
                             onClick={() =>
                                 handleOpenMaternityDialog(
                                     row.cedula,
-                                    row.caso_medico_especial,
+                                    row.caso_medico,
                                     row.fecha_inicio_embarazo,
                                     row.fecha_fin_embarazo,
                                     row.licencia_maternidad,
@@ -284,7 +284,7 @@ const TableEmployees = ({
                                 )
                             }
                         >
-                            <PregnantWomanIcon />
+                            <HealthAndSafetyIcon />
                         </IconButton>
                     </Tooltip>
                 );
@@ -316,13 +316,13 @@ const TableEmployees = ({
             renderCell: (params) => {
                 const { row } = params;
                 return (
-                    <Tooltip title="Maternidad">
+                    <Tooltip title="SST">
                         <IconButton
                             color="primary"
                             onClick={() =>
                                 handleOpenMaternityDialog(
                                     row.cedula,
-                                    row.caso_medico_especial,
+                                    row.caso_medico,
                                     row.fecha_inicio_embarazo,
                                     row.fecha_fin_embarazo,
                                     row.licencia_maternidad,
@@ -331,7 +331,7 @@ const TableEmployees = ({
                                 )
                             }
                         >
-                            <PregnantWomanIcon />
+                            <HealthAndSafetyIcon />
                         </IconButton>
                     </Tooltip>
                 );
