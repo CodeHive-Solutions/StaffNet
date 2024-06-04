@@ -476,6 +476,7 @@ export const arrayData = [
                     { value: "COORDINADOR(A) DE PLANEACION Y CALIDAD", label: "Coordinador(a) de Planeacion y Calidad" },
                     { value: "COORDINADOR(A) DE PROYECTO", label: "Coordinador(a) de Proyecto" },
                     { value: "DATA MARSHALL", label: "Data Marshall" },
+                    { value: "DIRECTOR(A) BI", label: "Director(a) BI" },
                     { value: "DIRECTOR(A) DE CALIDAD", label: "Director(a) de Calidad" },
                     { value: "DIRECTOR(A) FINANCIERO", label: "Director(a) Financiero" },
                     { value: "DIRECTOR(A) DE FORMACION Y DESARROLLO DEL TALENTO", label: "Director(a) de Formación y Desarrollo del Talento" },
