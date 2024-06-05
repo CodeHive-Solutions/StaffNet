@@ -52,6 +52,7 @@ const HomeView = () => {
     const [fechaInicioLicencia, setFechaInicioLicencia] = useState("");
     const [fechaFinLicencia, setFechaFinLicencia] = useState("");
     const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
+    const [openMaternityCollapse, setOpenMaternityCollapse] = useState(false);
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -84,6 +85,7 @@ const HomeView = () => {
         if (caso_medico == "EMBARAZO") {
             setOpenPregnantCollapse(true);
         } else {
+            setOpenMaternityCollapse(false);
             setOpenPregnantCollapse(false);
         }
         setCedulaWindows(cedula);
@@ -468,6 +470,8 @@ const HomeView = () => {
                 licenciaMaternidad={licenciaMaternidad}
                 fechaInicioLicencia={fechaInicioLicencia}
                 fechaFinLicencia={fechaFinLicencia}
+                openMaternityCollapse={openMaternityCollapse}
+                setOpenMaternityCollapse={setOpenMaternityCollapse}
             />
         </>
     );
