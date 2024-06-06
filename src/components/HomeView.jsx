@@ -103,6 +103,7 @@ const HomeView = () => {
 
     const handleCloseMaternityDialog = () => {
         setOpenMaternityDialog(false);
+        setOpenMaternityCollapse(false);
     };
 
     const calculateAge = (birthday) => {

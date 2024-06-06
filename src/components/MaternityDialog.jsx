@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 import { Dialog, DialogTitle, TextField, Button, Box, MenuItem, Collapse } from "@mui/material";
 import { getApiUrl } from "../assets/getApi";
 
@@ -31,36 +31,40 @@ const MaternityDialog = ({
             setOpenPregnantCollapse(true);
         } else {
             setOpenPregnantCollapse(false);
+            setOpenMaternityCollapse(false);
         }
     };
 
     const submitMaternityData = async (event) => {
         event.preventDefault();
-        console.log(inputCasoMedicoEspecial.current.value);
-        console.log("submitMaternityData");
-        // const usuario = usuarioWindows.current.value;
+        const casoMedicoEspecialValue = inputCasoMedicoEspecial.current.value;
+        const fechaInicioEmbarazoValue = inputFechaInicioEmbarazo.current.value;
+        const fechaFinEmbarazoValue = inputFechaFinEmbarazo.current.value;
+        const licenciaMaternidadValue = inputLicenciaMaternidad.current.value;
+        const fechaInicioLicenciaValue = inputFechaInicioLicencia.current.value;
+        const fechaFinLicenciaValue = inputFechaFinLicencia.current.value;
 
-        // const jsonData = {
-        //     cedula: cedula,
-        //     value: usuario,
-        //     column: "usuario_windows",
-        //     table: "employment_information",
-        // };
+        const jsonData = {
+            cedula: cedula,
+            value: { casoMedicoEspecialValue, fechaInicioEmbarazoValue, fechaFinEmbarazoValue, licenciaMaternidadValue, fechaInicioLicenciaValue, fechaFinLicenciaValue },
+            column: "caso_medico, fecha_inicio_embarazo, fecha_fin_embarazo, licencia_maternidad, fecha_inicio_licencia, fecha_fin_licencia",
+            table: "personal_information",
+        };
 
-        // const response = await fetch(`${getApiUrl()}/update`, {
-        //     method: "PATCH",
-        //     credentials: "include",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(jsonData),
-        // });
+        const response = await fetch(`${getApiUrl()}/update`, {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(jsonData),
+        });
 
-        // if (response.status === 200) {
-        //     searchEmployeesUpdate();
-        //     handleCloseMaternityDialog();
-        //     setShowSnackAlert("success", "Empleado añadido correctamente");
-        // }
+        if (response.status === 200) {
+            searchEmployeesUpdate();
+            handleCloseMaternityDialog();
+            setShowSnackAlert("success", "Empleado añadido correctamente");
+        }
     };
 
     return (
