@@ -472,6 +472,7 @@ export const arrayData = [
                     { value: "COORDINADOR CONTABLE", label: "Coordinador Contable" },
                     { value: "COORDINADOR(A) BI", label: "Coordinador(a) BI" },
                     { value: "COORDINADOR(A) DE BACKOFFICE", label: "Coordinador(a) de BackOffice" },
+                    { value: "COORDINADOR(A) DE CALIDAD", label: "Coordinador(a) de Calidad" },
                     { value: "COORDINADOR(A) DE INVESTIGACIONES", label: "Coordinador(a) de Investigaciones" },
                     { value: "COORDINADOR(A) DE PLANEACION Y CALIDAD", label: "Coordinador(a) de Planeacion y Calidad" },
                     { value: "COORDINADOR(A) DE PROYECTO", label: "Coordinador(a) de Proyecto" },
