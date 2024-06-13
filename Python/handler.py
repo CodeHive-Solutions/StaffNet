@@ -1078,20 +1078,24 @@ def massive_update():
         return jsonify({"status": "False", "error": "No tienes permisos"}), 403
 
 
-# Little update
+# Patch for just one table
 @app.route("/update", methods=["PATCH"])
 def patch_update():
-    """Update the data in the database"""
+    """Update the data in the database"""   
     if session["edit"] == True:
         body = request.get_json()
         conexion = conexion_mysql()
+        # Convert from a list to a tuple
+        params = tuple(body["value"] + [body["cedula"]])
+        columns = tuple(body["column"])
         response = update(
             body["table"],
-            (body["column"],),
-            (body["value"], body["cedula"]),
+            columns,
+            params,
             "WHERE cedula = %s",
             conexion,
         )
+        logging.info(response)
         return jsonify(response)
     else:
         return jsonify({"status": "False", "error": "No tienes permisos"}), 403

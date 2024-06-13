@@ -25,11 +25,13 @@ def run_update(tabla, columna, params, where_clause, conexion):
         set_clause = ", ".join([f"{col} = %s" for col in columna])
     query = f"UPDATE {tabla} SET {set_clause} {where_clause}"
     try:
+        logging.info(f"Query: {query}")
+        logging.info(f"Params: {params}")
         cursor.execute(query, params)
         conexion.commit()
         rows_updated = cursor.rowcount
     except mysql.connector.Error as error:
-        rows_updated = {"status": "False", "error": error}
+        rows_updated = {"status": "False", "error": str(error)}
         return rows_updated
     cursor.close()
     return rows_updated
