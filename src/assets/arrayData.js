@@ -464,6 +464,7 @@ export const arrayData = [
                     { value: "AUXILIAR DE CONTROL DE ACCESOS", label: "Auxiliar de Control de Accesos" },
                     { value: "AUXILIAR DE LICITACION", label: "Auxiliar de Licitacion" },
                     { value: "AUXILIAR DE RECURSOS FISICOS", label: "Auxiliar de Recursos Fisicos" },
+                    { value: "AUXILIAR DE RIESGO Y CONTROL INTERNO", label: "Auxiliar de Riesgo y Control Interno" },
                     { value: "AUXILIAR DE SOPORTE", label: "Auxiliar de Soporte" },
                     { value: "AUXILIAR OPERATIVO", label: "Auxiliar Operativo" },
                     { value: "BACK OFFICE", label: "Back Office" },
