@@ -46,10 +46,40 @@ const MaternityDialog = ({
 
         const jsonData = {
             cedula: cedula,
-            value: { casoMedicoEspecialValue, fechaInicioEmbarazoValue, fechaFinEmbarazoValue, licenciaMaternidadValue, fechaInicioLicenciaValue, fechaFinLicenciaValue },
-            column: "caso_medico, fecha_inicio_embarazo, fecha_fin_embarazo, licencia_maternidad, fecha_inicio_licencia, fecha_fin_licencia",
+            value: [],
+            column: [],
             table: "personal_information",
         };
+
+        if (casoMedicoEspecialValue) {
+            jsonData.value.push(casoMedicoEspecialValue);
+            jsonData.column.push("caso_medico");
+        }
+
+        if (fechaInicioEmbarazoValue) {
+            jsonData.value.push(fechaInicioEmbarazoValue);
+            jsonData.column.push("fecha_inicio_embarazo");
+        }
+
+        if (fechaFinEmbarazoValue) {
+            jsonData.value.push(fechaFinEmbarazoValue);
+            jsonData.column.push("fecha_fin_embarazo");
+        }
+
+        if (licenciaMaternidadValue) {
+            jsonData.value.push(licenciaMaternidadValue);
+            jsonData.column.push("licencia_maternidad");
+        }
+
+        if (fechaInicioLicenciaValue) {
+            jsonData.value.push(fechaInicioLicenciaValue);
+            jsonData.column.push("fecha_inicio_licencia");
+        }
+
+        if (fechaFinLicenciaValue) {
+            jsonData.value.push(fechaFinLicenciaValue);
+            jsonData.column.push("fecha_fin_licencia");
+        }
 
         const response = await fetch(`${getApiUrl()}/update`, {
             method: "PATCH",

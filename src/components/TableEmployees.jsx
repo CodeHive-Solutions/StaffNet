@@ -290,7 +290,7 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "test") {
+    } else if (rol === "soporte") {
         filteredColumns.push({
             field: "windows-user-action",
             headerName: "Usuario Windows",
@@ -307,7 +307,7 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "sst-maternity" || rol === "gestion") {
+    } else if (rol === "sst-maternity") {
         filteredColumns.push({
             field: "maternity-action",
             headerName: "Maternidad",
