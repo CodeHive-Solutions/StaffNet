@@ -37,12 +37,14 @@ const MaternityDialog = ({
 
     const submitMaternityData = async (event) => {
         event.preventDefault();
-        const casoMedicoEspecialValue = inputCasoMedicoEspecial.current.value;
-        const fechaInicioEmbarazoValue = inputFechaInicioEmbarazo.current.value;
-        const fechaFinEmbarazoValue = inputFechaFinEmbarazo.current.value;
-        const licenciaMaternidadValue = inputLicenciaMaternidad.current.value;
-        const fechaInicioLicenciaValue = inputFechaInicioLicencia.current.value;
-        const fechaFinLicenciaValue = inputFechaFinLicencia.current.value;
+
+        const getInputValue = (inputRef) => inputRef.current?.value;
+        const casoMedicoEspecialValue = getInputValue(inputCasoMedicoEspecial);
+        const fechaInicioEmbarazoValue = getInputValue(inputFechaInicioEmbarazo);
+        const fechaFinEmbarazoValue = getInputValue(inputFechaFinEmbarazo);
+        const licenciaMaternidadValue = getInputValue(inputLicenciaMaternidad);
+        const fechaInicioLicenciaValue = getInputValue(inputFechaInicioLicencia);
+        const fechaFinLicenciaValue = getInputValue(inputFechaFinLicencia);
 
         const jsonData = {
             cedula: cedula,
@@ -51,35 +53,35 @@ const MaternityDialog = ({
             table: "personal_information",
         };
 
-        if (casoMedicoEspecialValue) {
-            jsonData.value.push(casoMedicoEspecialValue);
-            jsonData.column.push("caso_medico");
+        const addField = (condition, value, columnName) => {
+            if (condition) {
+                jsonData.value.push(value);
+                jsonData.column.push(columnName);
+            }
+        };
+
+        addField(true, casoMedicoEspecialValue, "caso_medico");
+
+        if (casoMedicoEspecialValue !== "EMBARAZO") {
+            addField(true, null, "fecha_inicio_embarazo");
+            addField(true, null, "fecha_fin_embarazo");
+            addField(true, null, "licencia_maternidad");
+            addField(true, null, "fecha_inicio_licencia");
+            addField(true, null, "fecha_fin_licencia");
+        } else {
+            addField(fechaInicioEmbarazoValue, fechaInicioEmbarazoValue, "fecha_inicio_embarazo");
+            addField(fechaFinEmbarazoValue, fechaFinEmbarazoValue, "fecha_fin_embarazo");
         }
 
-        if (fechaInicioEmbarazoValue) {
-            jsonData.value.push(fechaInicioEmbarazoValue);
-            jsonData.column.push("fecha_inicio_embarazo");
+        if (licenciaMaternidadValue === 0) {
+            addField(true, null, "fecha_inicio_licencia");
+            addField(true, null, "fecha_fin_licencia");
+        } else {
+            addField(fechaInicioLicenciaValue, fechaInicioLicenciaValue, "fecha_inicio_licencia");
+            addField(fechaFinLicenciaValue, fechaFinLicenciaValue, "fecha_fin_licencia");
         }
 
-        if (fechaFinEmbarazoValue) {
-            jsonData.value.push(fechaFinEmbarazoValue);
-            jsonData.column.push("fecha_fin_embarazo");
-        }
-
-        if (licenciaMaternidadValue) {
-            jsonData.value.push(licenciaMaternidadValue);
-            jsonData.column.push("licencia_maternidad");
-        }
-
-        if (fechaInicioLicenciaValue) {
-            jsonData.value.push(fechaInicioLicenciaValue);
-            jsonData.column.push("fecha_inicio_licencia");
-        }
-
-        if (fechaFinLicenciaValue) {
-            jsonData.value.push(fechaFinLicenciaValue);
-            jsonData.column.push("fecha_fin_licencia");
-        }
+        addField(true, licenciaMaternidadValue, "licencia_maternidad");
 
         const response = await fetch(`${getApiUrl()}/update`, {
             method: "PATCH",
@@ -93,7 +95,7 @@ const MaternityDialog = ({
         if (response.status === 200) {
             searchEmployeesUpdate();
             handleCloseMaternityDialog();
-            setShowSnackAlert("success", "Empleado añadido correctamente");
+            setShowSnackAlert("success", "Datos actualizados correctamente");
         }
     };
 
@@ -116,6 +118,7 @@ const MaternityDialog = ({
                     <MenuItem value={"LACTANCIA 12-18 MESES"}>Lactancia 12-18 Meses</MenuItem>
                     <MenuItem value={"CASO MEDICO ESPECIAL"}>Caso Medico Especial</MenuItem>
                     <MenuItem value={"INCAPACIDADES LARGAS"}>Incapacidades Largas</MenuItem>
+                    <MenuItem value={null}></MenuItem>
                 </TextField>
                 <Collapse sx={{ width: "min-content" }} unmountOnExit in={openPregnantCollapse}>
                     <TextField
@@ -143,7 +146,7 @@ const MaternityDialog = ({
                     <TextField
                         inputRef={inputLicenciaMaternidad}
                         onChange={(event) => {
-                            if (event.target.value === "1") {
+                            if (event.target.value === 1) {
                                 setOpenMaternityCollapse(true);
                                 inputFechaInicioLicencia.current.required = true;
                                 inputFechaFinLicencia.current.required = true;
@@ -156,11 +159,11 @@ const MaternityDialog = ({
                         required
                         select
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad || ""}
+                        defaultValue={licenciaMaternidad === 0 ? "0" : licenciaMaternidad === null ? "" : "1"}
                         label="Licencia de Maternidad"
                     >
-                        <MenuItem value={"1"}>Si</MenuItem>
-                        <MenuItem value={"0"}>No</MenuItem>
+                        <MenuItem value={1}>Si</MenuItem>
+                        <MenuItem value={0}>No</MenuItem>
                     </TextField>
                     <Collapse in={openMaternityCollapse}>
                         <TextField

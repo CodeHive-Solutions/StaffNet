@@ -82,11 +82,16 @@ const HomeView = () => {
         fecha_fin_licencia
     ) => {
         setOpenMaternityDialog(true);
-        if (caso_medico == "EMBARAZO") {
+        if (caso_medico === "EMBARAZO") {
             setOpenPregnantCollapse(true);
         } else {
             setOpenMaternityCollapse(false);
             setOpenPregnantCollapse(false);
+        }
+        if (licencia_maternidad === 1) {
+            setOpenMaternityCollapse(true);
+        } else {
+            setOpenMaternityCollapse(false);
         }
         setCedulaWindows(cedula);
         setCasoMedicoEspecial(caso_medico);
