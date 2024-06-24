@@ -313,7 +313,7 @@ def after_request(response):
                 {
                     "Respuesta: ": {
                         "status": response.json["status"],
-                        "error": response.json["error"],
+                        "error": response.json["error"] if "error" in response.json else "",
                     }
                 }
             )

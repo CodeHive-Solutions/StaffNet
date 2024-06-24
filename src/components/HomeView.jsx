@@ -72,15 +72,7 @@ const HomeView = () => {
         return "";
     };
 
-    const handleOpenMaternityDialog = (
-        cedula,
-        caso_medico,
-        fecha_inicio_embarazo,
-        fecha_fin_embarazo,
-        licencia_maternidad,
-        fecha_inicio_licencia,
-        fecha_fin_licencia
-    ) => {
+    const handleOpenMaternityDialog = (cedula, caso_medico, licencia_maternidad, fecha_inicio_licencia, fecha_fin_licencia) => {
         setOpenMaternityDialog(true);
         if (caso_medico === "EMBARAZO") {
             setOpenPregnantCollapse(true);
@@ -95,8 +87,6 @@ const HomeView = () => {
         }
         setCedulaWindows(cedula);
         setCasoMedicoEspecial(caso_medico);
-        setFechaInicioEmbarazo(formatDate(fecha_inicio_embarazo));
-        setFechaFinEmbarazo(formatDate(fecha_fin_embarazo));
         setLicenciaMaternidad(licencia_maternidad);
         setFechaInicioLicencia(formatDate(fecha_inicio_licencia));
         setFechaFinLicencia(formatDate(fecha_fin_licencia));

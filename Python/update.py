@@ -46,8 +46,6 @@ def run_update(tabla, columna, params, where_clause, conexion):
 def process_query(rows_updated):
     if isinstance(rows_updated, dict):
         response = rows_updated
-    elif rows_updated > 0:
-        response = {"status": "False"}
     else:
         response = {"status": "False", "error": "No hubo ningún cambio."}
     return response

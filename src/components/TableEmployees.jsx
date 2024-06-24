@@ -276,8 +276,6 @@ const TableEmployees = ({
                                 handleOpenMaternityDialog(
                                     row.cedula,
                                     row.caso_medico,
-                                    row.fecha_inicio_embarazo,
-                                    row.fecha_fin_embarazo,
                                     row.licencia_maternidad,
                                     row.fecha_inicio_licencia,
                                     row.fecha_fin_licencia
@@ -323,8 +321,6 @@ const TableEmployees = ({
                                 handleOpenMaternityDialog(
                                     row.cedula,
                                     row.caso_medico,
-                                    row.fecha_inicio_embarazo,
-                                    row.fecha_fin_embarazo,
                                     row.licencia_maternidad,
                                     row.fecha_inicio_licencia,
                                     row.fecha_fin_licencia
