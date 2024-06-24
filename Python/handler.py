@@ -132,6 +132,7 @@ def bd_info():
                     "contacto_emergencia": clean_value(body.get("contacto_emergencia")),
                     "parentesco": clean_value(body.get("parentesco")),
                     "tel_contacto": clean_value(body.get("tel_contacto")),
+                    "caso_medico": clean_value(body.get("caso_medico")),
                 },
                 "educational_information": {
                     "cedula": clean_value(body.get("cedula")),
