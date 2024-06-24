@@ -238,6 +238,22 @@ export const arrayData = [
                 name: "tel_contacto",
                 type: "number",
             },
+            {
+                id: "caso_medico",
+                label: "Caso medico",
+                name: "caso_medico",
+                type: "select",
+                options: [
+                    { value: "EMBARAZO", label: "Embarazo" },
+                    { value: "LICENCIA MATERNIDAD", label: "Licencia Maternidad" },
+                    { value: "LICENCIA PATERNIDAD", label: "Licencia Paternidad" },
+                    { value: "LACTANCIA 6 MESES", label: "Lactancia 6 Meses" },
+                    { value: "LACTANCIA 6-12 MESES", label: "Lactancia 6-12 Meses" },
+                    { value: "LACTANCIA 12-18 MESES", label: "Lactancia 12-18 Meses" },
+                    { value: "CASO MEDICO ESPECIAL", label: "Caso Medico Especial" },
+                    { value: "INCAPACIDADES LARGAS", label: "Incapacidades Largas" },
+                ]
+            },
         ],
     },
     {

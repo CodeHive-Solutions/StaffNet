@@ -21,6 +21,7 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -40,6 +41,7 @@ const TableEmployees = ({
     tableData,
     setTableData,
     handleOpenDialog,
+    handleOpenMaternityDialog,
 }) => {
     const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
@@ -64,6 +66,8 @@ const TableEmployees = ({
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
+                    // log just the item with the id === 1001185399
+                    const item = data.info.data.find((item) => item.cedula === 1001185389);
                     setRole(data.rol);
                     addFields(data.info.data);
                     setPermissions(data.permissions);
@@ -136,7 +140,7 @@ const TableEmployees = ({
                     : {}),
             };
         });
-
+        // log the whole data from the register with the cedula 1001185389
         setTableData(newData);
     };
 
@@ -163,7 +167,6 @@ const TableEmployees = ({
     // Generate columns based on filtered keys
     const filteredColumns = filteredKeys.map((key) => {
         const inputItem = arrayData.find((item) => item.inputs.some((input) => input.name === key));
-
         const input = inputItem.inputs.find((input) => input.name === key);
 
         let column = {
@@ -258,6 +261,35 @@ const TableEmployees = ({
                 );
             },
         });
+        filteredColumns.push({
+            field: "maternity-action",
+            headerName: "Maternidad",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="SST">
+                        <IconButton
+                            color="primary"
+                            onClick={() =>
+                                handleOpenMaternityDialog(
+                                    row.cedula,
+                                    row.caso_medico,
+                                    row.fecha_inicio_embarazo,
+                                    row.fecha_fin_embarazo,
+                                    row.licencia_maternidad,
+                                    row.fecha_inicio_licencia,
+                                    row.fecha_fin_licencia
+                                )
+                            }
+                        >
+                            <HealthAndSafetyIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
     } else if (rol === "soporte") {
         filteredColumns.push({
             field: "windows-user-action",
@@ -270,6 +302,36 @@ const TableEmployees = ({
                     <Tooltip title="Usuario de Windows">
                         <IconButton color="primary" onClick={() => handleOpenDialog(row.usuario_windows, row.cedula)}>
                             <AccountCircleIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
+    } else if (rol === "sst-maternity") {
+        filteredColumns.push({
+            field: "maternity-action",
+            headerName: "Maternidad",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="SST">
+                        <IconButton
+                            color="primary"
+                            onClick={() =>
+                                handleOpenMaternityDialog(
+                                    row.cedula,
+                                    row.caso_medico,
+                                    row.fecha_inicio_embarazo,
+                                    row.fecha_fin_embarazo,
+                                    row.licencia_maternidad,
+                                    row.fecha_inicio_licencia,
+                                    row.fecha_fin_licencia
+                                )
+                            }
+                        >
+                            <HealthAndSafetyIcon />
                         </IconButton>
                     </Tooltip>
                 );

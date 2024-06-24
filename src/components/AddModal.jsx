@@ -62,7 +62,6 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
     const handleFormChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-        console.log(formData);
     };
 
     return (
@@ -126,7 +125,7 @@ const AddModal = ({ arrayData, openModalAdd, formData, setFormData, setOpenModal
                         <Box sx={{ p: 2 }}>
                             {arrayData.map((section) => {
                                 const renderSelectInput = (input, formData, handleFormChange) => {
-                                    if (input.id === "59" || input.id === "60" || input.id === "61") {
+                                    if (input.id === "59" || input.id === "60" || input.id === "61" || input.id === "caso_medico") {
                                         return null;
                                     } else if (
                                         input.name == "eps" ||

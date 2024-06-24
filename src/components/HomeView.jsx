@@ -17,6 +17,7 @@ import AddModal from "./AddModal";
 import { getApiUrl } from "../assets/getApi.js";
 import EditModal from "./EditModal";
 import WindowsUserDialog from "./WindowsUserDialog.jsx";
+import MaternityDialog from "./MaternityDialog.jsx";
 
 const HomeView = () => {
     const [formData, setFormData] = useState({});
@@ -42,7 +43,16 @@ const HomeView = () => {
     const [originalData, setOriginalData] = useState(rows);
     const [profilePicture, setProfilePicture] = useState();
     const [openWindowsUserDialog, setOpenWindowsUserDialog] = useState(false);
+    const [openMaternityDialog, setOpenMaternityDialog] = useState(false);
     const [windowsUser, setWindowsUser] = useState("");
+    const [casoMedicoEspecial, setCasoMedicoEspecial] = useState("");
+    const [fechaInicioEmbarazo, setFechaInicioEmbarazo] = useState("");
+    const [fechaFinEmbarazo, setFechaFinEmbarazo] = useState("");
+    const [licenciaMaternidad, setLicenciaMaternidad] = useState("");
+    const [fechaInicioLicencia, setFechaInicioLicencia] = useState("");
+    const [fechaFinLicencia, setFechaFinLicencia] = useState("");
+    const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
+    const [openMaternityCollapse, setOpenMaternityCollapse] = useState(false);
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -50,8 +60,55 @@ const HomeView = () => {
         setOpenWindowsUserDialog(true);
     };
 
+    // format the maternity dates to the yyyy-mm-dd format
+    const formatDate = (date) => {
+        if (date) {
+            const dateObject = new Date(date);
+            const year = dateObject.getUTCFullYear();
+            const month = String(dateObject.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(dateObject.getUTCDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+        return "";
+    };
+
+    const handleOpenMaternityDialog = (
+        cedula,
+        caso_medico,
+        fecha_inicio_embarazo,
+        fecha_fin_embarazo,
+        licencia_maternidad,
+        fecha_inicio_licencia,
+        fecha_fin_licencia
+    ) => {
+        setOpenMaternityDialog(true);
+        if (caso_medico === "EMBARAZO") {
+            setOpenPregnantCollapse(true);
+        } else {
+            setOpenMaternityCollapse(false);
+            setOpenPregnantCollapse(false);
+        }
+        if (licencia_maternidad === 1) {
+            setOpenMaternityCollapse(true);
+        } else {
+            setOpenMaternityCollapse(false);
+        }
+        setCedulaWindows(cedula);
+        setCasoMedicoEspecial(caso_medico);
+        setFechaInicioEmbarazo(formatDate(fecha_inicio_embarazo));
+        setFechaFinEmbarazo(formatDate(fecha_fin_embarazo));
+        setLicenciaMaternidad(licencia_maternidad);
+        setFechaInicioLicencia(formatDate(fecha_inicio_licencia));
+        setFechaFinLicencia(formatDate(fecha_fin_licencia));
+    };
+
     const handleCloseDialog = () => {
         setOpenWindowsUserDialog(false);
+    };
+
+    const handleCloseMaternityDialog = () => {
+        setOpenMaternityDialog(false);
+        setOpenMaternityCollapse(false);
     };
 
     const calculateAge = (birthday) => {
@@ -387,6 +444,7 @@ const HomeView = () => {
                             tableData={tableData}
                             setTableData={setTableData}
                             handleOpenDialog={handleOpenDialog}
+                            handleOpenMaternityDialog={handleOpenMaternityDialog}
                             searchEmployeesUpdate={searchEmployeesUpdate}
                         />
                     </Box>
@@ -403,6 +461,23 @@ const HomeView = () => {
                 openWindowsUserDialog={openWindowsUserDialog}
                 handleCloseDialog={handleCloseDialog}
                 cedula={cedulaWindows}
+            />
+            <MaternityDialog
+                setOpenPregnantCollapse={setOpenPregnantCollapse}
+                openPregnantCollapse={openPregnantCollapse}
+                searchEmployeesUpdate={searchEmployeesUpdate}
+                setShowSnackAlert={setShowSnackAlert}
+                openMaternityDialog={openMaternityDialog}
+                handleCloseMaternityDialog={handleCloseMaternityDialog}
+                cedula={cedulaWindows}
+                casoMedicoEspecial={casoMedicoEspecial}
+                fechaInicioEmbarazo={fechaInicioEmbarazo}
+                fechaFinEmbarazo={fechaFinEmbarazo}
+                licenciaMaternidad={licenciaMaternidad}
+                fechaInicioLicencia={fechaInicioLicencia}
+                fechaFinLicencia={fechaFinLicencia}
+                openMaternityCollapse={openMaternityCollapse}
+                setOpenMaternityCollapse={setOpenMaternityCollapse}
             />
         </>
     );
