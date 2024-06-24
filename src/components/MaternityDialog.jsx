@@ -11,22 +11,19 @@ const MaternityDialog = ({
     handleCloseMaternityDialog,
     cedula,
     casoMedicoEspecial,
-    licenciaMaternidad,
     fechaInicioLicencia,
     fechaFinLicencia,
     openMaternityCollapse,
     setOpenMaternityCollapse,
 }) => {
     const inputCasoMedicoEspecial = useRef(null);
-    const inputLicenciaMaternidad = useRef(null);
     const inputFechaInicioLicencia = useRef(null);
     const inputFechaFinLicencia = useRef(null);
 
     const handleChangeInput = (event) => {
-        if (event.target.value === "EMBARAZO") {
-            setOpenPregnantCollapse(true);
+        if (event.target.value === "LICENCIA MATERNIDAD") {
+            setOpenMaternityCollapse(true);
         } else {
-            setOpenPregnantCollapse(false);
             setOpenMaternityCollapse(false);
         }
     };
@@ -36,7 +33,6 @@ const MaternityDialog = ({
 
         const getInputValue = (inputRef) => inputRef.current?.value;
         const casoMedicoEspecialValue = getInputValue(inputCasoMedicoEspecial);
-        const licenciaMaternidadValue = getInputValue(inputLicenciaMaternidad);
         const fechaInicioLicenciaValue = getInputValue(inputFechaInicioLicencia);
         const fechaFinLicenciaValue = getInputValue(inputFechaFinLicencia);
 
@@ -59,21 +55,13 @@ const MaternityDialog = ({
 
         addField(true, casoMedicoEspecialValue, "caso_medico");
 
-        if (casoMedicoEspecialValue !== "EMBARAZO") {
-            addField(true, null, "licencia_maternidad");
-            addField(true, null, "fecha_inicio_licencia");
-            addField(true, null, "fecha_fin_licencia");
-        }
-
-        if (licenciaMaternidadValue === 0) {
+        if (casoMedicoEspecialValue !== "LICENCIA MATERNIDAD") {
             addField(true, null, "fecha_inicio_licencia");
             addField(true, null, "fecha_fin_licencia");
         } else {
             addField(fechaInicioLicenciaValue, fechaInicioLicenciaValue, "fecha_inicio_licencia");
             addField(fechaFinLicenciaValue, fechaFinLicenciaValue, "fecha_fin_licencia");
         }
-
-        addField(true, licenciaMaternidadValue, "licencia_maternidad");
 
         const response = await fetch(`${getApiUrl()}/update`, {
             method: "PATCH",
@@ -97,13 +85,14 @@ const MaternityDialog = ({
             <Box onSubmit={submitMaternityData} component="form" sx={{ flexDirection: "column", p: "1rem 1.5rem ", display: "flex", alignItems: "start" }}>
                 <TextField
                     select
-                    onChange={handleChangeInput}
+                    onChange={(event) => handleChangeInput(event)}
                     inputRef={inputCasoMedicoEspecial}
                     sx={{ width: "400px", mb: "1rem" }}
                     defaultValue={casoMedicoEspecial || ""}
                     label="Caso Medico"
                 >
                     <MenuItem value={"EMBARAZO"}>Embarazo</MenuItem>
+                    <MenuItem value={"LICENCIA MATERNIDAD"}>Licencia Maternidad</MenuItem>
                     <MenuItem value={"LICENCIA PATERNIDAD"}>Licencia Paternidad</MenuItem>
                     <MenuItem value={"LACTANCIA 6 MESES"}>Lactancia 6 Meses</MenuItem>
                     <MenuItem value={"LACTANCIA 6-12 MESES"}>Lactancia 6-12 Meses</MenuItem>
@@ -112,46 +101,27 @@ const MaternityDialog = ({
                     <MenuItem value={"INCAPACIDADES LARGAS"}>Incapacidades Largas</MenuItem>
                     <MenuItem value={null}></MenuItem>
                 </TextField>
-                <Collapse sx={{ width: "min-content" }} unmountOnExit in={openPregnantCollapse}>
+                <Collapse unmountOnExit sx={{ width: "min-content" }} in={openMaternityCollapse}>
                     <TextField
-                        onChange={(event) => {
-                            if (event.target.value === 1) {
-                                setOpenMaternityCollapse(true);
-                            } else {
-                                setOpenMaternityCollapse(false);
-                            }
-                        }}
-                        inputRef={inputLicenciaMaternidad}
-                        select
+                        type="date"
+                        inputRef={inputFechaInicioLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
-                        defaultValue={licenciaMaternidad === 0 ? "0" : licenciaMaternidad === null ? "" : "1"}
-                        label="Licencia de Maternidad"
-                    >
-                        <MenuItem value={1}>Si</MenuItem>
-                        <MenuItem value={0}>No</MenuItem>
-                    </TextField>
-                    <Collapse in={openMaternityCollapse}>
-                        <TextField
-                            type="date"
-                            inputRef={inputFechaInicioLicencia}
-                            sx={{ width: "400px", mb: "1rem" }}
-                            defaultValue={fechaInicioLicencia}
-                            label="Fecha de inicio de licencia"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        ></TextField>
-                        <TextField
-                            type="date"
-                            inputRef={inputFechaFinLicencia}
-                            sx={{ width: "400px", mb: "1rem" }}
-                            defaultValue={fechaFinLicencia}
-                            label="Fecha de fin de licencia"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        ></TextField>
-                    </Collapse>
+                        defaultValue={fechaInicioLicencia}
+                        label="Fecha de inicio de licencia"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    ></TextField>
+                    <TextField
+                        type="date"
+                        inputRef={inputFechaFinLicencia}
+                        sx={{ width: "400px", mb: "1rem" }}
+                        defaultValue={fechaFinLicencia}
+                        label="Fecha de fin de licencia"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    ></TextField>
                 </Collapse>
                 <Box sx={{ display: "flex", gap: "2rem" }}>
                     <Button onClick={handleCloseMaternityDialog}>Cancelar</Button>

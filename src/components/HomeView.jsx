@@ -46,9 +46,6 @@ const HomeView = () => {
     const [openMaternityDialog, setOpenMaternityDialog] = useState(false);
     const [windowsUser, setWindowsUser] = useState("");
     const [casoMedicoEspecial, setCasoMedicoEspecial] = useState("");
-    const [fechaInicioEmbarazo, setFechaInicioEmbarazo] = useState("");
-    const [fechaFinEmbarazo, setFechaFinEmbarazo] = useState("");
-    const [licenciaMaternidad, setLicenciaMaternidad] = useState("");
     const [fechaInicioLicencia, setFechaInicioLicencia] = useState("");
     const [fechaFinLicencia, setFechaFinLicencia] = useState("");
     const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
@@ -72,7 +69,7 @@ const HomeView = () => {
         return "";
     };
 
-    const handleOpenMaternityDialog = (cedula, caso_medico, licencia_maternidad, fecha_inicio_licencia, fecha_fin_licencia) => {
+    const handleOpenMaternityDialog = (cedula, caso_medico, fecha_inicio_licencia, fecha_fin_licencia) => {
         setOpenMaternityDialog(true);
         if (caso_medico === "EMBARAZO") {
             setOpenPregnantCollapse(true);
@@ -80,14 +77,13 @@ const HomeView = () => {
             setOpenMaternityCollapse(false);
             setOpenPregnantCollapse(false);
         }
-        if (licencia_maternidad === 1) {
+        if (caso_medico === "LICENCIA MATERNIDAD") {
             setOpenMaternityCollapse(true);
         } else {
             setOpenMaternityCollapse(false);
         }
         setCedulaWindows(cedula);
         setCasoMedicoEspecial(caso_medico);
-        setLicenciaMaternidad(licencia_maternidad);
         setFechaInicioLicencia(formatDate(fecha_inicio_licencia));
         setFechaFinLicencia(formatDate(fecha_fin_licencia));
     };
@@ -461,9 +457,6 @@ const HomeView = () => {
                 handleCloseMaternityDialog={handleCloseMaternityDialog}
                 cedula={cedulaWindows}
                 casoMedicoEspecial={casoMedicoEspecial}
-                fechaInicioEmbarazo={fechaInicioEmbarazo}
-                fechaFinEmbarazo={fechaFinEmbarazo}
-                licenciaMaternidad={licenciaMaternidad}
                 fechaInicioLicencia={fechaInicioLicencia}
                 fechaFinLicencia={fechaFinLicencia}
                 openMaternityCollapse={openMaternityCollapse}

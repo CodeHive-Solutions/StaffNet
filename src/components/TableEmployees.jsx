@@ -127,6 +127,7 @@ const TableEmployees = ({
             // ignore the items nombres y apellidos
             delete item.nombres;
             delete item.apellidos;
+            delete item.caso_medico;
 
             return {
                 ...item,
@@ -272,15 +273,7 @@ const TableEmployees = ({
                     <Tooltip title="SST">
                         <IconButton
                             color="primary"
-                            onClick={() =>
-                                handleOpenMaternityDialog(
-                                    row.cedula,
-                                    row.caso_medico,
-                                    row.licencia_maternidad,
-                                    row.fecha_inicio_licencia,
-                                    row.fecha_fin_licencia
-                                )
-                            }
+                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico, row.fecha_inicio_licencia, row.fecha_fin_licencia)}
                         >
                             <HealthAndSafetyIcon />
                         </IconButton>
@@ -317,15 +310,7 @@ const TableEmployees = ({
                     <Tooltip title="SST">
                         <IconButton
                             color="primary"
-                            onClick={() =>
-                                handleOpenMaternityDialog(
-                                    row.cedula,
-                                    row.caso_medico,
-                                    row.licencia_maternidad,
-                                    row.fecha_inicio_licencia,
-                                    row.fecha_fin_licencia
-                                )
-                            }
+                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico, row.fecha_inicio_licencia, row.fecha_fin_licencia)}
                         >
                             <HealthAndSafetyIcon />
                         </IconButton>
