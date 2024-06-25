@@ -264,7 +264,7 @@ const TableEmployees = ({
         });
         filteredColumns.push({
             field: "maternity-action",
-            headerName: "Maternidad",
+            headerName: "SST",
             width: 65,
             disableExport: true,
             renderCell: (params) => {
@@ -301,7 +301,7 @@ const TableEmployees = ({
     } else if (rol === "sst-maternity") {
         filteredColumns.push({
             field: "maternity-action",
-            headerName: "Maternidad",
+            headerName: "SST",
             width: 65,
             disableExport: true,
             renderCell: (params) => {
