@@ -127,7 +127,6 @@ const TableEmployees = ({
             // ignore the items nombres y apellidos
             delete item.nombres;
             delete item.apellidos;
-            delete item.caso_medico;
 
             return {
                 ...item,
