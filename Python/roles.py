@@ -392,6 +392,20 @@ roles = {
             "estado": "",
         },
     },
+    "riesgo-control-interno": {
+        "personal_information": {
+            "cedula": "",
+            "nombres": "",
+            "apellidos": "",
+            "correo": "",
+        },
+        "employment_information": {
+            "campana_general": "",
+            "cargo": "",
+            "fecha_ingreso": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    },
 }
 
 
