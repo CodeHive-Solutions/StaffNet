@@ -89,7 +89,10 @@ def get_request_body():
     if request.content_type == "application/json" and request.data:
         return request.get_json()
     else:
-        return {}
+        try:
+            return request.get_json(force=True)
+        except:
+            return {}
 
 
 def clean_value(value):
@@ -177,7 +180,7 @@ def bd_info():
                     "memorando_1": clean_value(body.get("memorando_1")),
                     "memorando_2": clean_value(body.get("memorando_2")),
                     "memorando_3": clean_value(body.get("memorando_3")),
-                }, 
+                },
                 # "vacation_information": {
                 #     "cedula": body.get("cedula").upper(),
                 #     "licencia_no_remunerada": body.get("licencia_no_remunerada").upper(),
@@ -255,6 +258,8 @@ def logs():
     """Logs of the request and db connection"""
     if "profile-picture" in request.url:
         petition = "profile-picture" + "/" + request.url.split("/")[-1]
+    elif "personal-information" in request.url:
+        petition = "personal-information" + "/" + request.url.split("/")[-1]
     else:
         petition = urlparse(request.url).path.split("/")[-1]
     if request.method == "OPTIONS":
@@ -314,7 +319,9 @@ def after_request(response):
                 {
                     "Respuesta: ": {
                         "status": response.json["status"],
-                        "error": response.json["error"] if "error" in response.json else "",
+                        "error": (
+                            response.json["error"] if "error" in response.json else ""
+                        ),
                     }
                 }
             )
@@ -366,7 +373,6 @@ def handle_error(error):
 def logged():
     """Check if the user is logged in"""
     response = {"status": "False"}
-    logging.info({"Petición": "logged12"})
     if "username" in session:
         logging.info(
             {
@@ -1046,7 +1052,7 @@ def massive_update():
             != len(columna_values)
             != len(valor_values)
         ):
-            return jsonify( 
+            return jsonify(
                 {
                     "status": "False",
                     "error": "La cantidad de información en las columnas no es la coincide",
@@ -1082,12 +1088,26 @@ def massive_update():
 # Patch for just one table
 @app.route("/update", methods=["PATCH"])
 def patch_update():
-    """Update the data in the database"""   
-    if session["edit"] == True:
-        body = request.get_json()
+    """Update the data in the database"""
+    logging.info(session.items())
+    logging.info(session["edit"])
+    if "edit" in session and session["edit"] == True:
+        body = get_request_body()
         conexion = conexion_mysql()
         # Convert from a list to a tuple
+        if not "value" in body and "column" in body:
+            return (
+                jsonify(
+                    {
+                        "status": "False",
+                        "error": "No se enviaron los campos necesarios para la actualización",
+                    }
+                ),
+                400,
+            )
         params = tuple(body["value"] + [body["cedula"]])
+        logging.info(params)
+        logging.info(body["value"])
         columns = tuple(body["column"])
         response = update(
             body["table"],
@@ -1096,7 +1116,45 @@ def patch_update():
             "WHERE cedula = %s",
             conexion,
         )
-        logging.info(response)
-        return jsonify(response)
+        if response["status"] == "True":
+            return jsonify(response)
+        elif (
+            response["status"] == "False"
+            and response["error"] == "No se encontró ningún cambio."
+        ):
+            return jsonify(response), 400
+        else:
+            return jsonify(response), 500
     else:
         return jsonify({"status": "False", "error": "No tienes permisos"}), 403
+
+
+@app.route("/personal-information/<cedula>", methods=["GET"])
+def get_personal_information(cedula):
+    """Get the personal information of the user"""
+    if not ("consult" in session and session["consult"]):
+        return jsonify({"status": "False", "error": "No tienes permisos"}), 403
+    conexion = conexion_mysql()
+    columns = [
+        "estado_civil",
+        "hijos",
+        "personas_a_cargo",
+        "tel_fijo",
+        "celular",
+        "correo",
+        "contacto_emergencia",
+        "parentesco",
+        "tel_contacto",
+    ]
+    response = search(
+        columns,
+        "personal_information",
+        "WHERE cedula = %s",
+        (cedula,),
+        conexion,
+    )
+    if response["status"] == "success":
+        data = {columns[i]: info for i, info in enumerate(response["info"][0])}
+        response = {"status": "success", "data": data}
+        return response
+    return jsonify(response), 500

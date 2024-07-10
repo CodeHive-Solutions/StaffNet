@@ -127,7 +127,6 @@ const TableEmployees = ({
             // ignore the items nombres y apellidos
             delete item.nombres;
             delete item.apellidos;
-            delete item.caso_medico;
 
             return {
                 ...item,
@@ -264,7 +263,7 @@ const TableEmployees = ({
         });
         filteredColumns.push({
             field: "maternity-action",
-            headerName: "Maternidad",
+            headerName: "SST",
             width: 65,
             disableExport: true,
             renderCell: (params) => {
@@ -301,7 +300,7 @@ const TableEmployees = ({
     } else if (rol === "sst-maternity") {
         filteredColumns.push({
             field: "maternity-action",
-            headerName: "Maternidad",
+            headerName: "SST",
             width: 65,
             disableExport: true,
             renderCell: (params) => {

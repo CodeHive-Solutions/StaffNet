@@ -31,8 +31,8 @@ def run_update(tabla, columna, params, where_clause, conexion):
 
     query = f"UPDATE {tabla} SET {set_clause} {where_clause}"
     try:
-        logging.info(f"Query: {query}")
-        logging.info(f"Params: {params}")
+        # logging.info(f"Query: {query}")
+        # logging.info(f"Params: {params}")
         cursor.execute(query, params)
         conexion.commit()
         rows_updated = cursor.rowcount
@@ -46,6 +46,16 @@ def run_update(tabla, columna, params, where_clause, conexion):
 def process_query(rows_updated):
     if isinstance(rows_updated, dict):
         response = rows_updated
+    elif isinstance(rows_updated, int) and rows_updated > 0:
+        response = {
+            "status": "True",
+            "message": "Se actualizó la información correctamente.",
+        }
+    elif isinstance(rows_updated, int) and rows_updated == 0:
+        response = {
+            "status": "False",
+            "error": "No se encontró ningún cambio.",
+        }
     else:
-        response = {"status": "False", "error": "No hubo ningún cambio."}
+        response = {"status": "False", "error": "Error desconocido."}
     return response
