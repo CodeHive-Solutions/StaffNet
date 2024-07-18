@@ -15,10 +15,13 @@ const MaternityDialog = ({
     fechaFinLicencia,
     openMaternityCollapse,
     setOpenMaternityCollapse,
+    permissions,
+    rol,
 }) => {
     const inputCasoMedicoEspecial = useRef(null);
     const inputFechaInicioLicencia = useRef(null);
     const inputFechaFinLicencia = useRef(null);
+    const editPermission = permissions.edit || rol === "sst-maternity";
 
     const handleChangeInput = (event) => {
         if (event.target.value === "LICENCIA MATERNIDAD") {
@@ -63,19 +66,30 @@ const MaternityDialog = ({
             addField(fechaFinLicenciaValue, fechaFinLicenciaValue, "fecha_fin_licencia");
         }
 
-        const response = await fetch(`${getApiUrl()}/update`, {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(jsonData),
-        });
+        try {
+            const response = await fetch(`${getApiUrl()}/update`, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(jsonData),
+            });
 
-        if (response.status === 200) {
-            searchEmployeesUpdate();
-            handleCloseMaternityDialog();
-            setShowSnackAlert("success", "Datos actualizados correctamente");
+            if (response.status === 200) {
+                searchEmployeesUpdate();
+                handleCloseMaternityDialog();
+                setShowSnackAlert("success", "Datos actualizados correctamente");
+            } else if (response.status === 403) {
+                setShowSnackAlert("error", "No tiene permisos para actualizar los datos");
+            } else {
+                // Handle other status codes appropriately
+                console.error(`Error: ${response.statusText}`);
+                setShowSnackAlert("error", "Error al actualizar los datos");
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            setShowSnackAlert("error", "Error al actualizar los datos");
         }
     };
 
@@ -85,6 +99,7 @@ const MaternityDialog = ({
             <Box onSubmit={submitMaternityData} component="form" sx={{ flexDirection: "column", p: "1rem 1.5rem ", display: "flex", alignItems: "start" }}>
                 <TextField
                     select
+                    disabled={!editPermission}
                     onChange={(event) => handleChangeInput(event)}
                     inputRef={inputCasoMedicoEspecial}
                     sx={{ width: "400px", mb: "1rem" }}
@@ -104,6 +119,7 @@ const MaternityDialog = ({
                 <Collapse unmountOnExit sx={{ width: "min-content" }} in={openMaternityCollapse}>
                     <TextField
                         type="date"
+                        disabled={!editPermission}
                         inputRef={inputFechaInicioLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={fechaInicioLicencia}
@@ -114,6 +130,7 @@ const MaternityDialog = ({
                     ></TextField>
                     <TextField
                         type="date"
+                        disabled={!editPermission}
                         inputRef={inputFechaFinLicencia}
                         sx={{ width: "400px", mb: "1rem" }}
                         defaultValue={fechaFinLicencia}
@@ -125,7 +142,9 @@ const MaternityDialog = ({
                 </Collapse>
                 <Box sx={{ display: "flex", gap: "2rem" }}>
                     <Button onClick={handleCloseMaternityDialog}>Cancelar</Button>
-                    <Button type="submit">Guardar</Button>
+                    <Button disabled={!editPermission} type="submit">
+                        Guardar
+                    </Button>
                 </Box>
             </Box>
         </Dialog>
