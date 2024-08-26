@@ -50,6 +50,7 @@ const HomeView = () => {
     const [fechaFinLicencia, setFechaFinLicencia] = useState("");
     const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
     const [openMaternityCollapse, setOpenMaternityCollapse] = useState(false);
+    const [rol, setRole] = useState();
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -432,6 +433,8 @@ const HomeView = () => {
                             handleOpenDialog={handleOpenDialog}
                             handleOpenMaternityDialog={handleOpenMaternityDialog}
                             searchEmployeesUpdate={searchEmployeesUpdate}
+                            rol={rol}
+                            setRole={setRole}
                         />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>
@@ -449,6 +452,7 @@ const HomeView = () => {
                 cedula={cedulaWindows}
             />
             <MaternityDialog
+                permissions={permissions}
                 setOpenPregnantCollapse={setOpenPregnantCollapse}
                 openPregnantCollapse={openPregnantCollapse}
                 searchEmployeesUpdate={searchEmployeesUpdate}
@@ -461,6 +465,7 @@ const HomeView = () => {
                 fechaFinLicencia={fechaFinLicencia}
                 openMaternityCollapse={openMaternityCollapse}
                 setOpenMaternityCollapse={setOpenMaternityCollapse}
+                rol={rol}
             />
         </>
     );

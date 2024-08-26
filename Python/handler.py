@@ -48,9 +48,7 @@ else:
     load_dotenv("/var/env/StaffNet.env")
 
 try:
-    REDIS_CLIENT = redis.Redis(
-        host="172.16.0.128", port=6379, password=os.environ["Redis"]
-    )
+    REDIS_CLIENT = redis.Redis("localhost")
     REDIS_CLIENT.ping()
 except:
     REDIS_CLIENT = None
@@ -515,7 +513,7 @@ def edit_admin():
 @app.route("/search_employees", methods=["POST"])
 def search_employees():
     """Function to get permissions"""
-    if session["consult"] == True:
+    if "consult" in session and session["consult"] == True:
         rol_tables = get_rol_tables(session["rol"])
         if not rol_tables:
             return Response(f"Rol no encontrado {session['rol']}", 404)
@@ -933,7 +931,7 @@ def get_birthday_pictures():
                         "message": "No employees with birthday today, yesterday, or tomorrow"
                     }
                 ),
-                404,
+                200,
             )
 
         for employee in response["data"]:

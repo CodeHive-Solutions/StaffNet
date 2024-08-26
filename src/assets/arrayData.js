@@ -252,7 +252,7 @@ export const arrayData = [
                     { value: "LACTANCIA 12-18 MESES", label: "Lactancia 12-18 Meses" },
                     { value: "CASO MEDICO ESPECIAL", label: "Caso Medico Especial" },
                     { value: "INCAPACIDADES LARGAS", label: "Incapacidades Largas" },
-                ]
+                ],
             },
         ],
     },
@@ -399,6 +399,7 @@ export const arrayData = [
                 type: "select",
                 options: [
                     { value: "COMPENSAR", label: "COMPENSAR" },
+                    { value: "COMFAMILIAR HUILA", label: "COMFAMILIAR HUILA" },
                     { value: "COMFENALCO ANTIOQUIA", label: "COMFENALCO ANTIOQUIA" },
                     { value: "COMFENALCO TOLIMA", label: "COMFENALCO TOLIMA" },
                     { value: "COMFENALCO SANTANDER", label: "COMFENALCO SANTANDER" },
@@ -443,6 +444,7 @@ export const arrayData = [
                 options: [
                     { value: "BOGOTA", label: "Bogota D.C" },
                     { value: "BUCARAMANGA", label: "Bucaramanga" },
+                    { value: "HUILA", label: "Huila" },
                     { value: "IBAGUE", label: "Ibague" },
                     { value: "MEDELLIN", label: "Medellin" },
                     { value: "VILLAVICENCIO", label: "Villavicencio" },
@@ -477,7 +479,7 @@ export const arrayData = [
                     { value: "AUXILIAR BI", label: "Auxiliar BI" },
                     { value: "AUXILIAR ADMINISTRATIVO", label: "Auxiliar Administrativo" },
                     { value: "AUXILIAR CONTABLE", label: "Auxiliar Contable" },
-                    
+
                     { value: "AUXILIAR DE CONTROL DE ACCESOS", label: "Auxiliar de Control de Accesos" },
                     { value: "AUXILIAR DE LICITACION", label: "Auxiliar de Licitacion" },
                     { value: "AUXILIAR DE RECURSOS FISICOS", label: "Auxiliar de Recursos Fisicos" },
@@ -508,7 +510,7 @@ export const arrayData = [
                     {
                         value: "DIRECTOR(A) DE SEGURIDAD Y SALUD EN EL TRABAJO, GESTION AMBIENTAL Y BIENESTAR INTEGRAL",
                         label: "Director(a) de Seguridad y Salud en el Trabajo, Gestion Ambiental y Bienestar Integral",
-                        },
+                    },
                     { value: "DIRECTOR(A) FINANCIERO", label: "Director(a) Financiero" },
                     { value: "DIRECTOR(A) JURIDICO", label: "Director(a) Juridico" },
                     { value: "FORMADOR(A)", label: "Formador(a)" },
@@ -639,6 +641,10 @@ export const arrayData = [
                     {
                         value: "FISCALIA GENERAL DE LA NACION",
                         label: "Fiscalia General de la Nacion",
+                    },
+                    {
+                        value: "FLEXFINTECH",
+                        label: "FlexFintech",
                     },
                     {
                         value: "GERENCIA ADMINISTRATIVA",
@@ -829,6 +835,10 @@ export const arrayData = [
                         label: "Fiscalia General de la Nacion",
                     },
                     {
+                        value: "FLEXFINTECH",
+                        label: "FlexFintech",
+                    },
+                    {
                         value: "GERENCIA ADMINISTRATIVA",
                         label: "Gerencia Administrativa",
                     },
@@ -839,7 +849,8 @@ export const arrayData = [
                     {
                         value: "GERENCIA DE LEGAL",
                         label: "Gerencia de Legal",
-                    },                   {
+                    },
+                    {
                         value: "GERENCIA DE MERCADEO",
                         label: "Gerencia de Mercadeo",
                     },

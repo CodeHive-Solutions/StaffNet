@@ -42,8 +42,9 @@ const TableEmployees = ({
     setTableData,
     handleOpenDialog,
     handleOpenMaternityDialog,
+    rol,
+    setRole,
 }) => {
-    const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
         page: 0,
         pageSize: 12,
