@@ -226,6 +226,7 @@ roles = {
             "fecha_ingreso": "",
             "salario": "",
             "subsidio_transporte": "",
+            "rodamiento": "",
             "cambio_campaña_legado": "",
             "aplica_teletrabajo": "",
             "fecha_aplica_teletrabajo": "",

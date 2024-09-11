@@ -48,7 +48,7 @@ else:
     load_dotenv("/var/env/StaffNet.env")
 
 try:
-    REDIS_CLIENT = redis.Redis("localhost")
+    REDIS_CLIENT = redis.Redis("localhost", db=2)
     REDIS_CLIENT.ping()
 except:
     REDIS_CLIENT = None
@@ -162,6 +162,7 @@ def bd_info():
                     "tipo_contrato": clean_value(body.get("tipo_contrato")),
                     "salario": clean_value(body.get("salario")),
                     "subsidio_transporte": clean_value(body.get("subsidio_transporte")),
+                    "rodamiento": clean_value(body.get("rodamiento")),
                     "aplica_teletrabajo": clean_value(
                         body.get("aplica_teletrabajo", False)
                     ),
@@ -281,7 +282,12 @@ def logs():
     elif request.content_type == "text/csv":
         logging.info({"User": session["username"], "Petición": "download"})
     else:
-        if petition == "logged" or petition == "favicon.ico":
+        # Don't log this requests
+        if (
+            petition == "logged"
+            or petition == "favicon.ico"
+            or petition.startswith("profile-picture")
+        ):
             pass
         elif "username" in session:
             if petition != "login":
@@ -538,7 +544,7 @@ def get_join_info():
     """ "Get the information of the user"""
     conexion = conexion_mysql()
     body = get_request_body()
-    if session["consult"] == True:
+    if "consult" in session and session["consult"] == True:
         table_names = [
             "personal_information",
             "educational_information",
