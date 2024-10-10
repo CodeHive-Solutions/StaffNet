@@ -418,6 +418,19 @@ roles = {
         },
         "leave_information": {"fecha_retiro": "", "estado": ""},
     },
+    "financiero": {
+        "personal_information": {
+            "cedula": "",
+            "nombres": "",
+            "apellidos": "",
+        },
+        "employment_information": {
+            "gerencia": "",
+            "campana_general": "",
+            "fecha_ingreso": "",
+        },
+        "leave_information": {"fecha_retiro": "", "estado": ""},
+    }
 }
 
 
