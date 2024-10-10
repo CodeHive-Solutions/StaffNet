@@ -203,7 +203,7 @@ const TableEmployees = ({
                     return date.toLocaleString("es-ES", options);
                 }
             };
-        } else if (key === "salario" || key === "subsidio_transporte") {
+        } else if (key === "salario" || key === "subsidio_transporte" || key === "rodamiento") {
             column.width = 105;
             column.type = "number";
             column.valueFormatter = (params) => {
