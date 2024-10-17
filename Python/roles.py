@@ -426,6 +426,7 @@ roles = {
         },
         "employment_information": {
             "gerencia": "",
+            "cargo": "",
             "campana_general": "",
             "fecha_ingreso": "",
         },
