@@ -1,6 +1,5 @@
 import logging
 import datetime
-from types import NoneType
 import mysql.connector
 
 logging.basicConfig(
@@ -20,26 +19,43 @@ def update(tabla, columna, params, where_clause, conexion):
 def run_update(tabla, columna, params, where_clause, conexion):
     cursor = conexion.cursor()
     if isinstance(columna, str):
+        # Single column update
         set_clause = f"{columna} = %s"
+        if isinstance(params, list):
+            params = params[0]
     else:
+        # Multiple column update
         set_clause = ", ".join([f"{col} = %s" for col in columna])
+        if not isinstance(params, tuple):
+            params = tuple(params)
+
     query = f"UPDATE {tabla} SET {set_clause} {where_clause}"
     try:
+        # logging.info(f"Query: {query}")
+        # logging.info(f"Params: {params}")
         cursor.execute(query, params)
         conexion.commit()
         rows_updated = cursor.rowcount
     except mysql.connector.Error as error:
-        rows_updated = {"status": "False", "error": error}
-        return rows_updated
-    cursor.close()
+        rows_updated = {"status": "False", "error": str(error)}
+    finally:
+        cursor.close()
     return rows_updated
 
 
 def process_query(rows_updated):
-    if type(rows_updated) == dict:
+    if isinstance(rows_updated, dict):
         response = rows_updated
-    elif rows_updated > 0:
-        response = {"status": "success"}
+    elif isinstance(rows_updated, int) and rows_updated > 0:
+        response = {
+            "status": "True",
+            "message": "Se actualizó la información correctamente.",
+        }
+    elif isinstance(rows_updated, int) and rows_updated == 0:
+        response = {
+            "status": "False",
+            "error": "No se encontró ningún cambio.",
+        }
     else:
-        response = {"status": "False", "error": "No hubo ningun cambio."}
+        response = {"status": "False", "error": "Error desconocido."}
     return response

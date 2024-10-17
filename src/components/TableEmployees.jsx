@@ -21,7 +21,7 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import PregnantWomanIcon from "@mui/icons-material/PregnantWoman";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -41,9 +41,10 @@ const TableEmployees = ({
     tableData,
     setTableData,
     handleOpenDialog,
-    handleOpenMaternityDialog
+    handleOpenMaternityDialog,
+    rol,
+    setRole,
 }) => {
-    const [rol, setRole] = useState();
     const [paginationModel, setPaginationModel] = useState({
         page: 0,
         pageSize: 12,
@@ -66,6 +67,8 @@ const TableEmployees = ({
                     navigate("/");
                     console.error("error:" + data + data.error);
                 } else if ("info" in data) {
+                    // log just the item with the id === 1001185399
+                    const item = data.info.data.find((item) => item.cedula === 1001185389);
                     setRole(data.rol);
                     addFields(data.info.data);
                     setPermissions(data.permissions);
@@ -138,7 +141,7 @@ const TableEmployees = ({
                     : {}),
             };
         });
-
+        // log the whole data from the register with the cedula 1001185389
         setTableData(newData);
     };
 
@@ -165,7 +168,6 @@ const TableEmployees = ({
     // Generate columns based on filtered keys
     const filteredColumns = filteredKeys.map((key) => {
         const inputItem = arrayData.find((item) => item.inputs.some((input) => input.name === key));
-
         const input = inputItem.inputs.find((input) => input.name === key);
 
         let column = {
@@ -201,7 +203,7 @@ const TableEmployees = ({
                     return date.toLocaleString("es-ES", options);
                 }
             };
-        } else if (key === "salario" || key === "subsidio_transporte") {
+        } else if (key === "salario" || key === "subsidio_transporte" || key === "rodamiento") {
             column.width = 105;
             column.type = "number";
             column.valueFormatter = (params) => {
@@ -260,7 +262,26 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "test") {
+        filteredColumns.push({
+            field: "maternity-action",
+            headerName: "SST",
+            width: 65,
+            disableExport: true,
+            renderCell: (params) => {
+                const { row } = params;
+                return (
+                    <Tooltip title="SST">
+                        <IconButton
+                            color="primary"
+                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico, row.fecha_inicio_licencia, row.fecha_fin_licencia)}
+                        >
+                            <HealthAndSafetyIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        });
+    } else if (rol === "soporte") {
         filteredColumns.push({
             field: "windows-user-action",
             headerName: "Usuario Windows",
@@ -277,21 +298,21 @@ const TableEmployees = ({
                 );
             },
         });
-    } else if (rol === "soporte") {
+    } else if (rol === "sst-maternity") {
         filteredColumns.push({
             field: "maternity-action",
-            headerName: "Maternidad",
+            headerName: "SST",
             width: 65,
             disableExport: true,
             renderCell: (params) => {
                 const { row } = params;
                 return (
-                    <Tooltip title="Maternidad">
+                    <Tooltip title="SST">
                         <IconButton
                             color="primary"
-                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico_especial, row.embarazo, row.licencia_maternidad, row.lactancia)}
+                            onClick={() => handleOpenMaternityDialog(row.cedula, row.caso_medico, row.fecha_inicio_licencia, row.fecha_fin_licencia)}
                         >
-                            <PregnantWomanIcon />
+                            <HealthAndSafetyIcon />
                         </IconButton>
                     </Tooltip>
                 );

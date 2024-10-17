@@ -46,9 +46,11 @@ const HomeView = () => {
     const [openMaternityDialog, setOpenMaternityDialog] = useState(false);
     const [windowsUser, setWindowsUser] = useState("");
     const [casoMedicoEspecial, setCasoMedicoEspecial] = useState("");
-    const [embarazo, setEmbarazo] = useState("");
-    const [licenciaMaternidad, setLicenciaMaternidad] = useState("");
-    const [lactancia, setLactancia] = useState("");
+    const [fechaInicioLicencia, setFechaInicioLicencia] = useState("");
+    const [fechaFinLicencia, setFechaFinLicencia] = useState("");
+    const [openPregnantCollapse, setOpenPregnantCollapse] = useState(false);
+    const [openMaternityCollapse, setOpenMaternityCollapse] = useState(false);
+    const [rol, setRole] = useState();
 
     const handleOpenDialog = (usuario_windows, cedula) => {
         setWindowsUser(usuario_windows);
@@ -56,13 +58,35 @@ const HomeView = () => {
         setOpenWindowsUserDialog(true);
     };
 
-    const handleOpenMaternityDialog = (cedula, caso_medico_especial, embarazo, licencia_maternidad, lactancia) => {
+    // format the maternity dates to the yyyy-mm-dd format
+    const formatDate = (date) => {
+        if (date) {
+            const dateObject = new Date(date);
+            const year = dateObject.getUTCFullYear();
+            const month = String(dateObject.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(dateObject.getUTCDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+        return "";
+    };
+
+    const handleOpenMaternityDialog = (cedula, caso_medico, fecha_inicio_licencia, fecha_fin_licencia) => {
         setOpenMaternityDialog(true);
+        if (caso_medico === "EMBARAZO") {
+            setOpenPregnantCollapse(true);
+        } else {
+            setOpenMaternityCollapse(false);
+            setOpenPregnantCollapse(false);
+        }
+        if (caso_medico === "LICENCIA MATERNIDAD") {
+            setOpenMaternityCollapse(true);
+        } else {
+            setOpenMaternityCollapse(false);
+        }
         setCedulaWindows(cedula);
-        setCasoMedicoEspecial(caso_medico_especial);
-        setEmbarazo(embarazo);
-        setLicenciaMaternidad(licencia_maternidad);
-        setLactancia(lactancia);
+        setCasoMedicoEspecial(caso_medico);
+        setFechaInicioLicencia(formatDate(fecha_inicio_licencia));
+        setFechaFinLicencia(formatDate(fecha_fin_licencia));
     };
 
     const handleCloseDialog = () => {
@@ -71,6 +95,7 @@ const HomeView = () => {
 
     const handleCloseMaternityDialog = () => {
         setOpenMaternityDialog(false);
+        setOpenMaternityCollapse(false);
     };
 
     const calculateAge = (birthday) => {
@@ -408,6 +433,8 @@ const HomeView = () => {
                             handleOpenDialog={handleOpenDialog}
                             handleOpenMaternityDialog={handleOpenMaternityDialog}
                             searchEmployeesUpdate={searchEmployeesUpdate}
+                            rol={rol}
+                            setRole={setRole}
                         />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>
@@ -425,16 +452,20 @@ const HomeView = () => {
                 cedula={cedulaWindows}
             />
             <MaternityDialog
+                permissions={permissions}
+                setOpenPregnantCollapse={setOpenPregnantCollapse}
+                openPregnantCollapse={openPregnantCollapse}
                 searchEmployeesUpdate={searchEmployeesUpdate}
                 setShowSnackAlert={setShowSnackAlert}
                 openMaternityDialog={openMaternityDialog}
                 handleCloseMaternityDialog={handleCloseMaternityDialog}
                 cedula={cedulaWindows}
                 casoMedicoEspecial={casoMedicoEspecial}
-                embarazo={embarazo}
-                licenciaMaternidad={licenciaMaternidad}
-                lactancia={lactancia}
-
+                fechaInicioLicencia={fechaInicioLicencia}
+                fechaFinLicencia={fechaFinLicencia}
+                openMaternityCollapse={openMaternityCollapse}
+                setOpenMaternityCollapse={setOpenMaternityCollapse}
+                rol={rol}
             />
         </>
     );

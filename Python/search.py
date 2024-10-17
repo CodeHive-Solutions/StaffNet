@@ -13,7 +13,7 @@ logging.basicConfig(
 def search(
     campos, tabla, condicion, params, conexion, active_directory=None, user_ad=None
 ):
-    """The params is for the condicion argument that have to be an %s"""
+    """The params is for the condition argument that have to be an %s"""
     results = run_query(campos, tabla, condicion, conexion, params)
     response = process_query(results, active_directory, user_ad)
     conexion.close()
@@ -28,11 +28,11 @@ def run_query(campos, tabla, condicion, conexion, params):
         cursor.execute(query)
     elif params == None:
         query = "SELECT {} FROM {} {}".format(campos_str, tabla, condicion)
-        logging.info(f"Ejecutando: {query}")
+        # logging.info(f"Ejecutando: {query}")
         cursor.execute(query)
     else:
         query = "SELECT {} FROM {} {}".format(campos_str, tabla, condicion)
-        logging.info(f"Ejecutando: {query % params}")
+        # logging.info(f"Ejecutando: {query % params}")
         cursor.execute(query, params)
     resultado = cursor.fetchall()
     return resultado

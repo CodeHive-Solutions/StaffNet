@@ -12,8 +12,8 @@ const WindowsUserDialog = ({ searchEmployeesUpdate, setShowSnackAlert, openWindo
 
         const jsonData = {
             cedula: cedula,
-            value: usuario,
-            column: "usuario_windows",
+            value: [usuario],
+            column: ["usuario_windows"],
             table: "employment_information",
         };
 
