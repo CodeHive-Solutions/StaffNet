@@ -427,10 +427,13 @@ roles = {
         "employment_information": {
             "gerencia": "",
             "cargo": "",
+            "salario": "",
+            "subsidio_transporte": "",
+            "rodamiento": "",
             "campana_general": "",
             "fecha_ingreso": "",
         },
-        "leave_information": {"fecha_retiro": "", "estado": ""},
+        "leave_information": {"fecha_retiro": "", "tipo_retiro": "", "estado": ""},
     }
 }
 

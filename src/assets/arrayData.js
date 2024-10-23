@@ -198,6 +198,7 @@ export const arrayData = [
 					{ value: "SANTA MARTA", label: "Santa Marta" },
 					{ value: "SAN CRISTOBAL", label: "San Cristobal" },
 					{ value: "SANTA FE", label: "Santa Fe" },
+					{ value: "SIBATE", label: "Sibate" },
 					{ value: "SOPO", label: "Sopo" },
 					{ value: "SOACHA", label: "Soacha" },
 					{ value: "SUBA", label: "Suba" },
